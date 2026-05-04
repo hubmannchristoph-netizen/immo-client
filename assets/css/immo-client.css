@@ -1,0 +1,1279 @@
+/* =========================================================================
+   ImmoClient – globale Styles
+   Farbsteuerung über CSS-Variablen, die pro Shortcode-Container
+   überschrieben werden (siehe ImmoStyles::inline_css).
+   ========================================================================= */
+
+:root {
+    --immo-primary: #1e88e5;
+    --immo-secondary: #43a047;
+    --immo-accent: #ff9800;
+}
+
+.immo-block { /* Wrapper pro Shortcode */
+    box-sizing: border-box;
+}
+
+.immo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.immo-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.immo-header {
+    background: #f4f4f4;
+    padding: 40px 0;
+    margin-bottom: 40px;
+}
+
+.immo-status {
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.immo-status-available { background: #d4edda; color: var(--immo-secondary); }
+.immo-status-reserved  { background: #fff3cd; color: var(--immo-accent); }
+.immo-status-sold      { background: #f8d7da; color: #721c24; }
+.immo-status-rented    { background: #d1ecf1; color: #0c5460; }
+
+.immo-key-facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    background: #f3f4f6;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.fact .label {
+    display: block;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.fact .value {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.immo-gallery img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.immo-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Buttons */
+.immo-block .button,
+.immo-block button.button {
+    background-color: var(--immo-primary);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.immo-block .button:hover {
+    filter: brightness(0.92);
+}
+
+/* =========================================================================
+   Anfrage-Formular
+   ========================================================================= */
+
+.immo-inquiry-form {
+    display: grid;
+    gap: 14px;
+    max-width: 600px;
+}
+
+.immo-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.immo-form-row label {
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.immo-form-row input[type="text"],
+.immo-form-row input[type="email"],
+.immo-form-row input[type="tel"],
+.immo-form-row textarea {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.immo-form-row input:focus,
+.immo-form-row textarea:focus {
+    outline: 2px solid var(--immo-primary);
+    outline-offset: 1px;
+    border-color: var(--immo-primary);
+}
+
+.immo-form-consent label {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-weight: normal;
+    font-size: 0.92em;
+}
+
+.immo-inquiry-submit {
+    background-color: var(--immo-primary);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.immo-inquiry-submit[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.immo-inquiry-message {
+    min-height: 1.2em;
+    font-size: 0.95em;
+}
+
+.immo-inquiry-message.is-success { color: var(--immo-secondary); }
+.immo-inquiry-message.is-error   { color: #b91c1c; }
+
+/* =========================================================================
+   Loading state
+   ========================================================================= */
+.immo-loading { pointer-events: none; }
+
+/* =========================================================================
+   Detailseite – Layout
+   ========================================================================= */
+
+.immo-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.immo-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 32px;
+    margin-top: 24px;
+    align-items: start;
+}
+
+/* Layout-Varianten */
+.immo-detail.immo-layout-left_sidebar .immo-detail-grid {
+    grid-template-columns: 360px minmax(0, 1fr);
+}
+
+.immo-detail.immo-layout-left_sidebar .immo-main    { order: 2; }
+.immo-detail.immo-layout-left_sidebar .immo-sidebar { order: 1; }
+
+.immo-detail.immo-layout-full_width .immo-detail-grid {
+    grid-template-columns: 1fr;
+}
+
+.immo-detail.immo-layout-full_width .immo-sidebar {
+    position: static;
+    margin-top: 24px;
+}
+
+.immo-detail.immo-layout-no_sidebar .immo-detail-grid {
+    grid-template-columns: 1fr;
+}
+
+.immo-main { min-width: 0; }
+
+.immo-sidebar {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+}
+
+.immo-sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (max-width: 960px) {
+    .immo-detail-grid {
+        grid-template-columns: 1fr;
+    }
+    .immo-sidebar { position: static; }
+}
+
+/* =========================================================================
+   Detailseite – Galerie
+   ========================================================================= */
+
+.immo-gallery {
+    margin-bottom: 8px;
+}
+
+.immo-gallery-stage {
+    position: relative;
+    background: #111;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+}
+
+.immo-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .3s ease;
+    cursor: zoom-in;
+}
+
+.immo-slide.is-active {
+    opacity: 1;
+    z-index: 1;
+}
+
+.immo-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.immo-nav-prev,
+.immo-nav-next,
+.immo-expand {
+    position: absolute;
+    z-index: 2;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    border: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.immo-nav-prev { top: 50%; left: 12px; transform: translateY(-50%); }
+.immo-nav-next { top: 50%; right: 12px; transform: translateY(-50%); }
+.immo-expand   { right: 12px; bottom: 12px; width: 36px; height: 36px; font-size: 16px; }
+
+.immo-nav-prev:hover,
+.immo-nav-next:hover,
+.immo-expand:hover { background: rgba(0,0,0,0.8); }
+
+.immo-slide-counter {
+    position: absolute;
+    z-index: 2;
+    left: 12px;
+    bottom: 12px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+.immo-thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.immo-thumb {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    aspect-ratio: 4 / 3;
+}
+
+.immo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.immo-thumb.is-active {
+    border-color: var(--immo-primary);
+}
+
+/* =========================================================================
+   Lightbox
+   ========================================================================= */
+
+.immo-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.immo-lightbox.is-open { display: flex; }
+
+.immo-lb-figure {
+    margin: 0;
+    max-width: 92vw;
+    max-height: 86vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.immo-lb-img {
+    max-width: 92vw;
+    max-height: 86vh;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.immo-lb-close,
+.immo-lb-prev,
+.immo-lb-next {
+    position: absolute;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 0;
+    cursor: pointer;
+    font-size: 28px;
+    line-height: 1;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.immo-lb-close { top: 20px; right: 20px; font-size: 32px; }
+.immo-lb-prev  { top: 50%; left: 20px;  transform: translateY(-50%); }
+.immo-lb-next  { top: 50%; right: 20px; transform: translateY(-50%); }
+
+.immo-lb-close:hover,
+.immo-lb-prev:hover,
+.immo-lb-next:hover { background: rgba(255,255,255,0.2); }
+
+.immo-lb-counter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+}
+
+/* =========================================================================
+   Detailseite – Title + Keyfacts
+   ========================================================================= */
+
+.immo-title-block {
+    margin: 24px 0 16px;
+}
+
+.immo-title-block h1 {
+    margin: 8px 0 4px;
+    font-size: 2em;
+    line-height: 1.15;
+}
+
+.immo-location {
+    color: #6b7280;
+    margin: 0;
+    font-size: 1em;
+}
+
+.immo-keyfacts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 0 0 24px;
+}
+
+.immo-keyfacts .kf {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.immo-keyfacts .kf-label {
+    font-size: 0.78em;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.immo-keyfacts .kf-value {
+    font-size: 1.15em;
+    font-weight: 700;
+}
+
+/* =========================================================================
+   Detailseite – Sections
+   ========================================================================= */
+
+.immo-section {
+    margin: 24px 0;
+}
+
+.immo-section h2 {
+    font-size: 1.4em;
+    margin: 0 0 14px;
+}
+
+.immo-description {
+    line-height: 1.65;
+}
+
+/* =========================================================================
+   Akkordeon (details/summary)
+   ========================================================================= */
+
+.immo-accordion {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.immo-accordion > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.immo-accordion > summary::-webkit-details-marker { display: none; }
+
+.immo-accordion > summary::after {
+    content: "▾";
+    transition: transform .2s ease;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.immo-accordion[open] > summary::after { transform: rotate(180deg); }
+
+.immo-accordion[open] > summary { border-bottom: 1px solid #e5e7eb; }
+
+.immo-accordion-title { flex: 1; }
+
+.immo-accordion-count {
+    background: #eef2ff;
+    color: var(--immo-primary);
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.85em;
+}
+
+/* =========================================================================
+   Daten-Tabellen + Feature-Listen
+   ========================================================================= */
+
+.immo-data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.immo-data-table tr + tr th,
+.immo-data-table tr + tr td {
+    border-top: 1px solid #f3f4f6;
+}
+
+.immo-data-table th,
+.immo-data-table td {
+    padding: 10px 18px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.immo-data-table th {
+    color: #6b7280;
+    font-weight: 500;
+    width: 40%;
+}
+
+.immo-feature-list {
+    list-style: none;
+    margin: 0;
+    padding: 14px 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.immo-feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+}
+
+.immo-feature-icon {
+    display: inline-flex;
+    width: 24px;
+    justify-content: center;
+}
+
+.immo-highlights-text {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 18px;
+    line-height: 1.6;
+}
+
+.immo-doc-list {
+    list-style: disc;
+    padding-left: 20px;
+}
+
+.immo-doc-list a { color: var(--immo-primary); }
+
+.immo-project-card-link {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .2s ease;
+}
+
+.immo-project-card-link:hover { border-color: var(--immo-primary); }
+
+.immo-project-card-link img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.immo-project-card-link div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* =========================================================================
+   Sidebar
+   ========================================================================= */
+
+.immo-price-box {
+    background: linear-gradient(135deg, var(--immo-primary), var(--immo-secondary));
+    color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* Sidebar-Keyfacts: kompakte Zwei-Spalten-Liste mit Preis/qm/Zimmer/Bad/Baujahr/Energieklasse */
+.immo-sidebar-keyfacts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.immo-sidebar-keyfacts .kf {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.immo-sidebar-keyfacts .kf-label {
+    font-size: 0.74em;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.immo-sidebar-keyfacts .kf-value {
+    font-size: 1.05em;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.immo-price-label {
+    font-size: 0.82em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.85;
+}
+
+.immo-price-value {
+    font-size: 1.6em;
+    font-weight: 800;
+}
+
+.immo-price-extra {
+    font-size: 0.92em;
+    opacity: 0.85;
+}
+
+.immo-contact-card {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.immo-contact-photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.immo-contact-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.95em;
+    min-width: 0;
+}
+
+.immo-contact-meta strong { font-size: 1em; }
+
+.immo-contact-link {
+    color: var(--immo-primary);
+    text-decoration: none;
+    word-break: break-word;
+}
+
+.immo-contact-link:hover { text-decoration: underline; }
+
+.immo-inquiry-wrapper {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    background: #fff;
+}
+
+.immo-inquiry-wrapper h3 {
+    margin: 0 0 14px;
+    font-size: 1.1em;
+}
+
+.immo-inquiry-wrapper .immo-inquiry-form { max-width: none; }
+
+.immo-detail-notfound {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+/* ============================================================
+ * Bauprojekt-Detailseite: Wohneinheiten-Liste
+ * ============================================================ */
+.immo-units-count {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 10px;
+    background: var(--immo-primary, #1e88e5);
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.7em;
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+.immo-units-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 18px;
+}
+
+.immo-units-stat {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    font-size: 0.9em !important;
+    border: 1px solid #e5e7eb !important;
+    font-family: inherit !important;
+    line-height: 1.2 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    margin: 0 !important;
+}
+
+button.immo-units-stat {
+    cursor: pointer !important;
+    transition: transform .1s ease, box-shadow .15s ease, opacity .15s ease !important;
+}
+
+button.immo-units-stat:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08) !important;
+}
+
+button.immo-units-stat.is-active {
+    box-shadow: 0 0 0 2px currentColor inset !important;
+}
+
+button.immo-units-stat.is-active::before {
+    content: "✓";
+    margin-right: 2px;
+    font-weight: 700;
+}
+
+.immo-units-stat strong {
+    font-weight: 700 !important;
+    color: #111827 !important;
+}
+
+.immo-units-stat-available { background: #ecfdf5 !important; border-color: #a7f3d0 !important; color: #065f46 !important; }
+.immo-units-stat-available strong { color: #047857 !important; }
+.immo-units-stat-reserved  { background: #fffbeb !important; border-color: #fde68a !important; color: #92400e !important; }
+.immo-units-stat-reserved  strong { color: #b45309 !important; }
+.immo-units-stat-sold      { background: #fef2f2 !important; border-color: #fecaca !important; color: #991b1b !important; }
+.immo-units-stat-sold      strong { color: #b91c1c !important; }
+.immo-units-stat-rented    { background: #eff6ff !important; border-color: #bfdbfe !important; color: #1e40af !important; }
+.immo-units-stat-rented    strong { color: #1d4ed8 !important; }
+
+/* Bauprojekt-Sidebar: Stats-Box (3 Spalten) + Standort */
+.immo-project-stats {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.immo-project-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Stat-Pillen sind klickbare Filter-Buttons */
+.immo-detail .immo-project-stat {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 16px 10px !important;
+    margin: 0 !important;
+    text-align: center !important;
+    border: 0 !important;
+    border-right: 1px solid #f3f4f6 !important;
+    background: #fff !important;
+    color: inherit !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+    font-size: 1em !important;
+    line-height: 1.2 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    transition: background .15s ease, box-shadow .15s ease !important;
+    position: relative !important;
+}
+
+.immo-detail .immo-project-stat:last-child { border-right: 0 !important; }
+
+.immo-detail .immo-project-stat:hover {
+    background: #f9fafb !important;
+}
+
+.immo-detail .immo-project-stat:focus-visible {
+    outline: 2px solid var(--immo-primary, #1e88e5) !important;
+    outline-offset: -2px !important;
+}
+
+/* Aktiv-Zustand: pillenfarbe-passend und mit Häkchen oben rechts */
+.immo-detail .immo-project-stat.is-active {
+    box-shadow: inset 0 -3px 0 0 currentColor !important;
+}
+
+.immo-detail .immo-project-stat-available.is-active { background: #ecfdf5 !important; color: #047857 !important; }
+.immo-detail .immo-project-stat-reserved.is-active  { background: #fffbeb !important; color: #b45309 !important; }
+.immo-detail .immo-project-stat-sold.is-active      { background: #fef2f2 !important; color: #b91c1c !important; }
+
+.immo-detail .immo-project-stat.is-active::after {
+    content: "✓";
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Hinweis bei leerer Filter-Auswahl */
+.immo-unit-filter-empty {
+    margin: 12px 0 0;
+    padding: 14px 16px;
+    background: #f9fafb;
+    border: 1px dashed #e5e7eb;
+    border-radius: 10px;
+    color: #6b7280;
+    font-size: .92em;
+    text-align: center;
+}
+
+.immo-project-stat-value {
+    font-size: 1.6em;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.immo-project-stat-label {
+    font-size: 0.78em;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.immo-project-stat-available .immo-project-stat-value { color: #047857; }
+.immo-project-stat-reserved  .immo-project-stat-value { color: #b45309; }
+.immo-project-stat-sold      .immo-project-stat-value { color: #b91c1c; }
+
+.immo-project-standort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #f3f4f6;
+    background: #f9fafb;
+    font-size: .95em;
+    color: #374151;
+}
+
+.immo-project-standort-icon { font-size: 1em; }
+.immo-project-standort-text { font-weight: 600; }
+
+/* Bauprojekt-Lage als Textzeile (statt Tabelle) */
+.immo-project-lage-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 14px 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: .98em;
+    color: #374151;
+}
+
+.immo-project-lage-icon { font-size: 1.1em; }
+
+/* Tabellarische Wohneinheiten-Liste */
+.immo-unit-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.immo-unit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .95em;
+}
+
+.immo-unit-table thead th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    font-size: .85em;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    white-space: nowrap;
+}
+
+.immo-unit-table tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.immo-unit-table tbody tr:last-child td { border-bottom: 0; }
+
+.immo-unit-table tbody tr.immo-unit-row {
+    cursor: pointer;
+    transition: background .15s ease;
+}
+
+.immo-unit-table tbody tr.immo-unit-row:hover,
+.immo-unit-table tbody tr.immo-unit-row:focus-visible {
+    background: #f3f4f6;
+    outline: none;
+}
+
+.immo-unit-table .col-nr     { width: 60px; font-weight: 600; }
+.immo-unit-table .col-title  { white-space: normal; }
+.immo-unit-table .col-status { width: 110px; }
+.immo-unit-table .col-area,
+.immo-unit-table .col-rooms,
+.immo-unit-table .col-floor  { width: 100px; }
+.immo-unit-table .col-price  { font-weight: 700; color: var(--immo-primary, #1e88e5); }
+.immo-unit-table .col-info   { width: 50px; text-align: right; }
+
+/* Info-Icon: theme-resistente Darstellung als kreisförmiger SVG-Button.
+   Mit !important auf den kritischen Properties, damit Theme-CSS
+   (Astra, Elementor, GeneratePress etc.) das Erscheinungsbild nicht
+   verfälscht. */
+.immo-detail .immo-unit-table .immo-unit-info-btn {
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    border: 1px solid #d1d5db !important;
+    background: #fff !important;
+    color: var(--immo-primary, #1e88e5) !important;
+    cursor: pointer !important;
+    font-size: 0 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: background .15s ease, border-color .15s ease, color .15s ease, transform .1s ease !important;
+    vertical-align: middle !important;
+}
+
+.immo-detail .immo-unit-table .immo-unit-row:hover .immo-unit-info-btn,
+.immo-detail .immo-unit-table .immo-unit-info-btn:hover {
+    background: var(--immo-primary, #1e88e5) !important;
+    border-color: var(--immo-primary, #1e88e5) !important;
+    color: #fff !important;
+    transform: scale(1.05) !important;
+}
+
+.immo-detail .immo-unit-table .immo-unit-info-svg {
+    width: 18px !important;
+    height: 18px !important;
+    display: block !important;
+    fill: none !important;
+    stroke: currentColor !important;
+    pointer-events: none !important;
+}
+
+@media (max-width: 640px) {
+    .immo-unit-table .col-floor,
+    .immo-unit-table .col-rooms { display: none; }
+    .immo-unit-table thead th,
+    .immo-unit-table tbody td { padding: 8px; font-size: .85em; }
+}
+
+/* Lightbox */
+.immo-unit-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.immo-unit-lightbox.is-open { display: flex; }
+
+.immo-unit-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, .65);
+    backdrop-filter: blur(2px);
+}
+
+.immo-unit-lightbox-dialog {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    border-radius: 16px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 90vh;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    animation: immoLightboxIn .18s ease-out;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+
+/* Content scrollt, Actions-Footer bleibt sichtbar */
+.immo-unit-lightbox-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+@keyframes immoLightboxIn {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+.immo-unit-lightbox-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 0;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 1.4em;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.immo-unit-lightbox-close:hover { background: #e5e7eb; }
+
+/* Lightbox-Inhalt: Quick-Info */
+.immo-unit-quick-hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #f3f4f6;
+}
+
+.immo-unit-quick-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.immo-unit-quick-hero .immo-status {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    font-size: .8em;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(4px);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+.immo-unit-quick-body {
+    padding: 24px 26px 20px;
+}
+
+.immo-unit-quick-title {
+    margin: 0 0 6px;
+    font-size: 1.35em;
+    line-height: 1.25;
+    color: #111827;
+}
+
+.immo-unit-quick-address {
+    margin: 0 0 14px;
+    color: #6b7280;
+    font-size: .95em;
+}
+
+.immo-unit-quick-intro {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    background: #f9fafb;
+    border-left: 3px solid var(--immo-primary, #1e88e5);
+    border-radius: 0 8px 8px 0;
+    color: #374151;
+    font-size: .94em;
+    line-height: 1.55;
+    font-style: italic;
+}
+
+.immo-unit-quick-facts {
+    list-style: none;
+    margin: 0 0 18px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 18px;
+    font-size: .95em;
+    color: #4b5563;
+    border-top: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6;
+    padding: 14px 0;
+}
+
+.immo-unit-quick-facts li {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.immo-unit-quick-facts .ico { font-size: 1.05em; }
+.immo-unit-quick-facts .lab { color: #6b7280; font-size: .9em; }
+.immo-unit-quick-facts strong {
+    color: #111827;
+    font-weight: 700;
+    text-align: right;
+}
+
+.immo-unit-quick-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 16px 0 0;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, var(--immo-primary, #1e88e5) 0%, var(--immo-secondary, #43a047) 100%);
+    border-radius: 10px;
+    color: #fff;
+}
+
+.immo-unit-quick-price-label {
+    font-size: .85em;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    opacity: .9;
+}
+
+.immo-unit-quick-price-value {
+    font-size: 1.3em;
+    font-weight: 800;
+}
+
+.immo-unit-quick-excerpt {
+    margin: 16px 0 0;
+    color: #4b5563;
+    font-size: .92em;
+    line-height: 1.55;
+}
+
+.immo-unit-quick-actions {
+    display: flex !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    padding: 16px 26px 22px !important;
+    background: #f9fafb !important;
+    border-top: 1px solid #e5e7eb !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* Theme-resistenter Details-Button im Lightbox-Footer */
+.immo-unit-lightbox .immo-unit-details-btn {
+    box-sizing: border-box !important;
+    flex: 1 1 auto !important;
+    min-width: 160px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 11px 18px !important;
+    background: var(--immo-primary, #1e88e5) !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    font-size: .95em !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: opacity .15s ease, transform .1s ease !important;
+}
+
+.immo-unit-lightbox .immo-unit-details-btn:hover {
+    opacity: .92 !important;
+    text-decoration: none !important;
+    color: #fff !important;
+    transform: translateY(-1px) !important;
+}
+
+
+@media (max-width: 540px) {
+    .immo-unit-quick-body { padding: 18px 18px 14px; }
+    .immo-unit-quick-actions { padding: 14px 18px 18px; }
+    .immo-unit-quick-facts { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .immo-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
