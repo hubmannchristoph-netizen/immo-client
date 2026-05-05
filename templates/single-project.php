@@ -133,6 +133,9 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 
 <article id="immo-project-<?php echo esc_attr( $project['id'] ); ?>" class="immo-detail immo-project-detail immo-project-singlecol"<?php echo $style_attr; ?>>
 
+	<!-- ========== HERO + HEADER NEBENEINANDER (Desktop: Hero 2fr, Header 1fr) ========== -->
+	<div class="immo-project-headblock">
+
 	<!-- ========== HERO-GALERIE ========== -->
 	<?php if ( ! empty( $slides ) ) : ?>
 	<section class="immo-project-hero">
@@ -184,6 +187,8 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 			<?php endif; ?>
 		</div>
 	</header>
+
+	</div><!-- /.immo-project-headblock -->
 
 	<!-- ========== STATS-GRID ========== -->
 	<section class="immo-project-stats-grid">

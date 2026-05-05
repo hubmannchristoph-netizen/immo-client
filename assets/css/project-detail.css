@@ -46,19 +46,44 @@
 .immo-project-singlecol > header:first-child { margin-top: 0; }
 
 /* ============================================================
-   2. HERO-GALERIE
+   2. HERO + HEADER NEBENEINANDER (Headblock)
    ============================================================ */
-.immo-project-singlecol .immo-project-hero {
-	margin-top: 0;
+.immo-project-singlecol .immo-project-headblock {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.2rem;
 	margin-bottom: 1.5rem;
+}
+@media (min-width: 900px) {
+	/* Hero links (~2/3), Header rechts (~1/3) */
+	.immo-project-singlecol .immo-project-headblock {
+		grid-template-columns: 2fr 1fr;
+		gap: 1.5rem;
+		align-items: stretch;
+	}
+}
+.immo-project-singlecol .immo-project-hero {
+	margin: 0;
+	min-width: 0;
 }
 .immo-project-singlecol .immo-gallery-stage {
 	position: relative;
 	border-radius: var(--ip-radius);
 	overflow: hidden;
-	aspect-ratio: 16 / 9;
+	aspect-ratio: 4 / 3;
 	background: #1a1a1a;
 	box-shadow: var(--ip-shadow);
+	height: 100%;
+}
+@media (min-width: 900px) {
+	/* Wenn Hero und Header Side-by-Side stehen, soll der Hero die volle
+	   Höhe der Spalte einnehmen (Header gibt die Höhe vor). */
+	.immo-project-singlecol .immo-project-hero { display: flex; flex-direction: column; }
+	.immo-project-singlecol .immo-project-hero .immo-gallery-stage {
+		flex: 1;
+		aspect-ratio: auto;
+		min-height: 320px;
+	}
 }
 .immo-project-singlecol .immo-slide {
 	position: absolute;
@@ -146,30 +171,49 @@
 .immo-project-singlecol .immo-thumb:hover { border-color: var(--ip-primary); }
 
 /* ============================================================
-   3. HEADER (Titel + Lage + CTA-Row)
+   3. HEADER (Titel + Lage + CTA-Row) — neben Hero auf Desktop
    ============================================================ */
 .immo-project-singlecol .immo-project-header {
 	text-align: left;
-	padding: 1.5rem 0 0.5rem;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6em;
+}
+@media (min-width: 900px) {
+	/* Als Card-Block neben dem Hero — eigener Hintergrund, Padding,
+	   Buttons werden ans Ende geschoben (Sales-Look). */
+	.immo-project-singlecol .immo-project-header {
+		padding: 1.5rem 1.5rem;
+		background: var(--ip-bg);
+		border: 1px solid var(--ip-border);
+		border-radius: var(--ip-radius);
+		box-shadow: var(--ip-shadow);
+		justify-content: space-between;
+	}
 }
 .immo-project-singlecol .immo-project-title {
-	margin: 0 0 0.4em;
-	font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+	margin: 0;
+	font-size: clamp(1.5rem, 2.6vw, 2rem);
 	font-weight: 800;
-	line-height: 1.15;
+	line-height: 1.18;
 	color: var(--ip-text);
 	letter-spacing: -0.01em;
 }
 .immo-project-singlecol .immo-project-location {
-	margin: 0 0 1.2em;
-	font-size: 1.05rem;
+	margin: 0;
+	font-size: 1rem;
 	color: var(--ip-text-muted);
 }
 .immo-project-singlecol .immo-project-cta-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.6em;
-	margin-top: 1em;
+	margin-top: 0.4em;
+}
+@media (min-width: 900px) {
+	/* Buttons full-width im rechten Card-Block */
+	.immo-project-singlecol .immo-project-header .immo-btn { flex: 1 1 100%; justify-content: center; }
 }
 
 /* Buttons sind gekapselt, nutzen aber das normale .immo-btn-Schema */

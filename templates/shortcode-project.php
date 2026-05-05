@@ -105,6 +105,9 @@ $immo_link_units = ( (string) get_option( 'immo_project_link_units', '1' ) ) !==
 
 <article class="immo-detail immo-project-detail immo-project-singlecol immo-project-shortcode">
 
+	<!-- ========== HERO + HEADER NEBENEINANDER ========== -->
+	<div class="immo-project-headblock">
+
 	<!-- ========== HERO-GALERIE ========== -->
 	<?php if ( ! empty( $slides ) ) : ?>
 	<section class="immo-project-hero">
@@ -152,6 +155,8 @@ $immo_link_units = ( (string) get_option( 'immo_project_link_units', '1' ) ) !==
 			<?php endif; ?>
 		</div>
 	</header>
+
+	</div><!-- /.immo-project-headblock -->
 
 	<!-- ========== STATS-GRID ========== -->
 	<section class="immo-project-stats-grid">
