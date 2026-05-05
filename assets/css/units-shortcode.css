@@ -60,11 +60,18 @@
 .immo-units-layout-table .col-price { font-weight: 600; }
 .immo-units-layout-table .immo-units-detail-link {
 	display: inline-block;
-	padding: 0.3em 0.6em;
-	color: var(--immo-primary, #1e88e5);
+	padding: 0.4em 0.8em;
+	background: var(--immo-primary, #1e88e5);
+	color: #fff;
 	text-decoration: none;
-	font-weight: 700;
+	font-weight: 600;
+	font-size: 0.85rem;
+	border-radius: 6px;
+	white-space: nowrap;
+	transition: filter 0.15s ease;
 }
+.immo-units-layout-table .immo-units-detail-link:hover { filter: brightness(1.1); color: #fff; }
+.immo-units-layout-table .immo-units-detail-link:focus { outline: 2px solid var(--immo-accent, #ff9800); outline-offset: 2px; }
 .immo-units-layout-table .immo-status {
 	display: inline-block;
 	padding: 0.2em 0.55em;
@@ -91,7 +98,7 @@
 	transition: box-shadow 0.2s, transform 0.2s;
 }
 .immo-units-card:hover { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
-.immo-units-card-link { text-decoration: none; color: inherit; display: block; }
+.immo-units-card-imagelink { display: block; line-height: 0; }
 .immo-units-card-image {
 	aspect-ratio: 4 / 3;
 	background: #f3f4f6;
@@ -113,11 +120,40 @@
 .immo-units-card-image .immo-status-reserved { background: #fef3c7; color: #92400e; }
 .immo-units-card-image .immo-status-sold     { background: #fee2e2; color: #991b1b; }
 .immo-units-card-image .immo-status-rented   { background: #fee2e2; color: #991b1b; }
-.immo-units-card-body { padding: 0.9em 1em 1em; }
-.immo-units-card-title { margin: 0 0 0.3em; font-size: 1.05rem; font-weight: 700; line-height: 1.3; }
-.immo-units-card-price { margin: 0 0 0.5em; font-size: 1.1rem; color: var(--immo-primary, #1e88e5); }
+.immo-units-card-body { padding: 0.9em 1em 1em; display: flex; flex-direction: column; gap: 0.5em; }
+.immo-units-card-eyebrow {
+	display: inline-block;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--immo-primary, #1e88e5);
+	background: rgba(30, 136, 229, 0.08);
+	padding: 0.25em 0.6em;
+	border-radius: 4px;
+	width: fit-content;
+}
+.immo-units-card-title { margin: 0; font-size: 1.05rem; font-weight: 700; line-height: 1.3; }
+.immo-units-card-title a { color: inherit; text-decoration: none; }
+.immo-units-card-title a:hover { color: var(--immo-primary, #1e88e5); }
+.immo-units-card-price { margin: 0; font-size: 1.1rem; color: var(--immo-primary, #1e88e5); }
 .immo-units-card-facts { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.6em; font-size: 0.85rem; color: #4b5563; }
 .immo-units-card-facts li { display: inline-flex; align-items: center; gap: 0.2em; }
+.immo-units-card-btn {
+	margin-top: auto;
+	display: inline-block;
+	padding: 0.55em 1em;
+	background: var(--immo-primary, #1e88e5);
+	color: #fff;
+	text-decoration: none;
+	border-radius: 6px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	text-align: center;
+	transition: background 0.15s ease, transform 0.15s ease;
+}
+.immo-units-card-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.immo-units-card-btn:focus { outline: 2px solid var(--immo-accent, #ff9800); outline-offset: 2px; }
 
 /* === LAYOUT: LIST === */
 .immo-units-flatlist {
@@ -146,7 +182,19 @@
 }
 .immo-units-listitem-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .immo-units-listitem-body { min-width: 0; }
-.immo-units-listitem-header { display: flex; align-items: center; gap: 0.7em; margin-bottom: 0.3em; flex-wrap: wrap; }
+.immo-units-listitem-header { display: flex; align-items: center; gap: 0.6em; margin-bottom: 0.3em; flex-wrap: wrap; }
+.immo-units-listitem-nr {
+	display: inline-block;
+	padding: 0.2em 0.55em;
+	background: var(--immo-primary, #1e88e5);
+	color: #fff;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
 .immo-units-listitem-title { margin: 0; font-size: 1rem; font-weight: 700; }
 .immo-units-listitem-title a { color: inherit; text-decoration: none; }
 .immo-units-listitem-title a:hover { color: var(--immo-primary, #1e88e5); }
@@ -155,12 +203,19 @@
 .immo-units-listitem-price { text-align: right; display: flex; flex-direction: column; gap: 0.3em; }
 .immo-units-listitem-price strong { font-size: 1.05rem; color: var(--immo-primary, #1e88e5); }
 .immo-units-listitem-link {
+	display: inline-block;
+	padding: 0.4em 0.8em;
+	background: var(--immo-primary, #1e88e5);
+	color: #fff;
 	font-size: 0.85rem;
-	color: var(--immo-primary, #1e88e5);
-	text-decoration: none;
 	font-weight: 600;
+	text-decoration: none;
+	border-radius: 6px;
+	transition: filter 0.15s ease, transform 0.15s ease;
+	white-space: nowrap;
 }
-.immo-units-listitem-link:hover { text-decoration: underline; }
+.immo-units-listitem-link:hover { filter: brightness(1.1); transform: translateY(-1px); color: #fff; }
+.immo-units-listitem-link:focus { outline: 2px solid var(--immo-accent, #ff9800); outline-offset: 2px; }
 
 /* Status-Pills im Listen-Layout */
 .immo-units-listitem .immo-status {

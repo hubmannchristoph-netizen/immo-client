@@ -100,7 +100,7 @@ $status_labels = array(
 				</td>
 				<td class="col-link">
 					<?php if ( $detail_url ) : ?>
-						<a href="<?php echo esc_url( $detail_url ); ?>" class="immo-units-detail-link" aria-label="Details ansehen">→</a>
+						<a href="<?php echo esc_url( $detail_url ); ?>" class="immo-units-detail-link">Details <span aria-hidden="true">→</span></a>
 					<?php endif; ?>
 				</td>
 			</tr>
