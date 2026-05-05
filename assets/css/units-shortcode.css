@@ -1,0 +1,196 @@
+/**
+ * Styles für [immo_units] — drei Layouts: Tabelle, Grid, Liste.
+ * Nutzt die Farbvariablen aus immo-client.css (--immo-primary etc.).
+ */
+
+.immo-block-units {
+	margin: 1.5em 0;
+	font-family: inherit;
+}
+
+/* === Status-Stats über jeder Variante === */
+.immo-block-units .immo-units-summary {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5em;
+	margin-bottom: 1em;
+}
+.immo-block-units .immo-units-stat {
+	padding: 0.4em 0.8em;
+	border-radius: 999px;
+	background: #f3f4f6;
+	font-size: 0.9rem;
+	color: #374151;
+}
+.immo-block-units .immo-units-stat strong {
+	margin-right: 0.25em;
+	font-weight: 700;
+	color: #111827;
+}
+.immo-block-units .immo-units-stat-available { background: #dcfce7; color: #166534; }
+.immo-block-units .immo-units-stat-reserved  { background: #fef3c7; color: #92400e; }
+.immo-block-units .immo-units-stat-sold      { background: #fee2e2; color: #991b1b; }
+.immo-block-units .immo-units-stat-rented    { background: #fee2e2; color: #991b1b; }
+.immo-block-units .immo-units-stat-total     { background: #e5e7eb; color: #1f2937; }
+
+/* === LAYOUT: TABLE === */
+.immo-units-layout-table .immo-unit-table-wrapper {
+	overflow-x: auto;
+}
+.immo-units-layout-table .immo-unit-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.95rem;
+}
+.immo-units-layout-table .immo-unit-table th,
+.immo-units-layout-table .immo-unit-table td {
+	padding: 0.7em 0.8em;
+	border-bottom: 1px solid #e5e7eb;
+	text-align: left;
+}
+.immo-units-layout-table .immo-unit-table thead th {
+	background: #f9fafb;
+	font-weight: 600;
+	color: #374151;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+.immo-units-layout-table .immo-unit-table tbody tr:hover { background: #f9fafb; }
+.immo-units-layout-table .col-price { font-weight: 600; }
+.immo-units-layout-table .immo-units-detail-link {
+	display: inline-block;
+	padding: 0.3em 0.6em;
+	color: var(--immo-primary, #1e88e5);
+	text-decoration: none;
+	font-weight: 700;
+}
+.immo-units-layout-table .immo-status {
+	display: inline-block;
+	padding: 0.2em 0.55em;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+.immo-units-layout-table .immo-status-available { background: #dcfce7; color: #166534; }
+.immo-units-layout-table .immo-status-reserved  { background: #fef3c7; color: #92400e; }
+.immo-units-layout-table .immo-status-sold      { background: #fee2e2; color: #991b1b; }
+.immo-units-layout-table .immo-status-rented    { background: #fee2e2; color: #991b1b; }
+
+/* === LAYOUT: GRID === */
+.immo-units-layout-grid .immo-units-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 1.25em;
+}
+.immo-units-card {
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	overflow: hidden;
+	background: #fff;
+	transition: box-shadow 0.2s, transform 0.2s;
+}
+.immo-units-card:hover { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
+.immo-units-card-link { text-decoration: none; color: inherit; display: block; }
+.immo-units-card-image {
+	aspect-ratio: 4 / 3;
+	background: #f3f4f6;
+	overflow: hidden;
+}
+.immo-units-card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.immo-units-card-noimage {
+	display: flex; align-items: center; justify-content: center;
+	width: 100%; height: 100%; font-size: 3rem; color: #9ca3af;
+}
+.immo-units-card-image .immo-status {
+	position: absolute; top: 10px; left: 10px;
+	padding: 0.25em 0.6em;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	background: #dcfce7; color: #166534;
+}
+.immo-units-card-image .immo-status-reserved { background: #fef3c7; color: #92400e; }
+.immo-units-card-image .immo-status-sold     { background: #fee2e2; color: #991b1b; }
+.immo-units-card-image .immo-status-rented   { background: #fee2e2; color: #991b1b; }
+.immo-units-card-body { padding: 0.9em 1em 1em; }
+.immo-units-card-title { margin: 0 0 0.3em; font-size: 1.05rem; font-weight: 700; line-height: 1.3; }
+.immo-units-card-price { margin: 0 0 0.5em; font-size: 1.1rem; color: var(--immo-primary, #1e88e5); }
+.immo-units-card-facts { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.6em; font-size: 0.85rem; color: #4b5563; }
+.immo-units-card-facts li { display: inline-flex; align-items: center; gap: 0.2em; }
+
+/* === LAYOUT: LIST === */
+.immo-units-flatlist {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6em;
+}
+.immo-units-listitem {
+	display: grid;
+	grid-template-columns: 120px 1fr auto;
+	gap: 1em;
+	align-items: center;
+	padding: 0.8em;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	background: #fff;
+}
+.immo-units-listitem-thumb {
+	width: 120px; height: 80px;
+	overflow: hidden;
+	border-radius: 6px;
+	background: #f3f4f6;
+}
+.immo-units-listitem-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.immo-units-listitem-body { min-width: 0; }
+.immo-units-listitem-header { display: flex; align-items: center; gap: 0.7em; margin-bottom: 0.3em; flex-wrap: wrap; }
+.immo-units-listitem-title { margin: 0; font-size: 1rem; font-weight: 700; }
+.immo-units-listitem-title a { color: inherit; text-decoration: none; }
+.immo-units-listitem-title a:hover { color: var(--immo-primary, #1e88e5); }
+.immo-units-listitem-facts { display: flex; flex-wrap: wrap; gap: 0.8em; font-size: 0.85rem; color: #4b5563; align-items: center; }
+.immo-units-listitem-facts span { display: inline-flex; align-items: center; gap: 0.2em; }
+.immo-units-listitem-price { text-align: right; display: flex; flex-direction: column; gap: 0.3em; }
+.immo-units-listitem-price strong { font-size: 1.05rem; color: var(--immo-primary, #1e88e5); }
+.immo-units-listitem-link {
+	font-size: 0.85rem;
+	color: var(--immo-primary, #1e88e5);
+	text-decoration: none;
+	font-weight: 600;
+}
+.immo-units-listitem-link:hover { text-decoration: underline; }
+
+/* Status-Pills im Listen-Layout */
+.immo-units-listitem .immo-status {
+	display: inline-block;
+	padding: 0.2em 0.55em;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	font-weight: 700;
+	background: #dcfce7; color: #166534;
+}
+.immo-units-listitem .immo-status-reserved { background: #fef3c7; color: #92400e; }
+.immo-units-listitem .immo-status-sold     { background: #fee2e2; color: #991b1b; }
+.immo-units-listitem .immo-status-rented   { background: #fee2e2; color: #991b1b; }
+
+/* Responsive */
+@media (max-width: 600px) {
+	.immo-units-listitem {
+		grid-template-columns: 80px 1fr;
+		grid-template-rows: auto auto;
+	}
+	.immo-units-listitem-thumb { width: 80px; height: 60px; }
+	.immo-units-listitem-price { grid-column: 1 / -1; text-align: left; flex-direction: row; justify-content: space-between; align-items: center; }
+}
+
+/* Error/Empty */
+.immo-units-error,
+.immo-units-empty {
+	padding: 1em;
+	background: #f3f4f6;
+	border-radius: 6px;
+	color: #6b7280;
+	text-align: center;
+}

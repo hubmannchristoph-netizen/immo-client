@@ -94,6 +94,27 @@ Eine ausführliche Hilfe ist im Backend unter **Einstellungen → ImmoClient Hil
 
 Beide Shortcodes akzeptieren zusätzlich `primary`, `secondary`, `accent`, `email`.
 
+### Wohneinheiten eines Bauprojekts (isoliert)
+
+Rendert ausschließlich die Wohneinheits-Liste eines Projekts ohne Projekt-Galerie, Beschreibung oder Sidebar — flexibel platzierbar in Elementor, Gutenberg oder Theme-Templates.
+
+```text
+[immo_units project_id="45"]
+[immo_units project_slug="bauprojekt-graz" status="available" layout="grid"]
+[immo_units project_slug="bauprojekt-graz" status="available,reserved" layout="list" show_stats="no"]
+```
+
+| Attribut | Werte | Default | Beschreibung |
+|----------|-------|---------|--------------|
+| `project_id` | Zahl | – | Projekt-ID (alternativ zu `project_slug`, hat Vorrang) |
+| `project_slug` | Slug | – | Projekt-Slug (z. B. `bauprojekt-graz`) |
+| `status` | einzeln oder kommagetrennt: `available`, `reserved`, `sold`, `rented` | – (alle) | Status-Filter |
+| `layout` | `table` \| `grid` \| `list` | `table` | Darstellungsform |
+| `orderby` | `unit_number`, `floor`, `price`, `area`, … | `unit_number` | Sortier-Schlüssel |
+| `limit` | Zahl ≥ 0 | `0` (alle) | Maximale Anzahl |
+| `show_stats` | `yes` \| `no` | `yes` | Status-Counter über der Liste |
+| `primary`, `secondary`, `accent` | Hex-Farben | aus Manager | Farb-Override pro Block |
+
 ---
 
 ## Detailseiten

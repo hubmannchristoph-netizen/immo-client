@@ -167,6 +167,12 @@ class ImmoAPI {
         return $this->get('projects/' . absint($project_id) . '/units', $args);
     }
 
+    public function get_project_units_by_slug($slug, $args = array()) {
+        $slug = sanitize_title($slug);
+        if ($slug === '') return null;
+        return $this->get('projects/by-slug/' . rawurlencode($slug) . '/units', $args);
+    }
+
     // =========================================================================
     // Referenzdaten & Settings
     // =========================================================================

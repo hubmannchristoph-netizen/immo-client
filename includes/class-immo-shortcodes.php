@@ -15,6 +15,7 @@ class ImmoShortcodes {
         add_shortcode('immo_unit',     array($this, 'render_property_shortcode'));
         add_shortcode('immo_list',     array($this, 'render_list_shortcode'));
         add_shortcode('immo_project',  array($this, 'render_project_shortcode'));
+        add_shortcode('immo_units',    array($this, 'render_units_shortcode'));
     }
 
     /**
@@ -169,6 +170,68 @@ class ImmoShortcodes {
         echo $ctx['style'];
         echo '<div id="' . esc_attr($ctx['id']) . '" class="immo-block immo-block-project">';
         include IMMO_CLIENT_PATH . 'templates/shortcode-project.php';
+        echo '</div>';
+        return ob_get_clean();
+    }
+
+    /**
+     * [immo_units project_id="123" status="available,reserved" layout="table" orderby="unit_number" limit="0"]
+     * [immo_units project_slug="mein-projekt" layout="grid"]
+     *
+     * Liefert die Wohneinheiten eines Bauprojekts ohne den restlichen Project-Kontext
+     * (keine Galerie, keine Beschreibung, keine Sidebar). Drei Layouts: table | grid | list.
+     */
+    public function render_units_shortcode($atts) {
+        $atts = shortcode_atts(array_merge(array(
+            'project_id'   => '',
+            'project_slug' => '',
+            'status'       => '',          // einzeln oder kommagetrennt: available,reserved,sold,rented
+            'layout'       => 'table',     // table | grid | list
+            'orderby'      => 'unit_number',
+            'limit'        => 0,
+            'show_stats'   => 'yes',       // yes | no — Status-Counter über der Liste
+        ), $this->style_defaults()), $atts);
+
+        $project_id   = absint($atts['project_id']);
+        $project_slug = sanitize_title((string) $atts['project_slug']);
+
+        if (!$project_id && !$project_slug) {
+            return '<p class="immo-units-error">Bitte project_id oder project_slug angeben.</p>';
+        }
+
+        // Query-Args an REST durchreichen.
+        $api_args = array();
+        if (!empty($atts['status']))  { $api_args['status']  = $atts['status']; }
+        if (!empty($atts['orderby'])) { $api_args['orderby'] = $atts['orderby']; }
+        $limit = max(0, (int) $atts['limit']);
+        if ($limit > 0) { $api_args['limit'] = $limit; }
+
+        $payload = $project_id
+            ? $this->api->get_project_units($project_id, $api_args)
+            : $this->api->get_project_units_by_slug($project_slug, $api_args);
+
+        if (!is_array($payload) || !isset($payload['units'])) {
+            return '<p class="immo-units-error">Projekt nicht gefunden.</p>';
+        }
+
+        $items     = $payload['units'];
+        $stats     = isset($payload['stats']) ? $payload['stats'] : array();
+        $layout    = in_array($atts['layout'], array('table', 'grid', 'list'), true) ? $atts['layout'] : 'table';
+        $show_stats = ($atts['show_stats'] === 'yes');
+
+        $ctx = $this->prepare_container($atts, 'immo-units');
+
+        ob_start();
+        echo $ctx['style'];
+        echo '<div id="' . esc_attr($ctx['id']) . '" class="immo-block immo-block-units immo-units-layout-' . esc_attr($layout) . '">';
+
+        if (empty($items)) {
+            echo '<p class="immo-units-empty">Keine Wohneinheiten gefunden.</p>';
+        } else {
+            $template_file = 'units-' . $layout . '.php';
+            include IMMO_CLIENT_PATH . 'templates/' . $template_file;
+        }
+
         echo '</div>';
         return ob_get_clean();
     }
