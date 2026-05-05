@@ -65,15 +65,17 @@
 .immo-project-singlecol .immo-project-hero {
 	margin: 0;
 	min-width: 0;
+	max-width: 100%;
 }
 .immo-project-singlecol .immo-gallery-stage {
 	position: relative;
+	width: 100%;
+	max-width: 100%;
 	border-radius: var(--ip-radius);
 	overflow: hidden;
 	aspect-ratio: 4 / 3;
 	background: #1a1a1a;
 	box-shadow: var(--ip-shadow);
-	height: 100%;
 }
 @media (min-width: 900px) {
 	/* Wenn Hero und Header Side-by-Side stehen, soll der Hero die volle
