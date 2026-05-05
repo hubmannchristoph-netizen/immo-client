@@ -18,6 +18,7 @@ WordPress-Plugin, das Immobilien und Bauprojekte aus einer entfernten **ImmoMana
 - **Farb-Customization** über CSS-Variablen pro Block, Defaults aus dem Manager (`/settings/public`).
 - **Honeypot-Spam-Schutz** beim Bauprojekt-Formular.
 - **Transient-Cache** für API-Antworten mit konfigurierbarer Dauer.
+- **„Provisionsfrei"-Badge** — gelber Patch auf Hero-Bildern und Listing-Cards bei Kauf-Immobilien mit `meta.commission_free=true` (Helper `immo_client_render_cf_badge()`). Beschriftung kommt aus `meta.commission_free_label` (vom Manager konfigurierbar).
 
 ---
 

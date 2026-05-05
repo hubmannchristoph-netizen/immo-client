@@ -29,9 +29,16 @@ if (!defined('ABSPATH')) {
     ?>
         <div class="immo-card" style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff;">
             <?php if ($image && !empty($image['url_thumbnail'])) : ?>
-                <div class="immo-card-image">
+                <div class="immo-card-image" style="position: relative;">
                     <img src="<?php echo esc_url($image['url_thumbnail']); ?>" alt="<?php echo esc_attr($image['alt']); ?>" style="width: 100%; height: 200px; object-fit: cover;">
+                    <?php if ( ! $is_project ) { immo_client_render_cf_badge( $meta, 'patch' ); } ?>
                 </div>
+            <?php else : ?>
+                <?php if ( ! $is_project && ! empty( $meta['commission_free'] ) ) : ?>
+                    <div class="immo-card-image" style="position: relative; min-height: 40px; padding: 8px;">
+                        <?php immo_client_render_cf_badge( $meta, 'patch' ); ?>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
 
             <div class="immo-card-content" style="padding: 15px;">

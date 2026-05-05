@@ -146,7 +146,8 @@ $detail_rows_kosten = array_filter(array(
     $rent_display  ? array('Miete',     $rent_display)  : null,
     $op_costs ? array('Betriebskosten', number_format_i18n($op_costs, 2) . ' €') : null,
     $deposit  ? array('Kaution',         number_format_i18n($deposit, 2) . ' €') : null,
-    $comm_free ? array('Provision', 'Provisionsfrei') : ($commission ? array('Provision', $commission) : null),
+    // Bei provisionsfreien Objekten erscheint stattdessen das Badge auf dem Bild.
+    $comm_free ? null : ($commission ? array('Provision', $commission) : null),
 ));
 
 $primary_amount = $price_display ?: $rent_display;
@@ -178,6 +179,7 @@ $style_attr   = $immo_max_width ? ' style="max-width:' . esc_attr($immo_max_widt
             <?php if (!empty($slides)) : ?>
                 <section class="immo-gallery" aria-label="Bildergalerie">
                     <div class="immo-gallery-stage">
+                        <?php immo_client_render_cf_badge( $meta, 'patch' ); ?>
                         <?php foreach ($slides as $idx => $img) : ?>
                             <div class="immo-slide<?php echo $idx === 0 ? ' is-active' : ''; ?>"
                                  data-large="<?php echo esc_url(!empty($img['url_large']) ? $img['url_large'] : $img['url']); ?>">

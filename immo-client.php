@@ -46,6 +46,7 @@ class ImmoClient {
         require_once IMMO_CLIENT_PATH . 'includes/class-immo-routing.php';
         require_once IMMO_CLIENT_PATH . 'includes/class-immo-shortcodes.php';
         require_once IMMO_CLIENT_PATH . 'includes/class-immo-ajax.php';
+        require_once IMMO_CLIENT_PATH . 'includes/helpers-badges.php';
     }
 
     private function init_hooks() {
@@ -59,6 +60,7 @@ class ImmoClient {
 
     public function enqueue_assets() {
         wp_enqueue_style('immo-client-style', IMMO_CLIENT_URL . 'assets/css/immo-client.css', array(), IMMO_CLIENT_VERSION);
+        wp_enqueue_style('immo-client-cf-badge', IMMO_CLIENT_URL . 'assets/css/commission-free-badge.css', array('immo-client-style'), IMMO_CLIENT_VERSION);
         wp_enqueue_script('immo-client-filter',  IMMO_CLIENT_URL . 'assets/js/immo-filter.js',  array('jquery'), IMMO_CLIENT_VERSION, true);
         wp_enqueue_script('immo-client-gallery', IMMO_CLIENT_URL . 'assets/js/immo-gallery.js', array(),         IMMO_CLIENT_VERSION, true);
         wp_enqueue_script('immo-client-project', IMMO_CLIENT_URL . 'assets/js/immo-project.js', array(),         IMMO_CLIENT_VERSION, true);

@@ -289,7 +289,23 @@ $title_in_sidebar   = in_array($immo_layout, array('right_sidebar', 'left_sideba
                                         <td class="col-area"><?php echo $u_area !== '' ? esc_html($u_area) . ' m²' : '–'; ?></td>
                                         <td class="col-rooms"><?php echo $u_rooms > 0 ? esc_html($u_rooms) : '–'; ?></td>
                                         <td class="col-floor"><?php echo $u_floor !== '' ? esc_html($u_floor) . '. OG' : '–'; ?></td>
-                                        <td class="col-price"><?php echo $u_price ? esc_html($u_price) : '–'; ?></td>
+                                        <td class="col-price">
+                                            <?php echo $u_price ? esc_html($u_price) : '–'; ?>
+                                            <?php
+                                            // „Provisionsfrei"-Icon, wenn die Property das Flag trägt
+                                            // UND ein Kaufpreis vorhanden ist.
+                                            if ( ! empty( $unit_property['commission_free'] ) && $u_price ) {
+                                                immo_client_render_cf_badge(
+                                                    array(
+                                                        'commission_free'       => true,
+                                                        'mode'                  => 'sale',
+                                                        'commission_free_label' => isset( $unit_property['commission_free_label'] ) ? $unit_property['commission_free_label'] : '',
+                                                    ),
+                                                    'icon'
+                                                );
+                                            }
+                                            ?>
+                                        </td>
                                         <td class="col-info">
                                             <span class="immo-unit-info-btn" role="button" tabindex="-1" aria-label="Quick-Info zu <?php echo esc_attr($unit_title); ?>">
                                                 <svg class="immo-unit-info-svg" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -389,14 +405,25 @@ $title_in_sidebar   = in_array($immo_layout, array('right_sidebar', 'left_sideba
                             $u_city    = isset($fp_meta['city']) ? $fp_meta['city'] : '';
                             $u_plz     = isset($fp_meta['postal_code']) ? $fp_meta['postal_code'] : '';
                             $u_full_addr = trim($u_address . ($u_plz || $u_city ? ', ' . trim($u_plz . ' ' . $u_city) : ''));
+
+                            // Provisionsfrei-Status für Quick-Info aus voller Property holen.
+                            $u_cf      = ! empty( $fp_meta['commission_free'] ) || ( $unit_property && ! empty( $unit_property['commission_free'] ) );
+                            $u_cf_lbl  = isset( $fp_meta['commission_free_label'] ) ? $fp_meta['commission_free_label']
+                                       : ( $unit_property && isset( $unit_property['commission_free_label'] ) ? $unit_property['commission_free_label'] : '' );
+                            $u_cf_meta = array(
+                                'commission_free'       => $u_cf,
+                                'commission_free_label' => $u_cf_lbl,
+                                'mode'                  => 'sale',
+                            );
                         ?>
                             <div data-unit-id="<?php echo esc_attr($unit_id); ?>">
                                 <?php if ($unit_image) : ?>
-                                    <div class="immo-unit-quick-hero">
+                                    <div class="immo-unit-quick-hero" style="position:relative;">
                                         <img src="<?php echo esc_url($unit_image); ?>" alt="<?php echo esc_attr($unit_title); ?>">
                                         <?php if ($u_status) : ?>
                                             <span class="immo-status immo-status-<?php echo esc_attr($u_status); ?>"><?php echo esc_html($u_status_lbl); ?></span>
                                         <?php endif; ?>
+                                        <?php immo_client_render_cf_badge( $u_cf_meta, 'patch' ); ?>
                                     </div>
                                 <?php endif; ?>
 

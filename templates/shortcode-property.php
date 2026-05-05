@@ -21,8 +21,13 @@ $detail_url = home_url('/immobilie/' . (isset($item['slug']) ? $item['slug'] : '
 ?>
 <div class="immo-card immo-card-shortcode" style="border:1px solid #ddd;border-radius:8px;overflow:hidden;background:#fff;max-width:520px;">
     <?php if ($hero && !empty($hero['url_medium'])) : ?>
-        <div class="immo-card-image">
+        <div class="immo-card-image" style="position:relative;">
             <img src="<?php echo esc_url($hero['url_medium']); ?>" alt="<?php echo esc_attr($hero['alt'] ?: $item['title']); ?>" style="width:100%;height:260px;object-fit:cover;">
+            <?php immo_client_render_cf_badge( $meta, 'patch' ); ?>
+        </div>
+    <?php elseif ( ! empty( $meta['commission_free'] ) ) : ?>
+        <div class="immo-card-image" style="position:relative;min-height:40px;padding:8px;">
+            <?php immo_client_render_cf_badge( $meta, 'patch' ); ?>
         </div>
     <?php endif; ?>
     <div class="immo-card-content" style="padding:18px;">
