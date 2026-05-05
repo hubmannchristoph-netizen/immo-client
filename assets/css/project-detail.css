@@ -821,16 +821,15 @@
 		grid-template-columns: minmax(0, 1fr) 360px;
 		gap: 2rem;
 	}
+	/* Sidebar bleibt beim Scrollen am oberen Rand kleben.
+	   Kein eigener Scrollbar — wenn der Inhalt der Sidebar höher als
+	   der Viewport ist, scrollt sie mit dem Seiteninhalt mit, statt
+	   einen zweiten Scrollbalken zu erzeugen. */
 	.immo-project-singlecol .immo-project-sticky-aside {
 		position: sticky;
 		top: 24px;
 		align-self: start;
-		max-height: calc(100vh - 48px);
-		overflow-y: auto;
 	}
-	/* Hide-Scrollbar im Aside, aber funktional */
-	.immo-project-singlecol .immo-project-sticky-aside::-webkit-scrollbar { width: 6px; }
-	.immo-project-singlecol .immo-project-sticky-aside::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
 }
 
 /* ============================================================
