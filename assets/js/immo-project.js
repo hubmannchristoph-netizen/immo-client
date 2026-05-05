@@ -200,5 +200,81 @@
                 applyFilter(block);
             });
         });
+
+        // ----------------------------------------------------------------
+        // Anfrage-Modal: Trigger-Buttons mit data-immo-inquiry-open
+        // öffnen das Modal #immo-inquiry-modal. Schließen über Backdrop,
+        // X-Button (data-immo-inquiry-close) oder Escape.
+        // ----------------------------------------------------------------
+        var inquiryModal = document.getElementById('immo-inquiry-modal');
+        if (inquiryModal) {
+            var inquiryOpenButtons = document.querySelectorAll('[data-immo-inquiry-open]');
+            inquiryOpenButtons.forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    inquiryModal.classList.add('is-open');
+                    inquiryModal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                    // Fokus auf erstes Eingabefeld setzen.
+                    var firstField = inquiryModal.querySelector('input, textarea, select');
+                    if (firstField) { setTimeout(function () { firstField.focus(); }, 60); }
+                });
+            });
+            inquiryModal.addEventListener('click', function (e) {
+                if (e.target.closest('[data-immo-inquiry-close]')) {
+                    e.preventDefault();
+                    inquiryModal.classList.remove('is-open');
+                    inquiryModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && inquiryModal.classList.contains('is-open')) {
+                    inquiryModal.classList.remove('is-open');
+                    inquiryModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // ----------------------------------------------------------------
+        // Leaflet-Karten: jedes <div data-immo-map="1" data-lat data-lng>
+        // wird mit OSM-Tiles + Marker initialisiert. Leaflet wird nur
+        // dann geladen, wenn mind. 1 Karten-Container existiert.
+        // ----------------------------------------------------------------
+        var mapContainers = document.querySelectorAll('[data-immo-map="1"]');
+        if (mapContainers.length && typeof L === 'undefined') {
+            // Leaflet on-the-fly via CDN nachladen, falls das Theme es nicht eingebunden hat.
+            var link = document.createElement('link');
+            link.rel  = 'stylesheet';
+            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(link);
+            var script = document.createElement('script');
+            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.onload = function () { initMaps(mapContainers); };
+            document.head.appendChild(script);
+        } else if (mapContainers.length) {
+            initMaps(mapContainers);
+        }
+
+        function initMaps(containers) {
+            if (typeof L === 'undefined') return;
+            containers.forEach(function (el) {
+                if (el.dataset.immoMapInitialized === '1') return;
+                var lat   = parseFloat(el.getAttribute('data-lat'));
+                var lng   = parseFloat(el.getAttribute('data-lng'));
+                var tile  = el.getAttribute('data-tile-url') || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                var attr  = el.getAttribute('data-attribution') || '&copy; OpenStreetMap contributors';
+                var title = el.getAttribute('data-title') || '';
+                if (!isFinite(lat) || !isFinite(lng) || lat === 0 || lng === 0) return;
+                el.dataset.immoMapInitialized = '1';
+                el.style.minHeight = el.style.minHeight || '320px';
+
+                var map = L.map(el, { scrollWheelZoom: false }).setView([lat, lng], 14);
+                L.tileLayer(tile, { attribution: attr, maxZoom: 19 }).addTo(map);
+                var marker = L.marker([lat, lng]).addTo(map);
+                if (title) marker.bindPopup(title);
+            });
+        }
     });
 })();

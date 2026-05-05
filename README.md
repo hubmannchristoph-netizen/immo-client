@@ -128,6 +128,24 @@ Klick auf eine Card/Zeile öffnet eine **Quick-Info-Lightbox** mit Bild, Eckdate
 
 Templates können über das aktive Theme überschrieben werden, indem eine Datei unter `wp-content/themes/<theme>/immo-client/<filename>.php` abgelegt wird.
 
+### Bauprojekt-Detailseite (`single-project.php`)
+
+Einspaltiges Layout mit den folgenden Sektionen (von oben nach unten):
+
+1. Hero-Galerie (Slider + Thumbs + Status-Pill)
+2. Header (Titel, Lage, CTA-Buttons)
+3. Stats-Grid (Status, Baubeginn, Fertigstellung, Wohneinheiten, Flächen)
+4. Beschreibung
+5. Highlights (aus `custom_features`)
+6. Gemeinschafts-Ausstattung (gruppiert in Akkordeons)
+7. Wohneinheiten-Tabelle mit Status-Filter und Quick-Info-Lightbox
+8. Video / Virtuelle Tour
+9. Lage mit interaktiver OSM-Karte (Leaflet via CDN)
+10. Dokumente / Exposé
+11. Kontaktbox
+
+Das Anfrage-Formular ist in einem Modal — Trigger via `data-immo-inquiry-open`-Buttons, Schließen via Backdrop/X/Escape.
+
 ---
 
 ## Anfragen-Logik

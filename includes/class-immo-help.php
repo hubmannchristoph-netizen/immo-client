@@ -203,6 +203,24 @@ class ImmoHelp {
             </ul>
             <p>Slugs kommen aus den Manager-Posts. Bei 404 die Permalinks neu speichern.</p>
 
+            <h3>Bauprojekt-Detailseite – Layout</h3>
+            <p>Die Bauprojekt-Seite ist <strong>einspaltig</strong> aufgebaut und zeigt der Reihe nach:</p>
+            <ol>
+                <li>Hero-Galerie (Slider + Thumbs + Status-Pill)</li>
+                <li>Header mit Titel, Lage und CTA-Buttons („Anfrage senden", „Anrufen")</li>
+                <li>Stats-Grid (Status, Baubeginn, Fertigstellung, Wohneinheiten, Flächen-Range)</li>
+                <li>Beschreibung</li>
+                <li>Highlights (aus dem Feld <code>custom_features</code> im Manager)</li>
+                <li>Gemeinschafts-Ausstattung (Features-Liste, nach Kategorie gruppiert in Akkordeons)</li>
+                <li>Wohneinheiten-Tabelle mit Status-Filter und Quick-Info-Lightbox</li>
+                <li>Video / Virtuelle Tour (oEmbed oder direkter MP4-Stream)</li>
+                <li>Lage mit interaktiver OSM-Karte (wenn <code>map_enabled</code> + Koordinaten vorhanden)</li>
+                <li>Dokumente (Exposé-Downloads)</li>
+                <li>Kontaktbox mit Foto, Telefon und Anfrage-Button</li>
+            </ol>
+            <p>Das Anfrage-Formular liegt in einem <strong>Modal</strong>. Trigger sind alle Buttons mit <code>data-immo-inquiry-open</code> (Header + Kontaktbox). Schließen via Backdrop, X-Button oder Escape.</p>
+            <p><strong>Karte:</strong> Leaflet wird via CDN nachgeladen, falls das Theme es nicht bereits eingebunden hat. OSM-Tiles und Marker werden aus den <code>data-*</code>-Attributen des Containers <code>.immo-project-map</code> gelesen — die Werte kommen aus <code>/settings/public</code> des Managers (Tile-URL + Attribution).</p>
+
             <h2 class="title">5. Anfragen-Logik</h2>
             <table class="widefat">
                 <thead><tr><th>Quelle</th><th>Versand</th><th>Speicherung</th><th>Empfänger</th></tr></thead>

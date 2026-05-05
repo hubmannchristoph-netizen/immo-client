@@ -62,6 +62,11 @@ class ImmoClient {
         wp_enqueue_style('immo-client-style', IMMO_CLIENT_URL . 'assets/css/immo-client.css', array(), IMMO_CLIENT_VERSION);
         wp_enqueue_style('immo-client-cf-badge', IMMO_CLIENT_URL . 'assets/css/commission-free-badge.css', array('immo-client-style'), IMMO_CLIENT_VERSION);
         wp_enqueue_style('immo-client-units', IMMO_CLIENT_URL . 'assets/css/units-shortcode.css', array('immo-client-style'), IMMO_CLIENT_VERSION);
+
+        // Bauprojekt-Detailseiten-CSS — nur dort laden, wo single-project.php gerendert wird.
+        if ( get_query_var('immo_project_slug') ) {
+            wp_enqueue_style('immo-client-project-detail', IMMO_CLIENT_URL . 'assets/css/project-detail.css', array('immo-client-style'), IMMO_CLIENT_VERSION);
+        }
         wp_enqueue_script('immo-client-filter',  IMMO_CLIENT_URL . 'assets/js/immo-filter.js',  array('jquery'), IMMO_CLIENT_VERSION, true);
         wp_enqueue_script('immo-client-gallery', IMMO_CLIENT_URL . 'assets/js/immo-gallery.js', array(),         IMMO_CLIENT_VERSION, true);
         wp_enqueue_script('immo-client-project', IMMO_CLIENT_URL . 'assets/js/immo-project.js', array(),         IMMO_CLIENT_VERSION, true);
