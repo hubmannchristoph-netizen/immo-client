@@ -2,56 +2,545 @@
 /**
  * Shortcode-Ausgabe für ein einzelnes Bauprojekt: [immo_project id="…"].
  *
+ * Rendert die VOLLE Detailansicht — gleiche Sektionen wie auf
+ * /bauprojekt/{slug}/. Anfrage-Modal + Wohneinheits-Lightbox werden
+ * via ImmoShortcodes-Singletons höchstens einmal pro Seite ausgegeben.
+ *
  * Erwartet:
- *   $project       = Project-Response
- *   $project_units = Array der Einheiten (bereits separat geladen)
+ *   $project       = Project-Response (mit description + gallery, da $full=true)
+ *   $project_units = (optional, derzeit nicht genutzt — wir laden via $api)
+ *   $api           = ImmoAPI-Instance (vom Renderer übergeben)
+ *   $is_shortcode  = true
  */
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-$meta         = isset($project['meta']) ? $project['meta'] : array();
-$hero         = isset($project['featured_image']) ? $project['featured_image'] : null;
-$unit_stats   = isset($project['unit_stats']) ? $project['unit_stats'] : array();
+// ---------------------------------------------------------------------------
+// Daten aus REST entpacken (analog single-project.php)
+// ---------------------------------------------------------------------------
 
-$city         = isset($meta['city'])               ? $meta['city']               : '';
-$state_label  = isset($meta['region_state_label']) ? $meta['region_state_label'] : '';
-$location     = trim(implode(', ', array_filter(array($city, $state_label))));
+$meta       = isset( $project['meta'] ) ? $project['meta'] : array();
+$hero       = isset( $project['featured_image'] ) ? $project['featured_image'] : null;
+$gallery    = isset( $project['gallery'] ) && is_array( $project['gallery'] ) ? $project['gallery'] : array();
+$unit_stats = isset( $project['unit_stats'] ) ? $project['unit_stats'] : array();
 
-$detail_url   = home_url('/bauprojekt/' . (isset($project['slug']) ? $project['slug'] : ''));
+$city        = (string) ( $meta['city'] ?? '' );
+$plz         = (string) ( $meta['postal_code'] ?? '' );
+$state_label = (string) ( $meta['region_state_label'] ?? '' );
+$dist_label  = (string) ( $meta['region_district_label'] ?? '' );
+$address     = (string) ( $meta['address'] ?? '' );
+$lat         = (float)  ( $meta['lat'] ?? 0 );
+$lng         = (float)  ( $meta['lng'] ?? 0 );
+
+$status     = (string) ( $meta['project_status'] ?? '' );
+$start_date = (string) ( $meta['project_start_date'] ?? '' );
+$completion = (string) ( $meta['project_completion'] ?? '' );
+
+$status_labels = array(
+	'planning'  => 'In Planung',
+	'building'  => 'In Bau',
+	'completed' => 'Fertiggestellt',
+);
+$status_label = $status_labels[ $status ] ?? '';
+
+$features_detail = isset( $meta['features_detail'] ) && is_array( $meta['features_detail'] ) ? $meta['features_detail'] : array();
+$custom_features = (string) ( $meta['custom_features'] ?? '' );
+$documents       = isset( $meta['documents'] ) && is_array( $meta['documents'] ) ? $meta['documents'] : array();
+$video_url       = (string) ( $meta['video_url'] ?? '' );
+$video_file      = (string) ( $meta['video_file_url'] ?? '' );
+
+$contact_name  = (string) ( $meta['contact_name'] ?? '' );
+$contact_email = (string) ( $meta['contact_email'] ?? '' );
+$contact_phone = (string) ( $meta['contact_phone'] ?? '' );
+$contact_image = isset( $meta['contact_image'] ) && ! empty( $meta['contact_image']['url_thumbnail'] ) ? $meta['contact_image'] : null;
+
+$location_str = trim( implode( ' ', array_filter( array( $plz, $city ) ) ) );
+if ( $state_label ) { $location_str .= ( $location_str ? ', ' : '' ) . $state_label; }
+
+$slides = array();
+if ( $hero && ! empty( $hero['url'] ) ) { $slides[] = $hero; }
+foreach ( $gallery as $g ) {
+	if ( ! empty( $g['url'] ) ) { $slides[] = $g; }
+}
+
+// Wohneinheiten + Stats
+$units_payload = $api->get_project_units( $project['id'] );
+$items         = isset( $units_payload['units'] ) ? $units_payload['units'] : array();
+
+$count_total     = (int) ( $unit_stats['total']     ?? count( $items ) );
+$count_available = (int) ( $unit_stats['available'] ?? 0 );
+$count_reserved  = (int) ( $unit_stats['reserved']  ?? 0 );
+$count_sold      = (int) ( $unit_stats['sold']      ?? 0 );
+$count_rented    = (int) ( $unit_stats['rented']    ?? 0 );
+
+if ( ! isset( $unit_stats['available'] ) && ! empty( $items ) ) {
+	foreach ( $items as $u ) {
+		switch ( $u['status'] ?? '' ) {
+			case 'available': $count_available++; break;
+			case 'reserved':  $count_reserved++;  break;
+			case 'sold':      $count_sold++;      break;
+			case 'rented':    $count_rented++;    break;
+		}
+	}
+}
+
+$area_min = isset( $unit_stats['area_min'] ) ? (float) $unit_stats['area_min'] : 0;
+$area_max = isset( $unit_stats['area_max'] ) ? (float) $unit_stats['area_max'] : 0;
+
+$fmt_date = static function ( $iso ) {
+	if ( ! $iso ) { return ''; }
+	$ts = strtotime( $iso );
+	return $ts ? date_i18n( 'd.m.Y', $ts ) : (string) $iso;
+};
+
+$public_settings = ImmoStyles::public_settings();
+$map_enabled     = ! empty( $public_settings['map']['enabled'] );
+$map_tile_url    = (string) ( $public_settings['map']['tile_url'] ?? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' );
+$map_attribution = (string) ( $public_settings['map']['attribution'] ?? '&copy; OpenStreetMap contributors' );
+
+$immo_link_units = ( (string) get_option( 'immo_project_link_units', '1' ) ) !== '0';
 ?>
-<div class="immo-project-card" style="border:1px solid #ddd;border-radius:8px;overflow:hidden;background:#fff;">
-    <?php if ($hero && !empty($hero['url_large'])) : ?>
-        <img src="<?php echo esc_url($hero['url_large']); ?>" alt="<?php echo esc_attr($hero['alt'] ?: $project['title']); ?>" style="width:100%;height:300px;object-fit:cover;">
-    <?php endif; ?>
-    <div style="padding:20px;">
-        <h3 style="margin:0 0 6px;"><?php echo esc_html($project['title']); ?></h3>
-        <?php if ($location) : ?>
-            <p style="color:#666;margin:0 0 12px;"><?php echo esc_html($location); ?></p>
-        <?php endif; ?>
 
-        <?php if (!empty($unit_stats['total'])) : ?>
-            <p style="margin:0 0 12px;font-size:.95em;">
-                <?php
-                $available = isset($unit_stats['available']) ? (int) $unit_stats['available'] : 0;
-                $total     = (int) $unit_stats['total'];
-                printf(esc_html('%1$d von %2$d Einheiten verfügbar'), $available, $total);
-                ?>
-            </p>
-        <?php endif; ?>
+<article class="immo-detail immo-project-detail immo-project-singlecol immo-project-shortcode">
 
-        <?php if (!empty($project['excerpt'])) : ?>
-            <p style="margin:0 0 16px;"><?php echo esc_html($project['excerpt']); ?></p>
-        <?php endif; ?>
+	<!-- ========== HERO-GALERIE ========== -->
+	<?php if ( ! empty( $slides ) ) : ?>
+	<section class="immo-project-hero">
+		<div class="immo-gallery-stage">
+			<?php foreach ( $slides as $idx => $img ) : ?>
+				<div class="immo-slide<?php echo $idx === 0 ? ' is-active' : ''; ?>"
+					data-large="<?php echo esc_url( ! empty( $img['url_large'] ) ? $img['url_large'] : $img['url'] ); ?>">
+					<img src="<?php echo esc_url( ! empty( $img['url_large'] ) ? $img['url_large'] : $img['url'] ); ?>"
+						alt="<?php echo esc_attr( ! empty( $img['alt'] ) ? $img['alt'] : $project['title'] ); ?>"
+						loading="<?php echo $idx === 0 ? 'eager' : 'lazy'; ?>">
+				</div>
+			<?php endforeach; ?>
+			<?php if ( count( $slides ) > 1 ) : ?>
+				<button type="button" class="immo-nav-prev" aria-label="Vorheriges Bild">&#8249;</button>
+				<button type="button" class="immo-nav-next" aria-label="Nächstes Bild">&#8250;</button>
+				<div class="immo-slide-counter"></div>
+			<?php endif; ?>
+			<button type="button" class="immo-expand" aria-label="Vergrößern" tabindex="-1">⤢</button>
+			<?php if ( $status_label ) : ?>
+				<span class="immo-project-status-pill immo-project-status-<?php echo esc_attr( $status ); ?>"><?php echo esc_html( $status_label ); ?></span>
+			<?php endif; ?>
+		</div>
+		<?php if ( count( $slides ) > 1 ) : ?>
+			<div class="immo-thumbs">
+				<?php foreach ( $slides as $idx => $img ) : ?>
+					<button type="button" class="immo-thumb<?php echo $idx === 0 ? ' is-active' : ''; ?>" aria-label="Bild <?php echo esc_attr( $idx + 1 ); ?>">
+						<img src="<?php echo esc_url( ! empty( $img['url_thumbnail'] ) ? $img['url_thumbnail'] : $img['url'] ); ?>" alt="" loading="lazy">
+					</button>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+	</section>
+	<?php endif; ?>
 
-        <a href="<?php echo esc_url($detail_url); ?>" class="button" style="display:inline-block;padding:8px 16px;background:var(--immo-primary,#0073aa);color:#fff;text-decoration:none;border-radius:4px;">
-            Zum Projekt
-        </a>
+	<!-- ========== HEADER ========== -->
+	<header class="immo-project-header">
+		<h1 class="immo-project-title"><?php echo esc_html( $project['title'] ); ?></h1>
+		<?php if ( $location_str || $address ) : ?>
+			<p class="immo-project-location">📍 <?php echo esc_html( $location_str ); ?><?php if ( $address ) { echo ' · ' . esc_html( $address ); } ?></p>
+		<?php endif; ?>
+		<div class="immo-project-cta-row">
+			<button type="button" class="immo-btn immo-btn-primary" data-immo-inquiry-open>✉️ Anfrage senden</button>
+			<?php if ( $contact_phone ) : ?>
+				<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>" class="immo-btn immo-btn-secondary">📞 Jetzt anrufen</a>
+			<?php endif; ?>
+		</div>
+	</header>
 
-        <div class="immo-project-contact" style="margin-top:24px;">
-            <h4 style="margin:0 0 10px;font-size:1em;">Interesse?</h4>
-            <?php include IMMO_CLIENT_PATH . 'templates/project-inquiry-form.php'; ?>
-        </div>
-    </div>
+	<!-- ========== STATS-GRID ========== -->
+	<section class="immo-project-stats-grid">
+		<?php if ( $status_label ) : ?>
+			<div class="immo-project-stat"><span class="immo-project-stat-icon" aria-hidden="true">🏗️</span><span class="immo-project-stat-label">Status</span><strong class="immo-project-stat-value"><?php echo esc_html( $status_label ); ?></strong></div>
+		<?php endif; ?>
+		<?php if ( $start_date ) : ?>
+			<div class="immo-project-stat"><span class="immo-project-stat-icon" aria-hidden="true">📅</span><span class="immo-project-stat-label">Baubeginn</span><strong class="immo-project-stat-value"><?php echo esc_html( $fmt_date( $start_date ) ); ?></strong></div>
+		<?php endif; ?>
+		<?php if ( $completion ) : ?>
+			<div class="immo-project-stat"><span class="immo-project-stat-icon" aria-hidden="true">🏁</span><span class="immo-project-stat-label">Fertigstellung</span><strong class="immo-project-stat-value"><?php echo esc_html( $fmt_date( $completion ) ); ?></strong></div>
+		<?php endif; ?>
+		<?php if ( $count_total ) : ?>
+			<div class="immo-project-stat"><span class="immo-project-stat-icon" aria-hidden="true">🏠</span><span class="immo-project-stat-label">Wohneinheiten</span><strong class="immo-project-stat-value"><?php echo (int) $count_total; ?></strong></div>
+		<?php endif; ?>
+		<?php if ( $area_min > 0 || $area_max > 0 ) : ?>
+			<div class="immo-project-stat"><span class="immo-project-stat-icon" aria-hidden="true">📐</span><span class="immo-project-stat-label">Flächen</span><strong class="immo-project-stat-value">
+				<?php
+				if ( $area_min > 0 && $area_max > 0 && $area_min !== $area_max ) {
+					echo esc_html( number_format_i18n( $area_min, 0 ) . '–' . number_format_i18n( $area_max, 0 ) ) . ' m²';
+				} else {
+					$single = $area_max > 0 ? $area_max : $area_min;
+					echo esc_html( number_format_i18n( $single, 0 ) ) . ' m²';
+				}
+				?>
+			</strong></div>
+		<?php endif; ?>
+	</section>
+
+	<!-- ========== BESCHREIBUNG ========== -->
+	<?php if ( ! empty( $project['description'] ) ) : ?>
+	<section class="immo-section immo-project-description">
+		<h2>Über das Projekt</h2>
+		<div class="immo-rich-text"><?php echo wp_kses_post( $project['description'] ); ?></div>
+	</section>
+	<?php endif; ?>
+
+	<!-- ========== HIGHLIGHTS ========== -->
+	<?php if ( $custom_features ) : ?>
+	<section class="immo-section immo-project-highlights">
+		<h2>Highlights</h2>
+		<div class="immo-rich-text"><?php echo wp_kses_post( wpautop( $custom_features ) ); ?></div>
+	</section>
+	<?php endif; ?>
+
+	<!-- ========== AUSSTATTUNG ========== -->
+	<?php if ( ! empty( $features_detail ) ) :
+		$grouped = array();
+		foreach ( $features_detail as $f ) {
+			$cat_key   = ! empty( $f['category'] ) ? $f['category'] : 'sonstiges';
+			$cat_label = ! empty( $f['category_label'] ) ? $f['category_label'] : 'Sonstiges';
+			if ( ! isset( $grouped[ $cat_key ] ) ) {
+				$grouped[ $cat_key ] = array( 'label' => $cat_label, 'items' => array() );
+			}
+			$grouped[ $cat_key ]['items'][] = $f;
+		}
+	?>
+	<section class="immo-section immo-project-features">
+		<h2>Gemeinschafts-Ausstattung</h2>
+		<?php $first = true; foreach ( $grouped as $cat_key => $group ) : ?>
+			<details class="immo-accordion" <?php echo $first ? 'open' : ''; ?>>
+				<summary>
+					<span class="immo-accordion-title"><?php echo esc_html( $group['label'] ); ?></span>
+					<span class="immo-accordion-count"><?php echo count( $group['items'] ); ?></span>
+				</summary>
+				<ul class="immo-feature-list">
+					<?php foreach ( $group['items'] as $f ) : ?>
+						<li>
+							<?php if ( ! empty( $f['icon'] ) ) : ?>
+								<span class="immo-feature-icon" aria-hidden="true"><?php echo esc_html( $f['icon'] ); ?></span>
+							<?php endif; ?>
+							<span><?php echo esc_html( $f['label'] ); ?></span>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</details>
+		<?php $first = false; endforeach; ?>
+	</section>
+	<?php endif; ?>
+
+	<!-- ========== CTA-BANNER ========== -->
+	<section class="immo-project-cta-banner" aria-label="Anfrage senden">
+		<div class="immo-project-cta-banner-text">
+			<h3 class="immo-project-cta-banner-title">Interesse an einer Wohneinheit?</h3>
+			<p>Sichern Sie sich jetzt Ihren Wunsch-Top — wir beraten Sie gerne unverbindlich.</p>
+		</div>
+		<div class="immo-project-cta-banner-actions">
+			<button type="button" class="immo-btn immo-btn-primary" data-immo-inquiry-open>✉️ Anfrage senden</button>
+			<?php if ( $contact_phone ) : ?>
+				<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>" class="immo-btn immo-btn-secondary">📞 Anrufen</a>
+			<?php endif; ?>
+		</div>
+	</section>
+
+	<!-- ========== WOHNEINHEITEN ========== -->
+	<section class="immo-section immo-units-list">
+		<h2>Wohneinheiten <?php if ( $count_total ) { echo '<span class="immo-units-count">' . esc_html( $count_total ) . '</span>'; } ?></h2>
+
+		<?php if ( $count_total > 0 ) : ?>
+			<div class="immo-units-summary" role="group" aria-label="Wohneinheiten nach Status filtern">
+				<?php if ( $count_available ) : ?>
+					<button type="button" class="immo-units-stat immo-units-stat-available" data-immo-filter-status="available" aria-pressed="false"><strong><?php echo esc_html( $count_available ); ?></strong> Verfügbar</button>
+				<?php endif; ?>
+				<?php if ( $count_reserved ) : ?>
+					<button type="button" class="immo-units-stat immo-units-stat-reserved" data-immo-filter-status="reserved" aria-pressed="false"><strong><?php echo esc_html( $count_reserved ); ?></strong> Reserviert</button>
+				<?php endif; ?>
+				<?php if ( $count_sold ) : ?>
+					<button type="button" class="immo-units-stat immo-units-stat-sold" data-immo-filter-status="sold" aria-pressed="false"><strong><?php echo esc_html( $count_sold ); ?></strong> Verkauft</button>
+				<?php endif; ?>
+				<?php if ( $count_rented ) : ?>
+					<button type="button" class="immo-units-stat immo-units-stat-rented" data-immo-filter-status="rented" aria-pressed="false"><strong><?php echo esc_html( $count_rented ); ?></strong> Vermietet</button>
+				<?php endif; ?>
+				<span class="immo-units-stat immo-units-stat-total"><strong><?php echo esc_html( $count_total ); ?></strong> Gesamt</span>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( empty( $items ) ) : ?>
+			<p>Aktuell sind keine Einheiten zum Projekt hinterlegt.</p>
+		<?php else : ?>
+			<div class="immo-unit-table-wrapper">
+				<table class="immo-unit-table">
+					<thead>
+						<tr>
+							<th class="col-nr">Nr.</th>
+							<th class="col-title">Bezeichnung</th>
+							<th class="col-status">Status</th>
+							<th class="col-area">Wohnfläche</th>
+							<th class="col-rooms">Zimmer</th>
+							<th class="col-floor">Etage</th>
+							<th class="col-price">Preis</th>
+							<th class="col-info" aria-label="Info"></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php foreach ( $items as $unit ) :
+						$prop          = ! empty( $unit['property'] ) ? $unit['property'] : array();
+						$unit_title    = $prop && ! empty( $prop['title'] ) ? $prop['title'] : ( 'Wohneinheit ' . ( $unit['unit_number'] ?? '' ) );
+						$prop_slug     = $prop && ! empty( $prop['slug'] ) ? $prop['slug'] : '';
+						$detail_url    = $prop_slug ? home_url( '/immobilie/' . $prop_slug ) : '';
+						$unit_id       = (int) ( $unit['id'] ?? 0 );
+						$u_status      = (string) ( $unit['status'] ?? '' );
+						$u_status_lbl  = (string) ( $unit['status_label'] ?? $u_status );
+						$u_floor       = $unit['floor'] ?? '';
+						$u_price       = (string) ( $unit['price_formatted'] ?? '' );
+					?>
+						<tr class="immo-unit-row is-clickable" data-status="<?php echo esc_attr( $u_status ); ?>"
+							data-immo-unit-id="<?php echo esc_attr( $unit_id ); ?>"
+							data-immo-unit-url="<?php echo esc_attr( $detail_url ); ?>">
+							<td class="col-nr"><strong><?php echo esc_html( $unit['unit_number'] ?? '' ); ?></strong></td>
+							<td class="col-title"><?php echo esc_html( $unit_title ); ?></td>
+							<td class="col-status">
+								<?php if ( $u_status ) : ?>
+									<span class="immo-status immo-status-<?php echo esc_attr( $u_status ); ?>"><?php echo esc_html( $u_status_lbl ); ?></span>
+								<?php endif; ?>
+							</td>
+							<td class="col-area"><?php echo ! empty( $unit['area'] ) ? esc_html( $unit['area'] ) . ' m²' : '–'; ?></td>
+							<td class="col-rooms"><?php echo ! empty( $unit['rooms'] ) ? esc_html( (int) $unit['rooms'] ) : '–'; ?></td>
+							<td class="col-floor"><?php echo esc_html( immo_client_floor_label( $u_floor ) ); ?></td>
+							<td class="col-price"><?php echo $u_price ? esc_html( $u_price ) : '–'; ?></td>
+							<td class="col-info">
+								<span class="immo-unit-info-btn" aria-label="Quick-Info anzeigen" title="Quick-Info anzeigen">
+									<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+								</span>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+
+			<?php /* Lightbox-Datenpool — ID kann in einem Shortcode mehrfach vorkommen,
+					 daher KEIN id-Attribut hier; das JS sucht ohnehin per Klasse. */ ?>
+			<div class="immo-unit-lightbox-data" hidden aria-hidden="true">
+				<?php
+				if ( ! function_exists( 'immo_pick_field' ) ) {
+					function immo_pick_field( $arr, $keys ) {
+						if ( ! is_array( $arr ) ) { return ''; }
+						foreach ( $keys as $k ) {
+							if ( isset( $arr[ $k ] ) && $arr[ $k ] !== '' && $arr[ $k ] !== null ) {
+								return $arr[ $k ];
+							}
+						}
+						return '';
+					}
+				}
+				foreach ( $items as $unit ) :
+					$unit_property = ! empty( $unit['property'] ) ? $unit['property'] : null;
+					$unit_slug     = (string) ( immo_pick_field( $unit_property, array( 'slug' ) ) ?: immo_pick_field( $unit, array( 'property_slug', 'slug' ) ) );
+					$prop_id       = (int) ( immo_pick_field( $unit_property, array( 'id' ) ) ?: immo_pick_field( $unit, array( 'property_id' ) ) );
+
+					$full_property = null;
+					if ( $unit_slug ) { $full_property = $api->get_property_by_slug( $unit_slug ); }
+					elseif ( $prop_id ) { $full_property = $api->get_property( $prop_id ); }
+
+					if ( ! $unit_slug && is_array( $full_property ) ) {
+						$unit_slug = (string) immo_pick_field( $full_property, array( 'slug' ) );
+					}
+					$fp_meta = ( is_array( $full_property ) && isset( $full_property['meta'] ) ) ? $full_property['meta'] : array();
+
+					$unit_title = $unit_property && ! empty( $unit_property['title'] ) ? $unit_property['title'] : ( 'Wohneinheit ' . ( $unit['unit_number'] ?? '' ) );
+					$unit_image = $unit_property && ! empty( $unit_property['image'] ) ? $unit_property['image'] : '';
+					if ( ! $unit_image && $full_property && ! empty( $full_property['featured_image']['url_large'] ) ) {
+						$unit_image = $full_property['featured_image']['url_large'];
+					}
+
+					$unit_excerpt = '';
+					if ( $full_property && ! empty( $full_property['description'] ) ) {
+						$plain = trim( wp_strip_all_tags( (string) $full_property['description'] ) );
+						if ( $plain !== '' ) { $unit_excerpt = wp_trim_words( $plain, 35, ' …' ); }
+					}
+
+					$unit_id      = (int) ( $unit['id'] ?? 0 );
+					$u_status     = (string) ( $unit['status'] ?? '' );
+					$u_status_lbl = (string) ( $unit['status_label'] ?? $u_status );
+
+					$u_area    = isset( $unit['area'] ) && $unit['area'] !== '' ? $unit['area'] : ( $fp_meta['area'] ?? '' );
+					$u_rooms   = isset( $unit['rooms'] ) && (int) $unit['rooms'] > 0 ? (int) $unit['rooms'] : (int) ( $fp_meta['rooms'] ?? 0 );
+					$u_bath    = (int) ( $fp_meta['bathrooms'] ?? 0 );
+					$u_floor   = isset( $unit['floor'] ) && $unit['floor'] !== '' ? $unit['floor'] : ( $fp_meta['floor'] ?? '' );
+					$u_built   = (int) ( $fp_meta['built_year'] ?? 0 );
+					$u_energy  = (string) ( $fp_meta['energy_class'] ?? '' );
+					$u_price   = isset( $unit['price_formatted'] ) && $unit['price_formatted'] !== '' ? $unit['price_formatted'] : ( $fp_meta['price_formatted'] ?? '' );
+					$u_address = (string) ( $fp_meta['address'] ?? '' );
+					$u_city    = (string) ( $fp_meta['city'] ?? '' );
+					$u_plz     = (string) ( $fp_meta['postal_code'] ?? '' );
+					$u_full_addr = trim( $u_address . ( $u_plz || $u_city ? ', ' . trim( $u_plz . ' ' . $u_city ) : '' ) );
+				?>
+					<div data-unit-id="<?php echo esc_attr( $unit_id ); ?>">
+						<?php if ( $unit_image ) : ?>
+							<div class="immo-unit-quick-hero">
+								<img src="<?php echo esc_url( $unit_image ); ?>" alt="<?php echo esc_attr( $unit_title ); ?>">
+								<?php if ( $u_status ) : ?>
+									<span class="immo-status immo-status-<?php echo esc_attr( $u_status ); ?>"><?php echo esc_html( $u_status_lbl ); ?></span>
+								<?php endif; ?>
+							</div>
+						<?php endif; ?>
+						<div class="immo-unit-quick-body">
+							<?php if ( ! empty( $unit['unit_number'] ) ) : ?>
+								<span class="immo-unit-quick-eyebrow"><?php echo esc_html( $unit['unit_number'] ); ?></span>
+							<?php endif; ?>
+							<h3 class="immo-unit-quick-title"><?php echo esc_html( $unit_title ); ?></h3>
+							<?php if ( $u_full_addr ) : ?>
+								<p class="immo-unit-quick-address">📍 <?php echo esc_html( $u_full_addr ); ?></p>
+							<?php endif; ?>
+							<?php if ( $unit_excerpt ) : ?>
+								<p class="immo-unit-quick-intro"><?php echo esc_html( $unit_excerpt ); ?></p>
+							<?php endif; ?>
+							<ul class="immo-unit-quick-facts">
+								<?php if ( $u_area !== '' ) : ?><li><span class="ico" aria-hidden="true">📐</span><span class="lab">Wohnfläche</span><strong><?php echo esc_html( $u_area ); ?> m²</strong></li><?php endif; ?>
+								<?php if ( $u_rooms > 0 ) : ?><li><span class="ico" aria-hidden="true">🛏️</span><span class="lab">Zimmer</span><strong><?php echo esc_html( $u_rooms ); ?></strong></li><?php endif; ?>
+								<?php if ( $u_bath > 0 ) : ?><li><span class="ico" aria-hidden="true">🛁</span><span class="lab">Bad</span><strong><?php echo esc_html( $u_bath ); ?></strong></li><?php endif; ?>
+								<?php $floor_lbl = immo_client_floor_label( $u_floor ); if ( $floor_lbl !== '–' ) : ?><li><span class="ico" aria-hidden="true">🏢</span><span class="lab">Etage</span><strong><?php echo esc_html( $floor_lbl ); ?></strong></li><?php endif; ?>
+								<?php if ( $u_built ) : ?><li><span class="ico" aria-hidden="true">📅</span><span class="lab">Baujahr</span><strong><?php echo esc_html( $u_built ); ?></strong></li><?php endif; ?>
+								<?php if ( $u_energy ) : ?><li><span class="ico" aria-hidden="true">⚡</span><span class="lab">Energieklasse</span><strong><?php echo esc_html( $u_energy ); ?></strong></li><?php endif; ?>
+							</ul>
+							<?php if ( $u_price ) : ?>
+								<div class="immo-unit-quick-price">
+									<span class="immo-unit-quick-price-label">Preis</span>
+									<span class="immo-unit-quick-price-value"><?php echo esc_html( $u_price ); ?></span>
+								</div>
+							<?php endif; ?>
+						</div>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+	</section>
+
+	<!-- Video-Sektion absichtlich deaktiviert (Source-Probleme). -->
+
+	<!-- ========== LAGE + KARTE ========== -->
+	<?php
+	$lage_parts = array_filter( array( $address, trim( $plz . ' ' . $city ), $dist_label, $state_label ) );
+	$lage_text  = implode( ', ', $lage_parts );
+	?>
+	<?php if ( $lage_text || ( $map_enabled && $lat && $lng ) ) : ?>
+	<section class="immo-section immo-project-lage">
+		<h2>Lage</h2>
+		<?php if ( $lage_text ) : ?>
+			<p class="immo-project-lage-text"><span class="immo-project-lage-icon" aria-hidden="true">📍</span> <?php echo esc_html( $lage_text ); ?></p>
+		<?php endif; ?>
+		<?php if ( $map_enabled && $lat && $lng ) : ?>
+			<div class="immo-project-map"
+				data-immo-map="1"
+				data-lat="<?php echo esc_attr( $lat ); ?>"
+				data-lng="<?php echo esc_attr( $lng ); ?>"
+				data-tile-url="<?php echo esc_attr( $map_tile_url ); ?>"
+				data-attribution="<?php echo esc_attr( $map_attribution ); ?>"
+				data-title="<?php echo esc_attr( $project['title'] ); ?>"></div>
+		<?php endif; ?>
+	</section>
+	<?php endif; ?>
+
+	<!-- ========== DOKUMENTE ========== -->
+	<?php if ( ! empty( $documents ) ) : ?>
+	<section class="immo-section immo-project-documents">
+		<h2>Dokumente &amp; Exposé</h2>
+		<ul class="immo-doc-list">
+			<?php foreach ( $documents as $doc ) :
+				if ( empty( $doc['url'] ) ) { continue; }
+			?>
+				<li>
+					<a href="<?php echo esc_url( $doc['url'] ); ?>" target="_blank" rel="noopener" class="immo-doc-link">
+						<span class="immo-doc-icon" aria-hidden="true">📄</span>
+						<span class="immo-doc-title"><?php echo esc_html( ! empty( $doc['title'] ) ? $doc['title'] : 'Dokument' ); ?></span>
+						<span class="immo-doc-cta">Ansehen →</span>
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+	</section>
+	<?php endif; ?>
+
+	<!-- ========== KONTAKT-BOX ========== -->
+	<?php if ( $contact_name || $contact_email || $contact_phone ) : ?>
+	<section class="immo-section immo-project-contact">
+		<h2>Kontakt</h2>
+		<div class="immo-project-contact-card">
+			<?php if ( $contact_image ) : ?>
+				<img src="<?php echo esc_url( $contact_image['url_thumbnail'] ); ?>" alt="<?php echo esc_attr( $contact_name ); ?>" class="immo-project-contact-photo">
+			<?php endif; ?>
+			<div class="immo-project-contact-info">
+				<?php if ( $contact_name ) : ?>
+					<strong class="immo-project-contact-name"><?php echo esc_html( $contact_name ); ?></strong>
+				<?php endif; ?>
+				<div class="immo-project-contact-actions">
+					<?php if ( $contact_phone ) : ?>
+						<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>" class="immo-btn immo-btn-secondary">📞 <?php echo esc_html( $contact_phone ); ?></a>
+					<?php endif; ?>
+					<button type="button" class="immo-btn immo-btn-primary" data-immo-inquiry-open>✉️ Anfrage senden</button>
+				</div>
+			</div>
+		</div>
+	</section>
+	<?php endif; ?>
+
+</article>
+
+<!-- ========== ANFRAGE-MODAL (Singleton pro Page) ========== -->
+<?php if ( ! ImmoShortcodes::inquiry_modal_rendered() ) : ?>
+<div id="immo-inquiry-modal" class="immo-inquiry-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="immo-inquiry-modal-title">
+	<div class="immo-inquiry-modal-backdrop" data-immo-inquiry-close></div>
+	<div class="immo-inquiry-modal-dialog" role="document">
+		<button type="button" class="immo-inquiry-modal-close" data-immo-inquiry-close aria-label="Schließen">×</button>
+		<h2 id="immo-inquiry-modal-title">Anfrage zu <?php echo esc_html( $project['title'] ); ?></h2>
+
+		<?php if ( $contact_name || $contact_image ) : ?>
+			<div class="immo-inquiry-modal-agent">
+				<?php if ( $contact_image ) : ?>
+					<img src="<?php echo esc_url( $contact_image['url_thumbnail'] ); ?>" alt="<?php echo esc_attr( $contact_name ); ?>">
+				<?php endif; ?>
+				<div>
+					<?php if ( $contact_name ) : ?><strong><?php echo esc_html( $contact_name ); ?></strong><?php endif; ?>
+					<?php if ( $contact_phone ) : ?><a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>">📞 <?php echo esc_html( $contact_phone ); ?></a><?php endif; ?>
+				</div>
+			</div>
+		<?php endif; ?>
+
+		<?php
+		// $immo_email kommt vom Renderer (Form-Override aus Shortcode-Attribut email="...").
+		include IMMO_CLIENT_PATH . 'templates/project-inquiry-form.php';
+		?>
+	</div>
 </div>
+<?php endif; ?>
+
+<!-- ========== WOHNEINHEITEN-LIGHTBOX (Singleton pro Page) ========== -->
+<?php if ( ! ImmoShortcodes::unit_lightbox_rendered() ) : ?>
+<div id="immo-unit-lightbox" class="immo-unit-lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Wohneinheit Quick-Info" data-link-units="<?php echo $immo_link_units ? '1' : '0'; ?>">
+	<div class="immo-unit-lightbox-backdrop" data-immo-lightbox-close></div>
+	<div class="immo-unit-lightbox-dialog" role="document">
+		<button type="button" class="immo-unit-lightbox-close" data-immo-lightbox-close aria-label="Schließen">×</button>
+		<div class="immo-unit-lightbox-content"></div>
+		<?php if ( $immo_link_units ) : ?>
+			<div class="immo-unit-quick-actions" id="immo-unit-lightbox-actions">
+				<a href="#" class="immo-unit-details-btn" id="immo-unit-lightbox-details-btn">Details ansehen →</a>
+			</div>
+		<?php endif; ?>
+	</div>
+</div>
+<?php endif; ?>
+
+<!-- ========== STICKY MOBILE-CTA-BAR (Singleton, nur einmal pro Page) ========== -->
+<?php if ( ! ImmoShortcodes::mobile_cta_rendered() ) : ?>
+<div class="immo-project-mobile-cta" aria-label="Schneller Kontakt">
+	<button type="button" class="immo-btn immo-btn-primary" data-immo-inquiry-open>✉️ Anfrage</button>
+	<?php if ( $contact_phone ) : ?>
+		<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>" class="immo-btn immo-btn-secondary">📞 Anrufen</a>
+	<?php endif; ?>
+</div>
+<script>(function () { if (document.body) document.body.classList.add('has-immo-project-cta'); })();</script>
+<?php endif; ?>

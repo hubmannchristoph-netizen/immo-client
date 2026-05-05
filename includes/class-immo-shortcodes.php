@@ -139,7 +139,8 @@ class ImmoShortcodes {
     }
 
     /**
-     * Einzel-Projekt via ID oder Slug.
+     * Einzel-Projekt via ID oder Slug — rendert die volle Detailansicht
+     * (gleiche Sektionen wie /bauprojekt/{slug}/).
      */
     public function render_project_shortcode($atts) {
         $atts = shortcode_atts(array_merge(array(
@@ -159,12 +160,19 @@ class ImmoShortcodes {
             return 'Projekt nicht gefunden.';
         }
 
-        // Zugehörige Einheiten separat laden.
-        $units_payload = $this->api->get_project_units($project['id']);
-        $project_units = isset($units_payload['units']) ? $units_payload['units'] : array();
+        // Bauprojekt-CSS dynamisch nachladen (außerhalb der /bauprojekt/-Route).
+        wp_enqueue_style('immo-client-project-detail',
+            IMMO_CLIENT_URL . 'assets/css/project-detail.css',
+            array('immo-client-style'),
+            IMMO_CLIENT_VERSION
+        );
+        // Project-JS sicherstellen (Modal + Karte + Filter).
+        wp_enqueue_script('immo-client-project');
 
-        $ctx        = $this->prepare_container($atts, 'immo-project');
-        $immo_email = $ctx['email'];
+        $ctx          = $this->prepare_container($atts, 'immo-project');
+        $immo_email   = $ctx['email'];
+        $api          = $this->api;
+        $is_shortcode = true;
 
         ob_start();
         echo $ctx['style'];
@@ -172,6 +180,48 @@ class ImmoShortcodes {
         include IMMO_CLIENT_PATH . 'templates/shortcode-project.php';
         echo '</div>';
         return ob_get_clean();
+    }
+
+    /**
+     * Hat das Anfrage-Modal (Singleton) bereits ausgegeben?
+     *
+     * @var bool
+     */
+    private static $project_inquiry_modal_rendered = false;
+
+    /**
+     * Hat der Wohneinheits-Lightbox-Container (Singleton) bereits ausgegeben?
+     *
+     * @var bool
+     */
+    private static $project_unit_lightbox_rendered = false;
+
+    /**
+     * Hat die Sticky-Mobile-CTA-Bar (Singleton) bereits ausgegeben?
+     *
+     * @var bool
+     */
+    private static $project_mobile_cta_rendered = false;
+
+    /**
+     * Wird vom shortcode-project.php aufgerufen, um Modal/Lightbox/CTA-Container
+     * höchstens EINMAL pro Page-Render auszugeben (auch bei mehreren
+     * [immo_project]-Shortcodes auf einer Seite).
+     */
+    public static function inquiry_modal_rendered() {
+        $r = self::$project_inquiry_modal_rendered;
+        self::$project_inquiry_modal_rendered = true;
+        return $r;
+    }
+    public static function unit_lightbox_rendered() {
+        $r = self::$project_unit_lightbox_rendered;
+        self::$project_unit_lightbox_rendered = true;
+        return $r;
+    }
+    public static function mobile_cta_rendered() {
+        $r = self::$project_mobile_cta_rendered;
+        self::$project_mobile_cta_rendered = true;
+        return $r;
     }
 
     /**

@@ -1,314 +1,673 @@
 /**
- * Bauprojekt-Detailseite: einspaltiges Redesign mit allen Sektionen.
- * Lädt zusätzlich zu immo-client.css.
+ * Bauprojekt-Detailseite — verkaufsorientiertes Layout, gekapselt.
+ *
+ * ALLE Selektoren beginnen mit .immo-project-singlecol — das verhindert
+ * Kollisionen mit Theme-CSS und WordPress-Core-Klassen.
+ *
+ * Verwendung:
+ *   - templates/single-project.php  (Detailseite /bauprojekt/{slug}/)
+ *   - templates/shortcode-project.php  (eingebetteter [immo_project])
+ *
+ * Beide rendern <article class="immo-project-singlecol …">.
  */
 
+/* ============================================================
+   1. ROOT-CONTAINER
+   ============================================================ */
 .immo-project-singlecol {
+	--ip-radius: 14px;
+	--ip-radius-sm: 8px;
+	--ip-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06);
+	--ip-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08), 0 16px 40px rgba(0, 0, 0, 0.10);
+	--ip-border: #e5e7eb;
+	--ip-text: #111827;
+	--ip-text-muted: #4b5563;
+	--ip-bg: #ffffff;
+	--ip-bg-soft: #f9fafb;
+	--ip-bg-tinted: #f3f4f6;
+	--ip-primary: var(--immo-primary, #1e88e5);
+	--ip-accent: var(--immo-accent, #ff9800);
+
 	margin: 0 auto;
 	padding: 0;
+	color: var(--ip-text);
+	font-size: 16px;
+	line-height: 1.6;
 }
+.immo-project-singlecol *,
+.immo-project-singlecol *::before,
+.immo-project-singlecol *::after { box-sizing: border-box; }
+
 .immo-project-singlecol > section,
 .immo-project-singlecol > header {
-	margin: 2.5rem 0;
+	margin: 2rem 0;
 }
+.immo-project-singlecol > section:first-child,
+.immo-project-singlecol > header:first-child { margin-top: 0; }
 
-/* ====== HERO-GALERIE ====== */
-.immo-project-hero {
-	margin-top: 0 !important;
-	margin-bottom: 2rem !important;
+/* ============================================================
+   2. HERO-GALERIE
+   ============================================================ */
+.immo-project-singlecol .immo-project-hero {
+	margin-top: 0;
+	margin-bottom: 1.5rem;
 }
-.immo-project-hero .immo-gallery-stage {
+.immo-project-singlecol .immo-gallery-stage {
 	position: relative;
-	border-radius: 12px;
+	border-radius: var(--ip-radius);
 	overflow: hidden;
 	aspect-ratio: 16 / 9;
 	background: #1a1a1a;
+	box-shadow: var(--ip-shadow);
 }
-.immo-project-status-pill {
+.immo-project-singlecol .immo-slide {
 	position: absolute;
-	top: 16px;
-	left: 16px;
+	inset: 0;
+	opacity: 0;
+	transition: opacity 0.4s ease;
+}
+.immo-project-singlecol .immo-slide.is-active { opacity: 1; }
+.immo-project-singlecol .immo-slide img {
+	width: 100%; height: 100%;
+	object-fit: cover;
+	display: block;
+}
+.immo-project-singlecol .immo-nav-prev,
+.immo-project-singlecol .immo-nav-next {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 44px; height: 44px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.92);
+	border: none;
+	font-size: 1.4rem;
+	color: var(--ip-text);
+	cursor: pointer;
+	z-index: 4;
+	box-shadow: var(--ip-shadow);
+	display: flex; align-items: center; justify-content: center;
+	transition: background 0.15s ease;
+}
+.immo-project-singlecol .immo-nav-prev:hover,
+.immo-project-singlecol .immo-nav-next:hover { background: #fff; }
+.immo-project-singlecol .immo-nav-prev { left: 12px; }
+.immo-project-singlecol .immo-nav-next { right: 12px; }
+.immo-project-singlecol .immo-expand {
+	position: absolute;
+	bottom: 12px; right: 12px;
+	width: 38px; height: 38px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.5);
+	color: #fff; border: none;
+	cursor: pointer; z-index: 4;
+}
+
+.immo-project-singlecol .immo-project-status-pill {
+	position: absolute;
+	top: 16px; left: 16px;
 	z-index: 5;
-	padding: 0.4em 0.9em;
+	padding: 0.45em 1em;
 	border-radius: 999px;
 	font-size: 0.85rem;
 	font-weight: 700;
-	background: rgba(255, 255, 255, 0.95);
-	color: #1f2937;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	letter-spacing: 0.02em;
+	background: rgba(255, 255, 255, 0.96);
+	color: var(--ip-text);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+	backdrop-filter: blur(6px);
 }
-.immo-project-status-planning  { background: #dbeafe; color: #1e3a8a; }
-.immo-project-status-building   { background: #fef3c7; color: #92400e; }
-.immo-project-status-completed  { background: #dcfce7; color: #166534; }
+.immo-project-singlecol .immo-project-status-planning  { background: #dbeafe; color: #1e3a8a; }
+.immo-project-singlecol .immo-project-status-building   { background: #fef3c7; color: #92400e; }
+.immo-project-singlecol .immo-project-status-completed  { background: #dcfce7; color: #166534; }
 
-/* ====== HEADER ====== */
-.immo-project-header {
+.immo-project-singlecol .immo-thumbs {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+	gap: 6px;
+	margin-top: 0.6rem;
+}
+.immo-project-singlecol .immo-thumb {
+	border: 2px solid transparent;
+	border-radius: var(--ip-radius-sm);
+	overflow: hidden;
+	cursor: pointer;
+	background: none;
+	padding: 0;
+	aspect-ratio: 4 / 3;
+	transition: border-color 0.15s ease;
+}
+.immo-project-singlecol .immo-thumb img {
+	width: 100%; height: 100%;
+	object-fit: cover;
+	display: block;
+}
+.immo-project-singlecol .immo-thumb.is-active { border-color: var(--ip-primary); }
+.immo-project-singlecol .immo-thumb:hover { border-color: var(--ip-primary); }
+
+/* ============================================================
+   3. HEADER (Titel + Lage + CTA-Row)
+   ============================================================ */
+.immo-project-singlecol .immo-project-header {
 	text-align: left;
+	padding: 1.5rem 0 0.5rem;
 }
-.immo-project-title {
+.immo-project-singlecol .immo-project-title {
 	margin: 0 0 0.4em;
-	font-size: clamp(1.6rem, 3vw, 2.4rem);
-	font-weight: 700;
-	line-height: 1.2;
-	color: #111827;
+	font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+	font-weight: 800;
+	line-height: 1.15;
+	color: var(--ip-text);
+	letter-spacing: -0.01em;
 }
-.immo-project-location {
-	margin: 0 0 1em;
+.immo-project-singlecol .immo-project-location {
+	margin: 0 0 1.2em;
 	font-size: 1.05rem;
-	color: #4b5563;
+	color: var(--ip-text-muted);
 }
-.immo-project-cta-row {
+.immo-project-singlecol .immo-project-cta-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.6em;
 	margin-top: 1em;
 }
-.immo-project-cta-row .immo-btn {
+
+/* Buttons sind gekapselt, nutzen aber das normale .immo-btn-Schema */
+.immo-project-singlecol .immo-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4em;
-	padding: 0.7em 1.3em;
-	border-radius: 8px;
-	font-weight: 600;
+	padding: 0.85em 1.5em;
+	border-radius: 10px;
+	font-weight: 700;
 	font-size: 0.95rem;
 	border: none;
 	text-decoration: none;
 	cursor: pointer;
-	transition: filter 0.15s ease, transform 0.15s ease;
+	font-family: inherit;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+	white-space: nowrap;
 }
-.immo-project-cta-row .immo-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-.immo-project-cta-row .immo-btn-primary { background: var(--immo-primary, #1e88e5); color: #fff; }
-.immo-project-cta-row .immo-btn-secondary { background: #f3f4f6; color: #1f2937; }
+.immo-project-singlecol .immo-btn:hover {
+	transform: translateY(-1px);
+	filter: brightness(1.05);
+}
+.immo-project-singlecol .immo-btn-primary {
+	background: var(--ip-primary);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(30, 136, 229, 0.25);
+}
+.immo-project-singlecol .immo-btn-primary:hover {
+	box-shadow: 0 4px 16px rgba(30, 136, 229, 0.35);
+	color: #fff;
+}
+.immo-project-singlecol .immo-btn-secondary {
+	background: var(--ip-bg);
+	color: var(--ip-text);
+	border: 1.5px solid var(--ip-border);
+}
+.immo-project-singlecol .immo-btn-secondary:hover {
+	border-color: var(--ip-primary);
+	color: var(--ip-primary);
+}
+.immo-project-singlecol .immo-btn:focus-visible {
+	outline: 2px solid var(--ip-primary);
+	outline-offset: 2px;
+}
 
-/* ====== STATS-GRID ====== */
-.immo-project-stats-grid {
+/* ============================================================
+   4. STATS-GRID (Schnellüberblick als Kacheln)
+   ============================================================ */
+.immo-project-singlecol .immo-project-stats-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-	gap: 1rem;
-	padding: 1.5rem;
-	background: #f9fafb;
-	border-radius: 12px;
-	border: 1px solid #e5e7eb;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 1px;
+	background: var(--ip-border);
+	border-radius: var(--ip-radius);
+	overflow: hidden;
+	box-shadow: var(--ip-shadow);
 }
-.immo-project-stat {
+.immo-project-singlecol .immo-project-stat {
 	display: flex;
 	flex-direction: column;
-	gap: 0.2em;
-	padding: 0.5em 0;
+	gap: 0.3em;
+	padding: 1.4rem 1.2rem;
+	background: var(--ip-bg);
 }
-.immo-project-stat-icon { font-size: 1.6rem; line-height: 1; margin-bottom: 0.3em; }
-.immo-project-stat-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; font-weight: 600; }
-.immo-project-stat-value { font-size: 1.1rem; font-weight: 700; color: #111827; }
+.immo-project-singlecol .immo-project-stat-icon {
+	font-size: 1.5rem;
+	line-height: 1;
+	margin-bottom: 0.2em;
+	opacity: 0.9;
+}
+.immo-project-singlecol .immo-project-stat-label {
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--ip-text-muted);
+	font-weight: 700;
+}
+.immo-project-singlecol .immo-project-stat-value {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: var(--ip-text);
+}
 
-/* ====== SEKTIONEN GENERELL ====== */
+/* ============================================================
+   5. SEKTIONEN (Card-Stil)
+   ============================================================ */
+.immo-project-singlecol .immo-section {
+	background: var(--ip-bg);
+	border: 1px solid var(--ip-border);
+	border-radius: var(--ip-radius);
+	padding: 1.8rem 1.8rem 1.6rem;
+	box-shadow: var(--ip-shadow);
+}
 .immo-project-singlecol .immo-section h2 {
 	margin: 0 0 1em;
-	font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+	font-size: clamp(1.25rem, 2vw, 1.5rem);
 	font-weight: 700;
-	color: #111827;
-	padding-bottom: 0.5em;
-	border-bottom: 2px solid #e5e7eb;
+	color: var(--ip-text);
+	letter-spacing: -0.005em;
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+.immo-project-singlecol .immo-section h2::before {
+	content: '';
+	display: inline-block;
+	width: 4px;
+	height: 1.1em;
+	background: var(--ip-primary);
+	border-radius: 2px;
+	flex-shrink: 0;
 }
 
-.immo-rich-text {
+/* Rich-Text-Container */
+.immo-project-singlecol .immo-rich-text {
 	font-size: 1rem;
 	line-height: 1.7;
-	color: #374151;
+	color: var(--ip-text-muted);
 }
-.immo-rich-text p { margin: 0 0 1em; }
-.immo-rich-text strong { color: #111827; }
-.immo-rich-text ul, .immo-rich-text ol { padding-left: 1.4em; margin: 0 0 1em; }
-.immo-rich-text li { margin: 0.3em 0; }
+.immo-project-singlecol .immo-rich-text p { margin: 0 0 1em; }
+.immo-project-singlecol .immo-rich-text p:last-child { margin-bottom: 0; }
+.immo-project-singlecol .immo-rich-text strong { color: var(--ip-text); font-weight: 600; }
+.immo-project-singlecol .immo-rich-text ul,
+.immo-project-singlecol .immo-rich-text ol { padding-left: 1.4em; margin: 0 0 1em; }
+.immo-project-singlecol .immo-rich-text li { margin: 0.3em 0; }
+.immo-project-singlecol .immo-rich-text a { color: var(--ip-primary); }
 
-/* ====== HIGHLIGHTS ====== */
-.immo-project-highlights {
-	background: linear-gradient(135deg, rgba(30, 136, 229, 0.04), rgba(67, 160, 71, 0.04));
-	padding: 1.8rem;
-	border-radius: 12px;
-	border-left: 4px solid var(--immo-accent, #ff9800);
+/* ============================================================
+   6. HIGHLIGHTS (Akzent-Panel)
+   ============================================================ */
+.immo-project-singlecol .immo-project-highlights {
+	background: linear-gradient(135deg, rgba(30, 136, 229, 0.04), rgba(255, 152, 0, 0.06));
+	border-color: rgba(255, 152, 0, 0.3);
+	position: relative;
+	overflow: hidden;
 }
-.immo-project-highlights h2 { border-bottom: none; padding-bottom: 0; }
+.immo-project-singlecol .immo-project-highlights::before {
+	content: '✨';
+	position: absolute;
+	top: -10px; right: -10px;
+	font-size: 6rem;
+	opacity: 0.05;
+	pointer-events: none;
+}
+.immo-project-singlecol .immo-project-highlights h2::before { background: var(--ip-accent); }
 
-/* ====== AUSSTATTUNG / FEATURE-LIST ====== */
-.immo-project-features .immo-accordion {
-	border: 1px solid #e5e7eb;
-	border-radius: 8px;
+/* ============================================================
+   7. AUSSTATTUNG (Akkordeons + Feature-Liste)
+   ============================================================ */
+.immo-project-singlecol .immo-project-features .immo-accordion {
+	border: 1px solid var(--ip-border);
+	border-radius: var(--ip-radius-sm);
 	margin-bottom: 0.6em;
-	background: #fff;
+	background: var(--ip-bg-soft);
+	transition: border-color 0.15s ease;
 }
-.immo-project-features .immo-accordion summary {
-	padding: 0.9em 1.1em;
+.immo-project-singlecol .immo-project-features .immo-accordion[open] {
+	border-color: var(--ip-primary);
+	background: var(--ip-bg);
+}
+.immo-project-singlecol .immo-project-features .immo-accordion summary {
+	padding: 0.95em 1.2em;
 	cursor: pointer;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	font-weight: 600;
-	color: #1f2937;
+	color: var(--ip-text);
 	list-style: none;
 }
-.immo-project-features .immo-accordion summary::-webkit-details-marker { display: none; }
-.immo-project-features .immo-accordion summary::after {
-	content: '⌃';
-	transform: rotate(180deg);
-	font-size: 0.8rem;
+.immo-project-singlecol .immo-project-features .immo-accordion summary::-webkit-details-marker { display: none; }
+.immo-project-singlecol .immo-project-features .immo-accordion summary::after {
+	content: '▾';
+	font-size: 0.85rem;
 	color: #9ca3af;
+	margin-left: 0.5em;
 	transition: transform 0.2s ease;
 }
-.immo-project-features .immo-accordion[open] summary::after { transform: rotate(0deg); }
-.immo-project-features .immo-accordion-count {
+.immo-project-singlecol .immo-project-features .immo-accordion[open] summary::after { transform: rotate(180deg); color: var(--ip-primary); }
+.immo-project-singlecol .immo-project-features .immo-accordion-count {
 	display: inline-block;
 	margin-left: auto;
 	margin-right: 0.7em;
-	padding: 0.15em 0.55em;
-	background: #f3f4f6;
-	color: #4b5563;
+	padding: 0.15em 0.6em;
+	background: var(--ip-bg-tinted);
+	color: var(--ip-text-muted);
 	font-size: 0.78rem;
-	font-weight: 600;
+	font-weight: 700;
 	border-radius: 999px;
 }
-.immo-project-features .immo-feature-list {
+.immo-project-singlecol .immo-project-features .immo-accordion[open] .immo-accordion-count {
+	background: rgba(30, 136, 229, 0.1);
+	color: var(--ip-primary);
+}
+.immo-project-singlecol .immo-project-features .immo-feature-list {
 	list-style: none;
-	padding: 0 1.1em 1em;
+	padding: 0 1.2em 1.1em;
 	margin: 0;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-	gap: 0.5em 1em;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 0.6em 1em;
 }
-.immo-project-features .immo-feature-list li {
+.immo-project-singlecol .immo-project-features .immo-feature-list li {
 	display: flex;
 	align-items: center;
-	gap: 0.5em;
+	gap: 0.55em;
 	font-size: 0.95rem;
-	color: #374151;
+	color: var(--ip-text);
 }
-.immo-project-features .immo-feature-icon { font-size: 1.1rem; }
+.immo-project-singlecol .immo-feature-icon { font-size: 1.1rem; flex-shrink: 0; }
 
-/* ====== VIDEO ====== */
-.immo-video-player {
-	width: 100%;
-	max-width: 100%;
-	border-radius: 12px;
-	background: #000;
+/* ============================================================
+   8. CTA-BANNER (zwischen Sektionen)
+   ============================================================ */
+.immo-project-singlecol .immo-project-cta-banner {
+	background: linear-gradient(135deg, var(--ip-primary), color-mix(in srgb, var(--ip-primary) 70%, var(--ip-accent)));
+	color: #fff;
+	padding: 2rem 2rem;
+	border-radius: var(--ip-radius);
+	box-shadow: var(--ip-shadow-lg);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.5rem;
+	border: none;
 }
-.immo-video-embed {
-	position: relative;
-	padding-bottom: 56.25%;
-	height: 0;
-	border-radius: 12px;
-	overflow: hidden;
-	background: #000;
+.immo-project-singlecol .immo-project-cta-banner-text {
+	flex: 1 1 280px;
+	min-width: 0;
 }
-.immo-video-embed iframe {
-	position: absolute;
-	top: 0; left: 0;
-	width: 100%; height: 100%;
-	border: 0;
+.immo-project-singlecol .immo-project-cta-banner-title {
+	margin: 0 0 0.3em;
+	font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+	font-weight: 800;
+	color: #fff;
+}
+.immo-project-singlecol .immo-project-cta-banner-text p {
+	margin: 0;
+	color: rgba(255, 255, 255, 0.92);
+	font-size: 0.98rem;
+}
+.immo-project-singlecol .immo-project-cta-banner-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6em;
+}
+.immo-project-singlecol .immo-project-cta-banner .immo-btn-primary {
+	background: #fff;
+	color: var(--ip-primary);
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+.immo-project-singlecol .immo-project-cta-banner .immo-btn-primary:hover {
+	background: #fff;
+	color: var(--ip-primary);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+.immo-project-singlecol .immo-project-cta-banner .immo-btn-secondary {
+	background: rgba(255, 255, 255, 0.15);
+	color: #fff;
+	border: 1.5px solid rgba(255, 255, 255, 0.4);
+}
+.immo-project-singlecol .immo-project-cta-banner .immo-btn-secondary:hover {
+	background: rgba(255, 255, 255, 0.25);
+	color: #fff;
+	border-color: #fff;
 }
 
-/* ====== KARTE ====== */
-.immo-project-map {
-	width: 100%;
-	height: 360px;
-	min-height: 320px;
-	border-radius: 12px;
-	overflow: hidden;
-	margin-top: 1em;
-	border: 1px solid #e5e7eb;
+/* ============================================================
+   9. WOHNEINHEITEN-TABELLE
+   ============================================================ */
+.immo-project-singlecol .immo-units-list h2 .immo-units-count {
+	display: inline-block;
+	margin-left: 0.4em;
+	padding: 0.15em 0.7em;
+	background: var(--ip-bg-tinted);
+	color: var(--ip-text-muted);
+	font-size: 0.85rem;
+	font-weight: 700;
+	border-radius: 999px;
 }
-.immo-project-lage-text {
+.immo-project-singlecol .immo-units-summary {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5em;
+	margin-bottom: 1.2em;
+}
+.immo-project-singlecol .immo-units-stat {
+	padding: 0.45em 0.85em;
+	border-radius: 999px;
+	font-size: 0.88rem;
+	background: var(--ip-bg-tinted);
+	color: var(--ip-text-muted);
+	border: 1px solid transparent;
+	font-family: inherit;
+	line-height: 1.2;
+}
+.immo-project-singlecol .immo-units-stat strong {
+	margin-right: 0.3em;
+	font-weight: 800;
+	color: var(--ip-text);
+}
+.immo-project-singlecol button.immo-units-stat {
+	cursor: pointer;
+	transition: transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.immo-project-singlecol button.immo-units-stat:hover {
+	filter: brightness(0.96);
+	transform: translateY(-1px);
+}
+.immo-project-singlecol button.immo-units-stat.is-active {
+	box-shadow: 0 0 0 2px currentColor inset;
+	font-weight: 600;
+}
+.immo-project-singlecol .immo-units-stat-available { background: #dcfce7; color: #166534; }
+.immo-project-singlecol .immo-units-stat-reserved  { background: #fef3c7; color: #92400e; }
+.immo-project-singlecol .immo-units-stat-sold      { background: #fee2e2; color: #991b1b; }
+.immo-project-singlecol .immo-units-stat-rented    { background: #fee2e2; color: #991b1b; }
+.immo-project-singlecol .immo-units-stat-total     { background: var(--ip-bg-tinted); color: var(--ip-text); }
+
+.immo-project-singlecol .immo-unit-table-wrapper { overflow-x: auto; border-radius: var(--ip-radius-sm); border: 1px solid var(--ip-border); }
+.immo-project-singlecol .immo-unit-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.95rem;
+	background: var(--ip-bg);
+}
+.immo-project-singlecol .immo-unit-table th,
+.immo-project-singlecol .immo-unit-table td {
+	padding: 0.85em 1em;
+	border-bottom: 1px solid var(--ip-border);
+	text-align: left;
+	vertical-align: middle;
+}
+.immo-project-singlecol .immo-unit-table thead th {
+	background: var(--ip-bg-soft);
+	font-weight: 700;
+	color: var(--ip-text);
+	font-size: 0.78rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+.immo-project-singlecol .immo-unit-table tbody tr:last-child td { border-bottom: none; }
+.immo-project-singlecol .immo-unit-table tbody tr.is-clickable { cursor: pointer; transition: background 0.12s ease; }
+.immo-project-singlecol .immo-unit-table tbody tr.is-clickable:hover { background: var(--ip-bg-soft); }
+.immo-project-singlecol .immo-unit-table tbody tr.is-clickable:focus-visible {
+	outline: 2px solid var(--ip-primary);
+	outline-offset: -2px;
+}
+.immo-project-singlecol .col-price { font-weight: 700; color: var(--ip-text); }
+.immo-project-singlecol .col-info { width: 36px; text-align: center; }
+.immo-project-singlecol .immo-unit-info-btn {
+	display: inline-flex;
+	align-items: center; justify-content: center;
+	width: 28px; height: 28px;
+	border-radius: 50%;
+	color: var(--ip-primary);
+	background: rgba(30, 136, 229, 0.08);
+}
+.immo-project-singlecol tr.is-clickable:hover .immo-unit-info-btn {
+	background: var(--ip-primary);
+	color: #fff;
+}
+
+.immo-project-singlecol .immo-status {
+	display: inline-block;
+	padding: 0.2em 0.65em;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 700;
+}
+.immo-project-singlecol .immo-status-available { background: #dcfce7; color: #166534; }
+.immo-project-singlecol .immo-status-reserved  { background: #fef3c7; color: #92400e; }
+.immo-project-singlecol .immo-status-sold      { background: #fee2e2; color: #991b1b; }
+.immo-project-singlecol .immo-status-rented    { background: #fee2e2; color: #991b1b; }
+
+.immo-project-singlecol .immo-unit-filter-empty {
+	padding: 1em;
+	background: var(--ip-bg-soft);
+	border-radius: var(--ip-radius-sm);
+	color: var(--ip-text-muted);
+	text-align: center;
+	margin-top: 0.6em;
+}
+
+/* ============================================================
+   10. KARTE
+   ============================================================ */
+.immo-project-singlecol .immo-project-lage-text {
 	font-size: 1.05rem;
-	color: #4b5563;
+	color: var(--ip-text-muted);
 	margin: 0 0 1em;
 }
-.immo-project-lage-icon {
+.immo-project-singlecol .immo-project-lage-icon {
 	display: inline-block;
 	margin-right: 0.3em;
-	font-size: 1.15rem;
+}
+.immo-project-singlecol .immo-project-map {
+	width: 100%;
+	height: 380px;
+	min-height: 320px;
+	border-radius: var(--ip-radius-sm);
+	overflow: hidden;
+	border: 1px solid var(--ip-border);
 }
 
-/* ====== DOKUMENTE ====== */
-.immo-doc-list {
+/* ============================================================
+   11. DOKUMENTE
+   ============================================================ */
+.immo-project-singlecol .immo-doc-list {
 	list-style: none;
 	padding: 0;
 	margin: 0;
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 	gap: 0.7em;
 }
-.immo-doc-link {
+.immo-project-singlecol .immo-doc-link {
 	display: flex;
 	align-items: center;
 	gap: 1em;
 	padding: 1em 1.2em;
-	background: #fff;
-	border: 1px solid #e5e7eb;
-	border-radius: 8px;
+	background: var(--ip-bg-soft);
+	border: 1px solid var(--ip-border);
+	border-radius: var(--ip-radius-sm);
 	text-decoration: none;
-	color: #1f2937;
-	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	color: var(--ip-text);
+	transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
 }
-.immo-doc-link:hover {
-	border-color: var(--immo-primary, #1e88e5);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-	color: #1f2937;
+.immo-project-singlecol .immo-doc-link:hover {
+	border-color: var(--ip-primary);
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+	color: var(--ip-text);
+	transform: translateY(-1px);
 }
-.immo-doc-icon { font-size: 1.6rem; color: var(--immo-primary, #1e88e5); flex-shrink: 0; }
-.immo-doc-title { flex: 1; font-weight: 500; }
-.immo-doc-cta { color: var(--immo-primary, #1e88e5); font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+.immo-project-singlecol .immo-doc-icon { font-size: 1.6rem; color: var(--ip-primary); flex-shrink: 0; }
+.immo-project-singlecol .immo-doc-title { flex: 1; font-weight: 600; }
+.immo-project-singlecol .immo-doc-cta { color: var(--ip-primary); font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
 
-/* ====== KONTAKT-BOX ====== */
-.immo-project-contact-card {
+/* ============================================================
+   12. KONTAKT-BOX
+   ============================================================ */
+.immo-project-singlecol .immo-project-contact-card {
 	display: flex;
 	gap: 1.5em;
 	align-items: center;
 	flex-wrap: wrap;
-	padding: 1.8rem;
-	background: linear-gradient(135deg, #f9fafb, #f3f4f6);
-	border-radius: 12px;
-	border: 1px solid #e5e7eb;
 }
-.immo-project-contact-photo {
-	width: 88px;
-	height: 88px;
+.immo-project-singlecol .immo-project-contact-photo {
+	width: 96px; height: 96px;
 	border-radius: 50%;
 	object-fit: cover;
-	border: 3px solid var(--immo-accent, #ff9800);
+	border: 4px solid var(--ip-bg);
+	box-shadow: var(--ip-shadow);
 	flex-shrink: 0;
 }
-.immo-project-contact-info {
-	flex: 1;
-	min-width: 240px;
+.immo-project-singlecol .immo-project-contact-info {
+	flex: 1; min-width: 240px;
 	display: flex;
 	flex-direction: column;
-	gap: 0.6em;
+	gap: 0.7em;
 }
-.immo-project-contact-name {
-	font-size: 1.15rem;
-	color: #111827;
+.immo-project-singlecol .immo-project-contact-name {
+	font-size: 1.2rem;
+	color: var(--ip-text);
+	font-weight: 700;
 }
-.immo-project-contact-actions {
+.immo-project-singlecol .immo-project-contact-actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.6em;
 }
-.immo-project-contact-actions .immo-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4em;
-	padding: 0.6em 1.1em;
-	border-radius: 8px;
-	font-weight: 600;
-	font-size: 0.92rem;
-	border: none;
-	text-decoration: none;
-	cursor: pointer;
-	transition: filter 0.15s ease;
-}
-.immo-project-contact-actions .immo-btn-primary { background: var(--immo-primary, #1e88e5); color: #fff; }
-.immo-project-contact-actions .immo-btn-secondary { background: #fff; color: #1f2937; border: 1px solid #d1d5db; }
-.immo-project-contact-actions .immo-btn:hover { filter: brightness(1.08); }
 
-/* ====== ANFRAGE-MODAL ====== */
+/* ============================================================
+   13. STICKY MOBILE-CTA (verkaufsorientiert: immer sichtbar)
+   ============================================================ */
+.immo-project-mobile-cta {
+	position: fixed;
+	bottom: 0; left: 0; right: 0;
+	z-index: 100;
+	display: none;
+	gap: 8px;
+	padding: 10px 14px;
+	background: rgba(255, 255, 255, 0.98);
+	border-top: 1px solid var(--immo-border, #e5e7eb);
+	box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+	backdrop-filter: blur(8px);
+}
+.immo-project-mobile-cta .immo-btn {
+	flex: 1;
+	justify-content: center;
+	padding: 0.8em 0.5em;
+	font-size: 0.9rem;
+}
+
+/* ============================================================
+   14. ANFRAGE-MODAL (Lightbox)
+   ============================================================ */
 .immo-inquiry-modal {
 	display: none;
 	position: fixed;
@@ -316,32 +675,33 @@
 	z-index: 9999;
 	align-items: center;
 	justify-content: center;
+	font-family: inherit;
+	color: #111827;
 }
 .immo-inquiry-modal.is-open { display: flex; }
 .immo-inquiry-modal-backdrop {
 	position: absolute;
 	inset: 0;
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.55);
 	cursor: pointer;
+	backdrop-filter: blur(2px);
 }
 .immo-inquiry-modal-dialog {
 	position: relative;
 	z-index: 1;
 	background: #fff;
-	border-radius: 12px;
-	max-width: 560px;
+	border-radius: 14px;
+	max-width: 580px;
 	width: calc(100% - 2rem);
 	max-height: calc(100vh - 2rem);
 	overflow-y: auto;
-	padding: 1.8rem 1.8rem 2rem;
+	padding: 2rem 1.8rem 2rem;
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 .immo-inquiry-modal-close {
 	position: absolute;
-	top: 12px;
-	right: 12px;
-	width: 36px;
-	height: 36px;
+	top: 12px; right: 12px;
+	width: 36px; height: 36px;
 	border-radius: 50%;
 	background: #f3f4f6;
 	border: none;
@@ -351,11 +711,11 @@
 	color: #4b5563;
 	transition: background 0.15s ease;
 }
-.immo-inquiry-modal-close:hover { background: #e5e7eb; color: #1f2937; }
+.immo-inquiry-modal-close:hover { background: #e5e7eb; color: #111827; }
 .immo-inquiry-modal-dialog h2 {
 	margin: 0 0 1em;
 	padding-right: 2.5em;
-	font-size: 1.3rem;
+	font-size: 1.35rem;
 	font-weight: 700;
 	color: #111827;
 }
@@ -364,13 +724,12 @@
 	gap: 0.9em;
 	align-items: center;
 	margin-bottom: 1.2em;
-	padding: 0.8em 1em;
+	padding: 0.9em 1.1em;
 	background: #f9fafb;
-	border-radius: 8px;
+	border-radius: 10px;
 }
 .immo-inquiry-modal-agent img {
-	width: 56px;
-	height: 56px;
+	width: 56px; height: 56px;
 	border-radius: 50%;
 	object-fit: cover;
 	border: 2px solid var(--immo-accent, #ff9800);
@@ -383,22 +742,55 @@
 .immo-inquiry-modal-agent a {
 	display: block;
 	color: var(--immo-primary, #1e88e5);
-	font-size: 0.9em;
+	font-size: 0.92em;
 	text-decoration: none;
 }
 
-/* Body scroll lock wenn Modal offen — wird von JS gesetzt */
+/* ============================================================
+   15. RESPONSIVE
+   ============================================================ */
+@media (min-width: 900px) {
+	/* Auf Desktop: Beschreibung + Highlights nebeneinander, falls beide vorhanden */
+	.immo-project-singlecol .immo-project-description + .immo-project-highlights {
+		/* simpler: Highlights bleiben darunter — keine harte 2-Spalten-Pflicht */
+	}
+}
 
-/* ====== RESPONSIVE ====== */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
 	.immo-project-singlecol > section,
-	.immo-project-singlecol > header { margin: 1.8rem 0; }
-	.immo-project-stats-grid { padding: 1rem; }
-	.immo-project-stat-icon { font-size: 1.3rem; }
-	.immo-project-stat-value { font-size: 1rem; }
-	.immo-project-contact-card { flex-direction: column; text-align: center; align-items: center; }
-	.immo-project-contact-info { min-width: 0; align-items: center; }
-	.immo-project-contact-actions { justify-content: center; }
-	.immo-project-map { height: 280px; }
-	.immo-inquiry-modal-dialog { padding: 1.2rem 1.2rem 1.5rem; }
+	.immo-project-singlecol > header { margin: 1.4rem 0; }
+	.immo-project-singlecol .immo-section { padding: 1.4rem 1.2rem 1.3rem; }
+	.immo-project-singlecol .immo-project-cta-banner { padding: 1.5rem 1.4rem; }
+	.immo-project-singlecol .immo-project-stat { padding: 1rem 0.9rem; }
+	.immo-project-singlecol .immo-project-stat-icon { font-size: 1.25rem; }
+	.immo-project-singlecol .immo-project-stat-value { font-size: 1rem; }
+	.immo-project-singlecol .immo-nav-prev,
+	.immo-project-singlecol .immo-nav-next { width: 36px; height: 36px; font-size: 1.1rem; }
+	.immo-project-singlecol .immo-project-contact-card { flex-direction: column; text-align: center; }
+	.immo-project-singlecol .immo-project-contact-info { align-items: center; }
+	.immo-project-singlecol .immo-project-contact-actions { justify-content: center; }
+	.immo-project-singlecol .immo-project-map { height: 300px; }
+
+	/* Sticky-CTA-Bar nur auf Mobile, Padding für Body damit Fixed-Bar nichts überdeckt */
+	.immo-project-mobile-cta { display: flex; }
+	body.has-immo-project-cta { padding-bottom: 76px; }
+
+	.immo-inquiry-modal-dialog { padding: 1.4rem 1.2rem 1.4rem; }
+	.immo-inquiry-modal-dialog h2 { font-size: 1.15rem; }
+}
+
+@media (max-width: 480px) {
+	.immo-project-singlecol .immo-gallery-stage { aspect-ratio: 4 / 3; }
+	.immo-project-singlecol .immo-project-stats-grid { grid-template-columns: repeat(2, 1fr); }
+	.immo-project-singlecol .immo-project-cta-banner-actions .immo-btn { flex: 1 1 auto; }
+}
+
+/* Reduce-Motion */
+@media (prefers-reduced-motion: reduce) {
+	.immo-project-singlecol *,
+	.immo-project-singlecol *::before,
+	.immo-project-singlecol *::after {
+		transition: none !important;
+		animation: none !important;
+	}
 }

@@ -284,6 +284,20 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 	</section>
 	<?php endif; ?>
 
+	<!-- ========== CTA-BANNER zwischen Inhalten und Wohneinheiten ========== -->
+	<section class="immo-project-cta-banner" aria-label="Anfrage senden">
+		<div class="immo-project-cta-banner-text">
+			<h3 class="immo-project-cta-banner-title">Interesse an einer Wohneinheit?</h3>
+			<p>Sichern Sie sich jetzt Ihren Wunsch-Top — wir beraten Sie gerne unverbindlich.</p>
+		</div>
+		<div class="immo-project-cta-banner-actions">
+			<button type="button" class="immo-btn immo-btn-primary" data-immo-inquiry-open>✉️ Anfrage senden</button>
+			<?php if ( $contact_phone ) : ?>
+				<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>" class="immo-btn immo-btn-secondary">📞 Anrufen</a>
+			<?php endif; ?>
+		</div>
+	</section>
+
 	<!-- ========== WOHNEINHEITEN ========== -->
 	<section class="immo-section immo-units-list">
 		<h2>Wohneinheiten <?php if ( $count_total ) { echo '<span class="immo-units-count">' . esc_html( $count_total ) . '</span>'; } ?></h2>
@@ -460,24 +474,7 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 		<?php endif; ?>
 	</section>
 
-	<!-- ========== VIDEO ========== -->
-	<?php if ( $video_url || $video_file ) : ?>
-	<section class="immo-section immo-project-video">
-		<h2>Video / Virtuelle Tour</h2>
-		<?php if ( $video_file ) : ?>
-			<video controls preload="metadata" class="immo-video-player">
-				<source src="<?php echo esc_url( $video_file ); ?>">
-			</video>
-		<?php else :
-			$embed = wp_oembed_get( $video_url, array( 'width' => 800 ) );
-			if ( $embed ) {
-				echo '<div class="immo-video-embed">' . str_replace( '<iframe', '<iframe loading="lazy"', $embed ) . '</div>';
-			} else { ?>
-				<p><a href="<?php echo esc_url( $video_url ); ?>" target="_blank" rel="noopener">Video ansehen</a></p>
-			<?php }
-		endif; ?>
-	</section>
-	<?php endif; ?>
+	<!-- Video-Sektion absichtlich deaktiviert (Source-Probleme). -->
 
 	<!-- ========== LAGE + KARTE ========== -->
 	<?php
@@ -591,6 +588,17 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 		<?php endif; ?>
 	</div>
 </div>
+
+<!-- ========== STICKY MOBILE-CTA-BAR (nur auf Mobile sichtbar via CSS) ========== -->
+<div class="immo-project-mobile-cta" aria-label="Schneller Kontakt">
+	<button type="button" class="immo-btn immo-btn-primary" data-immo-inquiry-open>✉️ Anfrage</button>
+	<?php if ( $contact_phone ) : ?>
+		<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>" class="immo-btn immo-btn-secondary">📞 Anrufen</a>
+	<?php endif; ?>
+</div>
+<script>
+(function () { if (document.body) document.body.classList.add('has-immo-project-cta'); })();
+</script>
 
 <?php
 if ( $immo_use_wrap ) {
