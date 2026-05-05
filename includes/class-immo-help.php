@@ -170,6 +170,31 @@ class ImmoHelp {
             <p><code>[immo_project id="45"]</code> oder <code>[immo_project slug="bauprojekt-graz"]</code></p>
             <p>Akzeptiert dieselben Farb- und E-Mail-Attribute.</p>
 
+            <h3>3.4 Wohneinheiten eines Bauprojekts (isoliert) <span style="display:inline-block;padding:2px 8px;background:#dcfce7;color:#166534;font-size:11px;font-weight:600;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:middle;margin-left:6px;">Neu</span></h3>
+            <p><code>[immo_units]</code> – rendert ausschließlich die Wohneinheiten-Liste eines Projekts ohne Galerie, Beschreibung oder Sidebar. Ideal für Elementor- oder Gutenberg-Seiten, in die nur die Einheiten dynamisch eingebaut werden sollen.</p>
+            <table class="widefat striped">
+                <thead>
+                    <tr><th>Attribut</th><th>Werte</th><th>Default</th><th>Beschreibung</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>project_id</code></td><td>Zahl</td><td>–</td><td>Projekt-ID. Hat Vorrang vor <code>project_slug</code>, wenn beide gesetzt sind.</td></tr>
+                    <tr><td><code>project_slug</code></td><td>Slug</td><td>–</td><td>Projekt-Slug (z.&nbsp;B. <code>bauprojekt-graz</code>) – Alternative zur ID.</td></tr>
+                    <tr><td><code>status</code></td><td>einzeln oder kommagetrennt: <code>available</code>, <code>reserved</code>, <code>sold</code>, <code>rented</code></td><td>– (alle)</td><td>Filtert die Wohneinheiten nach Status. Mehrfach-Filter via Komma: <code>status="available,reserved"</code>.</td></tr>
+                    <tr><td><code>layout</code></td><td><code>table</code> / <code>grid</code> / <code>list</code></td><td><code>table</code></td><td>Darstellungsform: Tabelle, Card-Grid oder horizontale Liste mit Thumbs.</td></tr>
+                    <tr><td><code>orderby</code></td><td><code>unit_number</code>, <code>floor</code>, <code>price</code>, <code>area</code></td><td><code>unit_number</code></td><td>Sortier-Schlüssel.</td></tr>
+                    <tr><td><code>limit</code></td><td>Zahl ≥ 0</td><td><code>0</code> (alle)</td><td>Maximale Anzahl Treffer.</td></tr>
+                    <tr><td><code>show_stats</code></td><td><code>yes</code> / <code>no</code></td><td><code>yes</code></td><td>Status-Counter über der Liste anzeigen.</td></tr>
+                    <tr><td><code>primary</code> / <code>secondary</code> / <code>accent</code></td><td>Hex-Farbe</td><td>aus Manager</td><td>Farb-Override pro Block.</td></tr>
+                </tbody>
+            </table>
+            <p><strong>Beispiele:</strong></p>
+            <pre style="background:#f3f4f6;padding:10px;border-radius:6px;">[immo_units project_slug="bauprojekt-graz"]
+[immo_units project_id="45" status="available" layout="grid"]
+[immo_units project_slug="bauprojekt-graz" status="available,reserved" layout="list" show_stats="no" limit="6"]</pre>
+            <p>
+                Die Wohneinheiten verlinken automatisch auf <code>/immobilie/{slug}</code>. Provisionsfreie Einheiten zeigen einen gelben „Provisionsfrei"-Patch (Bild) bzw. ein kleines Icon (Tabelle). Beschriftung des Badges wird zentral im Manager konfiguriert (siehe Abschnitt 6).
+            </p>
+
             <h2 class="title">4. Detailseiten</h2>
             <p>Pro Eintrag erzeugt das Plugin automatisch eine eigene URL:</p>
             <ul style="list-style: disc; margin-left: 20px;">
@@ -221,30 +246,47 @@ class ImmoHelp {
             <p>Diese Endpunkte muss der ImmoManager bereitstellen. Mit aktuellem Manager &gt;= v1.0 sind sie alle vorhanden.</p>
             <ul style="list-style: disc; margin-left: 20px;">
                 <li><code>GET /properties</code>, <code>/properties/{id}</code>, <code>/properties/by-slug/{slug}</code>, <code>/properties/{id}/similar</code></li>
-                <li><code>GET /projects</code>, <code>/projects/{id}</code>, <code>/projects/by-slug/{slug}</code>, <code>/projects/{id}/units</code></li>
+                <li><code>GET /projects</code>, <code>/projects/{id}</code>, <code>/projects/by-slug/{slug}</code></li>
+                <li><code>GET /projects/{id}/units</code> und <code>/projects/by-slug/{slug}/units</code> – Wohneinheiten eines Projekts. Akzeptiert <code>?status=</code> (einzeln oder kommagetrennt: <code>available,reserved</code>), <code>?orderby=</code>, <code>?limit=</code>. Antwort enthält <code>units</code>, <code>stats</code> (alle Status-Counts) und <code>applied_status</code>.</li>
                 <li><code>GET /regions</code>, <code>/regions/{state}/districts</code>, <code>/features</code></li>
                 <li><code>GET /settings/public</code>, <code>/search</code></li>
                 <li><code>POST /inquiries</code> (akzeptiert optional <code>notify_email</code>)</li>
             </ul>
+            <p>Property-Antworten enthalten zusätzlich <code>meta.commission_free</code> (boolean) und <code>meta.commission_free_label</code> (Beschriftung des „Provisionsfrei"-Badges, im Manager konfigurierbar).</p>
 
-            <h2 class="title">9. Troubleshooting</h2>
+            <h2 class="title">9. Provisionsfrei-Badge</h2>
+            <p>Properties, die im Manager als „provisionsfrei" markiert sind, zeigen automatisch ein gut sichtbares gelbes Patch-Badge:</p>
+            <ul style="list-style: disc; margin-left: 20px;">
+                <li>Auf Listing-Cards (<code>[immo_list]</code>, <code>[immo_units]</code>) – Sticker oben-rechts auf dem Vorschaubild.</li>
+                <li>Auf den Detail-Seiten <code>/immobilie/{slug}</code> – Sticker auf der Hero-Galerie.</li>
+                <li>In der Tabellen-Ansicht des <code>[immo_units]</code>-Shortcodes – kompaktes Icon in der Preis-Spalte.</li>
+            </ul>
+            <p>
+                Bedingung: Property ist als Kauf markiert (<code>mode = sale</code> oder <code>both</code>). Bei reiner Miete erscheint kein Badge.
+                Beschriftung wird zentral im Manager konfiguriert (<em>Immo Manager → Einstellungen → Rechner → „Provisionsfrei-Badge: Beschriftung"</em>) und über REST als <code>meta.commission_free_label</code> geliefert – das Client-Plugin zeigt automatisch denselben Text.
+            </p>
+
+            <h2 class="title">10. Troubleshooting</h2>
             <table class="widefat striped">
                 <thead><tr><th>Problem</th><th>Lösung</th></tr></thead>
                 <tbody>
                     <tr><td>Detailseite zeigt „Immobilie nicht gefunden"</td><td>Permalinks neu speichern. Prüfen, ob der Manager <code>/properties/by-slug/</code> beantwortet.</td></tr>
                     <tr><td>Liste leer trotz Daten im Manager</td><td>API-URL und API-Key prüfen, Cache reduzieren.</td></tr>
+                    <tr><td><code>[immo_units]</code> liefert „Projekt nicht gefunden"</td><td>Manager-Version prüfen: Slug-Endpoint <code>/projects/by-slug/{slug}/units</code> ist neu. Bei älterem Manager stattdessen <code>project_id</code> verwenden.</td></tr>
                     <tr><td>Anfrage-Formular liefert 401</td><td>API-Key fehlt oder ist falsch.</td></tr>
                     <tr><td>Mails kommen nicht an</td><td>Empfänger-E-Mail prüfen; Mailversand vom Server testen (z.&nbsp;B. SMTP-Plugin).</td></tr>
                     <tr><td>Farben greifen nicht</td><td>Theme überschreibt CSS-Variablen. Höhere Spezifität oder Shortcode-Attribute nutzen.</td></tr>
+                    <tr><td>Provisionsfrei-Badge fehlt obwohl im Manager aktiv</td><td>Cache leeren (Cache-Dauer in Settings auf <code>0</code>). Property muss Modus „Kauf" oder „Beides" haben.</td></tr>
                 </tbody>
             </table>
 
-            <h2 class="title">10. Beispielseite anlegen</h2>
+            <h2 class="title">11. Beispielseite anlegen</h2>
             <ol>
                 <li>Neue Seite in WordPress erstellen, Titel z.&nbsp;B. „Aktuelle Immobilien".</li>
                 <li>Inhalt: <code>[immo_list type="properties" limit="12" filters="yes"]</code></li>
                 <li>Veröffentlichen. Filter und Detail-Links funktionieren ohne weitere Konfiguration.</li>
             </ol>
+            <p>Für eine reine Wohneinheiten-Übersicht eines Projekts: <code>[immo_units project_slug="bauprojekt-graz" layout="grid"]</code> – funktioniert auch in jeder Elementor-Section per „Shortcode"-Widget.</p>
         </div>
         <?php
     }
