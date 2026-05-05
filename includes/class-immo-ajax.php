@@ -187,13 +187,15 @@ class ImmoAJAX {
             wp_send_json_success(array('message' => 'Vielen Dank! Ihre Anfrage wurde gesendet.'));
         }
 
-        $project_id = isset($_POST['project_id']) ? absint($_POST['project_id']) : 0;
-        $name       = isset($_POST['inquirer_name'])    ? sanitize_text_field(wp_unslash($_POST['inquirer_name']))        : '';
-        $email      = isset($_POST['inquirer_email'])   ? sanitize_email(wp_unslash($_POST['inquirer_email']))            : '';
-        $phone      = isset($_POST['inquirer_phone'])   ? sanitize_text_field(wp_unslash($_POST['inquirer_phone']))       : '';
-        $message    = isset($_POST['inquirer_message']) ? sanitize_textarea_field(wp_unslash($_POST['inquirer_message'])) : '';
-        $consent    = !empty($_POST['consent']);
-        $notify_raw = isset($_POST['notify_email']) ? sanitize_email(wp_unslash($_POST['notify_email'])) : '';
+        $project_id     = isset($_POST['project_id']) ? absint($_POST['project_id']) : 0;
+        $name           = isset($_POST['inquirer_name'])    ? sanitize_text_field(wp_unslash($_POST['inquirer_name']))        : '';
+        $email          = isset($_POST['inquirer_email'])   ? sanitize_email(wp_unslash($_POST['inquirer_email']))            : '';
+        $phone          = isset($_POST['inquirer_phone'])   ? sanitize_text_field(wp_unslash($_POST['inquirer_phone']))       : '';
+        $message        = isset($_POST['inquirer_message']) ? sanitize_textarea_field(wp_unslash($_POST['inquirer_message'])) : '';
+        $consent        = !empty($_POST['consent']);
+        $notify_raw     = isset($_POST['notify_email'])     ? sanitize_email(wp_unslash($_POST['notify_email']))              : '';
+        // Optionales Wohneinheits-Feld — Unit-ID, Anzeige-Label wird unten aus dem API-Payload gezogen.
+        $preferred_unit_id = isset($_POST['preferred_unit']) ? absint($_POST['preferred_unit']) : 0;
 
         $errors = array();
         if (!$project_id) $errors['project_id']     = 'Pflichtfeld.';
@@ -218,6 +220,24 @@ class ImmoAJAX {
         $project_url   = !empty($project['slug']) ? home_url('/bauprojekt/' . $project['slug'] . '/') : '';
         $agent_email   = isset($project['meta']['contact_email']) ? sanitize_email((string) $project['meta']['contact_email']) : '';
 
+        // Bevorzugte Wohneinheit auflösen (optional).
+        $preferred_unit_label = '';
+        if ($preferred_unit_id > 0) {
+            $units_payload = $api->get_project_units($project_id);
+            $units_list    = isset($units_payload['units']) && is_array($units_payload['units']) ? $units_payload['units'] : array();
+            foreach ($units_list as $u) {
+                if ((int) ($u['id'] ?? 0) === $preferred_unit_id) {
+                    $bits  = array();
+                    if (!empty($u['unit_number'])) $bits[] = 'Top ' . $u['unit_number'];
+                    if (!empty($u['area']))        $bits[] = $u['area'] . ' m²';
+                    if (!empty($u['rooms']))       $bits[] = ((int) $u['rooms']) . ' Zi.';
+                    if (!empty($u['status_label'])) $bits[] = $u['status_label'];
+                    $preferred_unit_label = implode(' · ', $bits);
+                    break;
+                }
+            }
+        }
+
         $global_setting = sanitize_email((string) get_option('immo_notify_email', ''));
         $to = $notify_raw ?: ($global_setting ?: ($agent_email ?: get_option('admin_email')));
         if (!is_email($to)) {
@@ -228,10 +248,13 @@ class ImmoAJAX {
             array('Bauprojekt', $project_url
                 ? '<a href="' . esc_url($project_url) . '" style="color:inherit;">' . esc_html($project_title) . '</a>'
                 : esc_html($project_title)),
-            array('Name',     esc_html($name)),
-            array('E-Mail',   '<a href="mailto:' . esc_attr($email) . '" style="color:inherit;">' . esc_html($email) . '</a>'),
-            array('Telefon',  esc_html($phone ?: '-')),
         );
+        if ($preferred_unit_label !== '') {
+            $rows_admin[] = array('Bevorzugte Wohneinheit', esc_html($preferred_unit_label));
+        }
+        $rows_admin[] = array('Name',    esc_html($name));
+        $rows_admin[] = array('E-Mail',  '<a href="mailto:' . esc_attr($email) . '" style="color:inherit;">' . esc_html($email) . '</a>');
+        $rows_admin[] = array('Telefon', esc_html($phone ?: '-'));
         $sent_admin = ImmoMailer::send(
             $to,
             sprintf('Neue Anfrage zu %s', $project_title),
@@ -251,9 +274,12 @@ class ImmoAJAX {
             array('Bauprojekt', $project_url
                 ? '<a href="' . esc_url($project_url) . '" style="color:inherit;">' . esc_html($project_title) . '</a>'
                 : esc_html($project_title)),
-            array('Name',     esc_html($name)),
-            array('Telefon',  esc_html($phone ?: '-')),
         );
+        if ($preferred_unit_label !== '') {
+            $rows_inquirer[] = array('Bevorzugte Wohneinheit', esc_html($preferred_unit_label));
+        }
+        $rows_inquirer[] = array('Name',    esc_html($name));
+        $rows_inquirer[] = array('Telefon', esc_html($phone ?: '-'));
         ImmoMailer::send(
             $email,
             sprintf('Ihre Anfrage zu %s', $project_title),

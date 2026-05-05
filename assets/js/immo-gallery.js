@@ -128,6 +128,8 @@
        Init
        ========================================================================= */
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.immo-gallery').forEach(initGallery);
+        // .immo-gallery → klassische Property-Detailseite (single-unit.php)
+        // .immo-project-hero → Bauprojekt-Detail + Shortcode (single-project.php, shortcode-project.php)
+        document.querySelectorAll('.immo-gallery, .immo-project-hero').forEach(initGallery);
     });
 })();

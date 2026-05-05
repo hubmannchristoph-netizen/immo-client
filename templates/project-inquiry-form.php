@@ -38,9 +38,33 @@ $form_id    = 'immo-project-inquiry-' . $project_id . '-' . wp_rand(1000, 9999);
         <input type="tel" id="<?php echo esc_attr($form_id); ?>-phone" name="inquirer_phone">
     </div>
 
+    <?php
+    // Optionales Feld: Bevorzugte Wohneinheit. Wird nur gerendert,
+    // wenn das einbettende Template Wohneinheiten ($items) durchgereicht hat.
+    if ( ! empty( $items ) && is_array( $items ) ) :
+    ?>
+    <div class="immo-form-row">
+        <label for="<?php echo esc_attr($form_id); ?>-unit">Bevorzugte Wohneinheit <span class="immo-form-optional">(optional)</span></label>
+        <select id="<?php echo esc_attr($form_id); ?>-unit" name="preferred_unit">
+            <option value="">— Keine Auswahl —</option>
+            <?php foreach ( $items as $unit ) :
+                $u_nr     = isset( $unit['unit_number'] ) ? (string) $unit['unit_number'] : '';
+                $u_id     = isset( $unit['id'] ) ? (int) $unit['id'] : 0;
+                $u_status = isset( $unit['status_label'] ) ? (string) $unit['status_label'] : '';
+                $u_area   = isset( $unit['area'] ) && $unit['area'] !== '' ? $unit['area'] . ' m²' : '';
+                $u_rooms  = isset( $unit['rooms'] ) && (int) $unit['rooms'] > 0 ? $unit['rooms'] . ' Zi.' : '';
+                $bits     = array_filter( array( $u_nr ? 'Top ' . $u_nr : '', $u_area, $u_rooms, $u_status ) );
+                $label    = implode( ' · ', $bits );
+            ?>
+                <option value="<?php echo esc_attr( $u_id ); ?>" data-unit-number="<?php echo esc_attr( $u_nr ); ?>"><?php echo esc_html( $label ); ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <?php endif; ?>
+
     <div class="immo-form-row">
         <label for="<?php echo esc_attr($form_id); ?>-message">Nachricht</label>
-        <textarea id="<?php echo esc_attr($form_id); ?>-message" name="inquirer_message" rows="5"></textarea>
+        <textarea id="<?php echo esc_attr($form_id); ?>-message" name="inquirer_message" rows="4"></textarea>
     </div>
 
     <div class="immo-form-row immo-form-consent">

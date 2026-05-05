@@ -610,7 +610,189 @@
 .immo-project-singlecol .immo-doc-cta { color: var(--ip-primary); font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
 
 /* ============================================================
-   12. KONTAKT-BOX
+   11b. 2-SPALTEN-WRAPPER + STICKY-SIDEBAR
+   ============================================================ */
+.immo-project-singlecol .immo-project-content-wrap {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.5rem;
+}
+.immo-project-singlecol .immo-project-content {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+.immo-project-singlecol .immo-project-content > section,
+.immo-project-singlecol .immo-project-content > .immo-project-cta-banner {
+	margin: 0;
+}
+.immo-project-singlecol .immo-project-sticky-aside {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+/* Aside-Cards (Kontakt + Anfrage-Form) */
+.immo-project-singlecol .immo-project-aside-card {
+	background: var(--ip-bg);
+	border: 1px solid var(--ip-border);
+	border-radius: var(--ip-radius);
+	padding: 1.4rem;
+	box-shadow: var(--ip-shadow);
+}
+.immo-project-singlecol .immo-project-aside-contact {
+	display: flex;
+	gap: 1em;
+	align-items: center;
+}
+.immo-project-singlecol .immo-project-aside-photo {
+	width: 72px;
+	height: 72px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 3px solid var(--ip-bg);
+	box-shadow: var(--ip-shadow);
+	flex-shrink: 0;
+}
+.immo-project-singlecol .immo-project-aside-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15em;
+	min-width: 0;
+}
+.immo-project-singlecol .immo-project-aside-name {
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: var(--ip-text);
+}
+.immo-project-singlecol .immo-project-aside-role {
+	font-size: 0.78rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--ip-text-muted);
+	font-weight: 600;
+	margin-bottom: 0.3em;
+}
+.immo-project-singlecol .immo-project-aside-link {
+	display: block;
+	color: var(--ip-text);
+	text-decoration: none;
+	font-size: 0.92rem;
+	padding: 0.15em 0;
+	word-break: break-all;
+	transition: color 0.15s ease;
+}
+.immo-project-singlecol .immo-project-aside-link:hover { color: var(--ip-primary); }
+
+.immo-project-singlecol .immo-project-aside-form h3 {
+	margin: 0 0 0.5em;
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: var(--ip-text);
+}
+.immo-project-singlecol .immo-project-aside-intro {
+	margin: 0 0 1em;
+	font-size: 0.92rem;
+	color: var(--ip-text-muted);
+}
+
+/* Form-Felder im Aside (kompakt) */
+.immo-project-singlecol .immo-project-aside-form .immo-form-row {
+	margin-bottom: 0.7em;
+}
+.immo-project-singlecol .immo-project-aside-form label {
+	display: block;
+	font-size: 0.82rem;
+	font-weight: 600;
+	color: var(--ip-text);
+	margin-bottom: 0.3em;
+}
+.immo-project-singlecol .immo-form-optional {
+	font-weight: 400;
+	color: var(--ip-text-muted);
+	font-size: 0.82em;
+}
+.immo-project-singlecol .immo-project-aside-form input[type="text"],
+.immo-project-singlecol .immo-project-aside-form input[type="email"],
+.immo-project-singlecol .immo-project-aside-form input[type="tel"],
+.immo-project-singlecol .immo-project-aside-form select,
+.immo-project-singlecol .immo-project-aside-form textarea {
+	width: 100%;
+	padding: 0.6em 0.8em;
+	border: 1px solid var(--ip-border);
+	border-radius: var(--ip-radius-sm);
+	font-size: 0.95rem;
+	font-family: inherit;
+	background: var(--ip-bg);
+	color: var(--ip-text);
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.immo-project-singlecol .immo-project-aside-form input:focus,
+.immo-project-singlecol .immo-project-aside-form select:focus,
+.immo-project-singlecol .immo-project-aside-form textarea:focus {
+	outline: none;
+	border-color: var(--ip-primary);
+	box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
+}
+.immo-project-singlecol .immo-project-aside-form .immo-form-consent {
+	font-size: 0.85rem;
+	line-height: 1.45;
+	color: var(--ip-text-muted);
+}
+.immo-project-singlecol .immo-project-aside-form .immo-form-consent label {
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-start;
+	font-weight: 400;
+	font-size: 0.85rem;
+	color: var(--ip-text-muted);
+}
+.immo-project-singlecol .immo-project-aside-form .immo-form-actions {
+	margin-top: 0.8em;
+}
+.immo-project-singlecol .immo-project-aside-form .immo-inquiry-submit {
+	display: block;
+	width: 100%;
+	padding: 0.85em 1em;
+	background: var(--ip-primary);
+	color: #fff;
+	border: none;
+	border-radius: var(--ip-radius-sm);
+	font-size: 0.98rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+	box-shadow: 0 2px 8px rgba(30, 136, 229, 0.25);
+}
+.immo-project-singlecol .immo-project-aside-form .immo-inquiry-submit:hover {
+	filter: brightness(1.05);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(30, 136, 229, 0.35);
+}
+
+/* Ab Tablet/Desktop ≥ 1024px: 2-Spalten-Grid mit Sticky-Sidebar */
+@media (min-width: 1024px) {
+	.immo-project-singlecol .immo-project-content-wrap {
+		grid-template-columns: minmax(0, 1fr) 360px;
+		gap: 2rem;
+	}
+	.immo-project-singlecol .immo-project-sticky-aside {
+		position: sticky;
+		top: 24px;
+		align-self: start;
+		max-height: calc(100vh - 48px);
+		overflow-y: auto;
+	}
+	/* Hide-Scrollbar im Aside, aber funktional */
+	.immo-project-singlecol .immo-project-sticky-aside::-webkit-scrollbar { width: 6px; }
+	.immo-project-singlecol .immo-project-sticky-aside::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+}
+
+/* ============================================================
+   12. KONTAKT-BOX (Standalone-Sektion — wird nur außerhalb der
+        Sidebar-Variante genutzt; im neuen Layout ist die Sidebar
+        der primäre Ort)
    ============================================================ */
 .immo-project-singlecol .immo-project-contact-card {
 	display: flex;

@@ -233,6 +233,10 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 		<?php endif; ?>
 	</section>
 
+	<!-- ========== 2-SPALTEN-WRAPPER (Main + Sticky-Sidebar) ========== -->
+	<div class="immo-project-content-wrap">
+	<main class="immo-project-content">
+
 	<!-- ========== BESCHREIBUNG ========== -->
 	<?php if ( ! empty( $project['description'] ) ) : ?>
 	<section class="immo-section immo-project-description">
@@ -524,28 +528,41 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 	</section>
 	<?php endif; ?>
 
-	<!-- ========== KONTAKT-BOX ========== -->
-	<?php if ( $contact_name || $contact_email || $contact_phone ) : ?>
-	<section class="immo-section immo-project-contact">
-		<h2>Kontakt</h2>
-		<div class="immo-project-contact-card">
-			<?php if ( $contact_image ) : ?>
-				<img src="<?php echo esc_url( $contact_image['url_thumbnail'] ); ?>" alt="<?php echo esc_attr( $contact_name ); ?>" class="immo-project-contact-photo">
-			<?php endif; ?>
-			<div class="immo-project-contact-info">
-				<?php if ( $contact_name ) : ?>
-					<strong class="immo-project-contact-name"><?php echo esc_html( $contact_name ); ?></strong>
+	</main><!-- /.immo-project-content -->
+
+	<!-- ========== STICKY SIDEBAR (Kontakt + Anfrage-Formular direkt) ========== -->
+	<aside class="immo-project-sticky-aside">
+		<?php if ( $contact_name || $contact_email || $contact_phone ) : ?>
+			<div class="immo-project-aside-card immo-project-aside-contact">
+				<?php if ( $contact_image ) : ?>
+					<img src="<?php echo esc_url( $contact_image['url_thumbnail'] ); ?>" alt="<?php echo esc_attr( $contact_name ); ?>" class="immo-project-aside-photo">
 				<?php endif; ?>
-				<div class="immo-project-contact-actions">
-					<?php if ( $contact_phone ) : ?>
-						<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>" class="immo-btn immo-btn-secondary">📞 <?php echo esc_html( $contact_phone ); ?></a>
+				<div class="immo-project-aside-meta">
+					<?php if ( $contact_name ) : ?>
+						<strong class="immo-project-aside-name"><?php echo esc_html( $contact_name ); ?></strong>
 					<?php endif; ?>
-					<button type="button" class="immo-btn immo-btn-primary" data-immo-inquiry-open>✉️ Anfrage senden</button>
+					<span class="immo-project-aside-role">Ihr Ansprechpartner</span>
+					<?php if ( $contact_phone ) : ?>
+						<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', $contact_phone ) ); ?>" class="immo-project-aside-link">📞 <?php echo esc_html( $contact_phone ); ?></a>
+					<?php endif; ?>
+					<?php if ( $contact_email ) : ?>
+						<a href="mailto:<?php echo esc_attr( $contact_email ); ?>" class="immo-project-aside-link">✉️ <?php echo esc_html( $contact_email ); ?></a>
+					<?php endif; ?>
 				</div>
 			</div>
+		<?php endif; ?>
+
+		<div class="immo-project-aside-card immo-project-aside-form">
+			<h3>Anfrage senden</h3>
+			<p class="immo-project-aside-intro">Stellen Sie Ihre Anfrage — wir melden uns zeitnah bei Ihnen.</p>
+			<?php
+			$immo_email = (string) get_option( 'immo_notify_email', '' );
+			include IMMO_CLIENT_PATH . 'templates/project-inquiry-form.php';
+			?>
 		</div>
-	</section>
-	<?php endif; ?>
+	</aside>
+
+	</div><!-- /.immo-project-content-wrap -->
 
 </article>
 
