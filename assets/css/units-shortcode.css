@@ -21,17 +21,47 @@
 	background: #f3f4f6;
 	font-size: 0.9rem;
 	color: #374151;
+	border: 1px solid transparent;
+	font-family: inherit;
+	line-height: 1.2;
 }
 .immo-block-units .immo-units-stat strong {
 	margin-right: 0.25em;
 	font-weight: 700;
 	color: #111827;
 }
+/* Klickbare Stat-Buttons (filtern die Liste). */
+.immo-block-units button.immo-units-stat {
+	cursor: pointer;
+	transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.immo-block-units button.immo-units-stat:hover {
+	filter: brightness(0.96);
+	transform: translateY(-1px);
+}
+.immo-block-units button.immo-units-stat:focus-visible {
+	outline: 2px solid var(--immo-primary, #1e88e5);
+	outline-offset: 2px;
+}
+.immo-block-units button.immo-units-stat.is-active {
+	box-shadow: 0 0 0 2px currentColor inset;
+	font-weight: 600;
+}
 .immo-block-units .immo-units-stat-available { background: #dcfce7; color: #166534; }
 .immo-block-units .immo-units-stat-reserved  { background: #fef3c7; color: #92400e; }
 .immo-block-units .immo-units-stat-sold      { background: #fee2e2; color: #991b1b; }
 .immo-block-units .immo-units-stat-rented    { background: #fee2e2; color: #991b1b; }
 .immo-block-units .immo-units-stat-total     { background: #e5e7eb; color: #1f2937; }
+
+/* "Keine Einheiten in der Auswahl" — Hinweis vom Filter-JS dynamisch eingefügt. */
+.immo-block-units .immo-unit-filter-empty {
+	padding: 1em;
+	background: #f3f4f6;
+	border-radius: 6px;
+	color: #6b7280;
+	text-align: center;
+	margin-top: 0.5em;
+}
 
 /* === LAYOUT: TABLE === */
 .immo-units-layout-table .immo-unit-table-wrapper {

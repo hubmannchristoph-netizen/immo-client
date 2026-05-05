@@ -110,44 +110,82 @@
         });
 
         // ----------------------------------------------------------------
-        // Status-Filter: Stat-Pillen klickbar (oben + Sidebar synchron),
-        // filtert die Wohneinheiten-Tabelle.
+        // Status-Filter: Stat-Pillen klickbar. Scoped pro Block, damit auf
+        // einer Seite mit mehreren Filtersets jeder Filter nur sein eigenes
+        // Set einschränkt. Ein "Block" ist:
+        //   - eine Bauprojekt-Detailseite (single-project.php)
+        //   - oder ein [immo_units]-Container (.immo-block-units)
+        //   - oder die immo-units-Sektion auf der Bauprojekt-Detailseite.
         // ----------------------------------------------------------------
-        var filterButtons = document.querySelectorAll('[data-immo-filter-status]');
-        var unitRows      = document.querySelectorAll('.immo-unit-row[data-status]');
-        var activeStates  = {};
-        var emptyMsg      = null;
+        function findFilterBlock(el) {
+            // Nächster Container, der filterbare Items enthält.
+            var candidates = [
+                '.immo-block-units',
+                '.immo-units-list',
+                '.immo-project-detail',
+                '.immo-detail'
+            ];
+            for (var i = 0; i < candidates.length; i++) {
+                var hit = el.closest(candidates[i]);
+                if (hit) return hit;
+            }
+            return document.body;
+        }
 
-        function syncButtons() {
-            filterButtons.forEach(function (b) {
+        // Selektoren für filterbare Wohneinheiten in allen Layouts:
+        // - .immo-unit-row    → Tabelle (auch in single-project.php verwendet)
+        // - .immo-units-card  → Grid-Layout im [immo_units]-Shortcode
+        // - .immo-units-listitem → Listen-Layout im [immo_units]-Shortcode
+        var FILTERABLE = '.immo-unit-row[data-status], .immo-units-card[data-status], .immo-units-listitem[data-status]';
+
+        var filterButtons = document.querySelectorAll('[data-immo-filter-status]');
+
+        // Pro Block: { active: { [status]: true|false }, emptyMsg: <p>|null }
+        var blockState = new WeakMap();
+
+        function getBlockState(block) {
+            var s = blockState.get(block);
+            if (!s) {
+                s = { active: {}, emptyMsg: null };
+                blockState.set(block, s);
+            }
+            return s;
+        }
+
+        function syncButtons(block) {
+            var s = getBlockState(block);
+            block.querySelectorAll('[data-immo-filter-status]').forEach(function (b) {
                 var key = b.getAttribute('data-immo-filter-status');
-                var on  = !!activeStates[key];
+                var on  = !!s.active[key];
                 b.classList.toggle('is-active', on);
                 b.setAttribute('aria-pressed', on ? 'true' : 'false');
             });
         }
 
-        function applyFilter() {
-            var active = Object.keys(activeStates).filter(function (k) { return activeStates[k]; });
+        function applyFilter(block) {
+            var s = getBlockState(block);
+            var active = Object.keys(s.active).filter(function (k) { return s.active[k]; });
 
             var visibleCount = 0;
-            unitRows.forEach(function (row) {
+            var rows = block.querySelectorAll(FILTERABLE);
+            rows.forEach(function (row) {
                 var rowStatus = row.getAttribute('data-status') || '';
                 var visible   = active.length === 0 || active.indexOf(rowStatus) !== -1;
                 row.style.display = visible ? '' : 'none';
                 if (visible) visibleCount++;
             });
 
-            var table = document.querySelector('.immo-unit-table');
-            if (table) {
-                if (!emptyMsg) {
-                    emptyMsg = document.createElement('p');
-                    emptyMsg.className = 'immo-unit-filter-empty';
-                    emptyMsg.textContent = 'Keine Einheiten in der gewählten Auswahl.';
-                    emptyMsg.style.display = 'none';
-                    table.parentNode.insertBefore(emptyMsg, table.nextSibling);
+            // Leere-Liste-Hinweis dynamisch einfügen.
+            var anchor = block.querySelector('.immo-unit-table, .immo-units-grid, .immo-units-flatlist');
+            if (anchor) {
+                if (!s.emptyMsg) {
+                    s.emptyMsg = document.createElement('p');
+                    s.emptyMsg.className = 'immo-unit-filter-empty';
+                    s.emptyMsg.textContent = 'Keine Einheiten in der gewählten Auswahl.';
+                    s.emptyMsg.style.display = 'none';
+                    anchor.parentNode.insertBefore(s.emptyMsg, anchor.nextSibling);
                 }
-                emptyMsg.style.display = (visibleCount === 0 && active.length > 0) ? 'block' : 'none';
+                s.emptyMsg.style.display = (visibleCount === 0 && active.length > 0) ? 'block' : 'none';
             }
         }
 
@@ -155,9 +193,11 @@
             btn.addEventListener('click', function () {
                 var key = btn.getAttribute('data-immo-filter-status');
                 if (!key) return;
-                activeStates[key] = !activeStates[key];
-                syncButtons();
-                applyFilter();
+                var block = findFilterBlock(btn);
+                var s = getBlockState(block);
+                s.active[key] = !s.active[key];
+                syncButtons(block);
+                applyFilter(block);
             });
         });
     });

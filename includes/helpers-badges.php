@@ -11,6 +11,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+if ( ! function_exists( 'immo_client_floor_label' ) ) {
+	/**
+	 * Liefert eine sprechende Etagen-Beschriftung.
+	 * - Leerer Wert / kein Stockwerk gesetzt → '–'
+	 * - 0  → 'EG' (Erdgeschoss)
+	 * - >0 → '<n>. OG'
+	 * - <0 → '<|n|>. UG' (Untergeschoss)
+	 *
+	 * @param mixed $floor Roher Etagen-Wert aus REST (string/int).
+	 *
+	 * @return string Beschriftung.
+	 */
+	function immo_client_floor_label( $floor ) {
+		if ( $floor === '' || $floor === null ) {
+			return '–';
+		}
+		$n = (int) $floor;
+		if ( 0 === $n ) {
+			return 'EG';
+		}
+		if ( $n < 0 ) {
+			return abs( $n ) . '. UG';
+		}
+		return $n . '. OG';
+	}
+}
+
 if ( ! function_exists( 'immo_client_render_cf_badge' ) ) {
 	/**
 	 * Rendert das „Provisionsfrei"-Badge, wenn das Property-Meta-Array

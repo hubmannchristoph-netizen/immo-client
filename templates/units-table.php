@@ -24,12 +24,15 @@ $status_labels = array(
 ?>
 
 <?php if ( $show_stats && ! empty( $stats ) ) : ?>
-	<div class="immo-units-summary">
+	<div class="immo-units-summary" role="group" aria-label="Wohneinheiten nach Status filtern">
 		<?php foreach ( array( 'available', 'reserved', 'sold', 'rented' ) as $st ) :
 			if ( empty( $stats[ $st ] ) ) { continue; } ?>
-			<span class="immo-units-stat immo-units-stat-<?php echo esc_attr( $st ); ?>">
+			<button type="button" class="immo-units-stat immo-units-stat-<?php echo esc_attr( $st ); ?>"
+				data-immo-filter-status="<?php echo esc_attr( $st ); ?>"
+				aria-pressed="false"
+				title="Klicken, um nach Status zu filtern">
 				<strong><?php echo (int) $stats[ $st ]; ?></strong> <?php echo esc_html( $status_labels[ $st ] ); ?>
-			</span>
+			</button>
 		<?php endforeach; ?>
 		<?php if ( ! empty( $stats['total'] ) ) : ?>
 			<span class="immo-units-stat immo-units-stat-total">
@@ -77,7 +80,7 @@ $status_labels = array(
 				</td>
 				<td class="col-area"><?php echo ! empty( $unit['area'] ) ? esc_html( $unit['area'] ) . ' m²' : '–'; ?></td>
 				<td class="col-rooms"><?php echo ! empty( $unit['rooms'] ) ? esc_html( (int) $unit['rooms'] ) : '–'; ?></td>
-				<td class="col-floor"><?php echo $u_floor !== '' ? esc_html( $u_floor ) . '. OG' : '–'; ?></td>
+				<td class="col-floor"><?php echo esc_html( immo_client_floor_label( $u_floor ) ); ?></td>
 				<td class="col-price"><?php echo $u_price ? esc_html( $u_price ) : '–'; ?></td>
 				<td class="col-info">
 					<span class="immo-unit-info-btn" aria-label="Quick-Info anzeigen" title="Quick-Info anzeigen">

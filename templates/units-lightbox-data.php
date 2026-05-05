@@ -101,8 +101,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php if ( $u_bath > 0 ) : ?>
 						<li><span class="ico" aria-hidden="true">🛁</span><span class="lab">Bad</span><strong><?php echo esc_html( $u_bath ); ?></strong></li>
 					<?php endif; ?>
-					<?php if ( $u_floor !== '' ) : ?>
-						<li><span class="ico" aria-hidden="true">🏢</span><span class="lab">Etage</span><strong><?php echo esc_html( $u_floor ); ?>. OG</strong></li>
+					<?php $floor_lbl = immo_client_floor_label( $u_floor ); if ( $floor_lbl !== '–' ) : ?>
+						<li><span class="ico" aria-hidden="true">🏢</span><span class="lab">Etage</span><strong><?php echo esc_html( $floor_lbl ); ?></strong></li>
 					<?php endif; ?>
 					<?php if ( $u_built ) : ?>
 						<li><span class="ico" aria-hidden="true">📅</span><span class="lab">Baujahr</span><strong><?php echo esc_html( $u_built ); ?></strong></li>
