@@ -51,36 +51,25 @@ $status_labels = array(
 		$u_price      = isset( $unit['price_formatted'] ) ? $unit['price_formatted'] : '';
 		$u_area       = isset( $unit['area'] ) ? $unit['area'] : '';
 		$u_rooms      = isset( $unit['rooms'] ) ? (int) $unit['rooms'] : 0;
-		$cf_meta      = array(
-			'commission_free'       => ! empty( $prop['commission_free'] ),
-			'commission_free_label' => isset( $prop['commission_free_label'] ) ? $prop['commission_free_label'] : '',
-			'mode'                  => 'sale',
-		);
+		$unit_id      = isset( $unit['id'] ) ? (int) $unit['id'] : 0;
 	?>
-		<article class="immo-units-card" data-status="<?php echo esc_attr( $u_status ); ?>">
-			<div class="immo-units-card-image" style="position:relative;">
+		<article class="immo-units-card is-clickable" data-status="<?php echo esc_attr( $u_status ); ?>"
+			data-immo-unit-id="<?php echo esc_attr( $unit_id ); ?>"
+			data-immo-unit-url="<?php echo esc_attr( $detail_url ); ?>">
+			<div class="immo-units-card-image">
 				<?php if ( $image_url ) : ?>
-					<?php if ( $detail_url ) : ?><a href="<?php echo esc_url( $detail_url ); ?>" class="immo-units-card-imagelink" aria-label="<?php echo esc_attr( $unit_label ); ?>"><?php endif; ?>
-						<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $prop_title ?: $unit_label ); ?>" loading="lazy">
-					<?php if ( $detail_url ) : ?></a><?php endif; ?>
+					<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $prop_title ?: $unit_label ); ?>" loading="lazy">
 				<?php else : ?>
 					<div class="immo-units-card-noimage">🏠</div>
 				<?php endif; ?>
 				<?php if ( $u_status ) : ?>
 					<span class="immo-status immo-status-<?php echo esc_attr( $u_status ); ?>"><?php echo esc_html( $u_status_lbl ); ?></span>
 				<?php endif; ?>
-				<?php immo_client_render_cf_badge( $cf_meta, 'patch' ); ?>
 			</div>
 			<div class="immo-units-card-body">
 				<span class="immo-units-card-eyebrow"><?php echo esc_html( $unit_label ); ?></span>
 				<?php if ( $prop_title ) : ?>
-					<h3 class="immo-units-card-title">
-						<?php if ( $detail_url ) : ?>
-							<a href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( $prop_title ); ?></a>
-						<?php else : ?>
-							<?php echo esc_html( $prop_title ); ?>
-						<?php endif; ?>
-					</h3>
+					<h3 class="immo-units-card-title"><?php echo esc_html( $prop_title ); ?></h3>
 				<?php endif; ?>
 				<?php if ( $u_price ) : ?>
 					<p class="immo-units-card-price"><strong><?php echo esc_html( $u_price ); ?></strong></p>
@@ -90,9 +79,7 @@ $status_labels = array(
 					<?php if ( $u_rooms > 0 ) : ?><li>🛏️ <?php echo esc_html( $u_rooms ); ?> Zi.</li><?php endif; ?>
 					<?php if ( ! empty( $unit['floor'] ) || ( isset( $unit['floor'] ) && $unit['floor'] === '0' ) ) : ?><li>🏢 <?php echo esc_html( $unit['floor'] ); ?>. OG</li><?php endif; ?>
 				</ul>
-				<?php if ( $detail_url ) : ?>
-					<a href="<?php echo esc_url( $detail_url ); ?>" class="immo-units-card-btn">Details ansehen →</a>
-				<?php endif; ?>
+				<span class="immo-units-card-cta">Quick-Info anzeigen</span>
 			</div>
 		</article>
 	<?php endforeach; ?>

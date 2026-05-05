@@ -115,6 +115,8 @@ Rendert ausschließlich die Wohneinheits-Liste eines Projekts ohne Projekt-Galer
 | `show_stats` | `yes` \| `no` | `yes` | Status-Counter über der Liste |
 | `primary`, `secondary`, `accent` | Hex-Farben | aus Manager | Farb-Override pro Block |
 
+Klick auf eine Card/Zeile öffnet eine **Quick-Info-Lightbox** mit Bild, Eckdaten, Preis und einem „Zur Detailseite"-Button (sofern die Wohneinheit mit einer Property verknüpft ist). Mehrere `[immo_units]` auf einer Seite teilen sich automatisch eine Lightbox.
+
 ---
 
 ## Detailseiten

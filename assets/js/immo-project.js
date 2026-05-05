@@ -15,14 +15,31 @@
 
         var content      = lightbox.querySelector('.immo-unit-lightbox-content');
         var triggers     = document.querySelectorAll('[data-immo-unit-id]');
-        var dataPool     = document.getElementById('immo-unit-lightbox-data');
+        // Über alle Datenpools auf der Seite suchen — single-project.php nutzt
+        // weiterhin die ID, [immo_units]-Shortcodes ergänzen die Klasse, damit
+        // mehrere Pools nebeneinander funktionieren.
+        var legacyPool   = document.getElementById('immo-unit-lightbox-data');
+        var dataPools    = Array.prototype.slice.call(
+            document.querySelectorAll('.immo-unit-lightbox-data')
+        );
+        if (legacyPool && dataPools.indexOf(legacyPool) === -1) {
+            dataPools.push(legacyPool);
+        }
         var actionsBox   = document.getElementById('immo-unit-lightbox-actions');
         var detailsBtn   = document.getElementById('immo-unit-lightbox-details-btn');
 
+        function findUnitNode(unitId) {
+            for (var i = 0; i < dataPools.length; i++) {
+                var node = dataPools[i].querySelector('[data-unit-id="' + unitId + '"]');
+                if (node) return node;
+            }
+            return null;
+        }
+
         function openLightbox(triggerEl) {
-            if (!dataPool || !content) return;
+            if (!content) return;
             var unitId = triggerEl.getAttribute('data-immo-unit-id');
-            var src = dataPool.querySelector('[data-unit-id="' + unitId + '"]');
+            var src = findUnitNode(unitId);
             if (!src) return;
             content.innerHTML = src.innerHTML;
 
@@ -61,14 +78,22 @@
 
         triggers.forEach(function (el) {
             el.addEventListener('click', function (e) {
-                if (e.target.closest('a, button[type="submit"]')) return;
+                // Klicks auf interaktive Kinder durchlassen (z.B. Submit-Buttons),
+                // aber NICHT auf reguläre <a>-Tags innerhalb der Card — sonst lässt
+                // sich die Lightbox nie aus dem Card-Body öffnen.
+                if (e.target.closest('button[type="submit"]')) return;
+                // Wenn Element selbst ein Link ist und nicht als Lightbox-Trigger
+                // gemeint, das Default-Verhalten zulassen.
+                if (el.tagName === 'A' && !el.hasAttribute('data-immo-unit-id')) return;
                 e.preventDefault();
                 if (el.getAttribute('data-immo-unit-id')) openLightbox(el);
             });
 
-            if (el.tagName === 'TR') {
-                el.setAttribute('tabindex', '0');
-                el.setAttribute('role', 'button');
+            // Tastatur-Zugänglichkeit: Enter/Space öffnet Lightbox auf TR und
+            // generischen (nicht nativ fokussierbaren) Elementen mit Trigger.
+            if (el.tagName !== 'A' && el.tagName !== 'BUTTON') {
+                if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+                if (!el.hasAttribute('role'))    el.setAttribute('role', 'button');
                 el.addEventListener('keydown', function (e) {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();

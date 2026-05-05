@@ -192,7 +192,7 @@ class ImmoHelp {
 [immo_units project_id="45" status="available" layout="grid"]
 [immo_units project_slug="bauprojekt-graz" status="available,reserved" layout="list" show_stats="no" limit="6"]</pre>
             <p>
-                Die Wohneinheiten verlinken automatisch auf <code>/immobilie/{slug}</code>. Provisionsfreie Einheiten zeigen einen gelben „Provisionsfrei"-Patch (Bild) bzw. ein kleines Icon (Tabelle). Beschriftung des Badges wird zentral im Manager konfiguriert (siehe Abschnitt 6).
+                Klick auf eine Card/Zeile öffnet eine <strong>Quick-Info-Lightbox</strong> mit Bild, Eckdaten, Adresse und Preis – im Modal befindet sich ein primary-farbener Button „Zur Detailseite", sofern die Wohneinheit mit einer Property verknüpft ist (sonst zeigt das Modal nur die Daten ohne Button). Mehrere <code>[immo_units]</code> auf derselben Seite teilen sich automatisch eine Lightbox.
             </p>
 
             <h2 class="title">4. Detailseiten</h2>

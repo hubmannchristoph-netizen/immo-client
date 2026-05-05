@@ -50,7 +50,7 @@ $status_labels = array(
 				<th class="col-rooms">Zimmer</th>
 				<th class="col-floor">Etage</th>
 				<th class="col-price">Preis</th>
-				<th class="col-link" aria-label="Aktion"></th>
+				<th class="col-info" aria-label="Info"></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -59,22 +59,17 @@ $status_labels = array(
 			$unit_title    = $prop && ! empty( $prop['title'] ) ? $prop['title'] : ( 'Wohneinheit ' . ( $unit['unit_number'] ?? '' ) );
 			$prop_slug     = $prop && ! empty( $prop['slug'] ) ? $prop['slug'] : '';
 			$detail_url    = $prop_slug ? home_url( '/immobilie/' . $prop_slug ) : '';
+			$unit_id       = isset( $unit['id'] ) ? (int) $unit['id'] : 0;
 			$u_status      = isset( $unit['status'] ) ? $unit['status'] : '';
 			$u_status_lbl  = isset( $unit['status_label'] ) ? $unit['status_label'] : ( $status_labels[ $u_status ] ?? $u_status );
 			$u_floor       = isset( $unit['floor'] ) ? $unit['floor'] : '';
 			$u_price       = isset( $unit['price_formatted'] ) ? $unit['price_formatted'] : '';
-			$cf_show       = ! empty( $prop['commission_free'] );
-			$cf_label      = isset( $prop['commission_free_label'] ) ? $prop['commission_free_label'] : '';
 		?>
-			<tr class="immo-unit-row" data-status="<?php echo esc_attr( $u_status ); ?>">
+			<tr class="immo-unit-row is-clickable" data-status="<?php echo esc_attr( $u_status ); ?>"
+				data-immo-unit-id="<?php echo esc_attr( $unit_id ); ?>"
+				data-immo-unit-url="<?php echo esc_attr( $detail_url ); ?>">
 				<td class="col-nr"><?php echo esc_html( $unit['unit_number'] ?? '' ); ?></td>
-				<td class="col-title">
-					<?php if ( $detail_url ) : ?>
-						<a href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( $unit_title ); ?></a>
-					<?php else : ?>
-						<?php echo esc_html( $unit_title ); ?>
-					<?php endif; ?>
-				</td>
+				<td class="col-title"><?php echo esc_html( $unit_title ); ?></td>
 				<td class="col-status">
 					<?php if ( $u_status ) : ?>
 						<span class="immo-status immo-status-<?php echo esc_attr( $u_status ); ?>"><?php echo esc_html( $u_status_lbl ); ?></span>
@@ -83,25 +78,11 @@ $status_labels = array(
 				<td class="col-area"><?php echo ! empty( $unit['area'] ) ? esc_html( $unit['area'] ) . ' m²' : '–'; ?></td>
 				<td class="col-rooms"><?php echo ! empty( $unit['rooms'] ) ? esc_html( (int) $unit['rooms'] ) : '–'; ?></td>
 				<td class="col-floor"><?php echo $u_floor !== '' ? esc_html( $u_floor ) . '. OG' : '–'; ?></td>
-				<td class="col-price">
-					<?php echo $u_price ? esc_html( $u_price ) : '–'; ?>
-					<?php
-					if ( $cf_show ) {
-						immo_client_render_cf_badge(
-							array(
-								'commission_free'       => true,
-								'mode'                  => 'sale',
-								'commission_free_label' => $cf_label,
-							),
-							'icon'
-						);
-					}
-					?>
-				</td>
-				<td class="col-link">
-					<?php if ( $detail_url ) : ?>
-						<a href="<?php echo esc_url( $detail_url ); ?>" class="immo-units-detail-link">Details <span aria-hidden="true">→</span></a>
-					<?php endif; ?>
+				<td class="col-price"><?php echo $u_price ? esc_html( $u_price ) : '–'; ?></td>
+				<td class="col-info">
+					<span class="immo-unit-info-btn" aria-label="Quick-Info anzeigen" title="Quick-Info anzeigen">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+					</span>
 				</td>
 			</tr>
 		<?php endforeach; ?>

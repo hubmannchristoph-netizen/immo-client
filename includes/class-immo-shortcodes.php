@@ -175,11 +175,20 @@ class ImmoShortcodes {
     }
 
     /**
+     * Hat der Lightbox-Container (Singleton) bereits ausgegeben?
+     *
+     * @var bool
+     */
+    private static $lightbox_rendered = false;
+
+    /**
      * [immo_units project_id="123" status="available,reserved" layout="table" orderby="unit_number" limit="0"]
      * [immo_units project_slug="mein-projekt" layout="grid"]
      *
      * Liefert die Wohneinheiten eines Bauprojekts ohne den restlichen Project-Kontext
      * (keine Galerie, keine Beschreibung, keine Sidebar). Drei Layouts: table | grid | list.
+     * Klick auf eine Card/Zeile öffnet eine Quick-Info-Lightbox; im Modal befindet
+     * sich ein „Zur Detailseite"-Button (sofern die Property einen Slug hat).
      */
     public function render_units_shortcode($atts) {
         $atts = shortcode_atts(array_merge(array(
@@ -228,12 +237,33 @@ class ImmoShortcodes {
         if (empty($items)) {
             echo '<p class="immo-units-empty">Keine Wohneinheiten gefunden.</p>';
         } else {
+            $api           = $this->api; // im Datenpool-Template benötigt
             $template_file = 'units-' . $layout . '.php';
             include IMMO_CLIENT_PATH . 'templates/' . $template_file;
+
+            // Quick-Info-Datenpool — JS liest pro data-unit-id.
+            include IMMO_CLIENT_PATH . 'templates/units-lightbox-data.php';
+
+            // Lightbox-Container nur einmal pro Request ausgeben.
+            // Wenn `single-project.php` bereits einen Container rendert,
+            // gewinnt der erste — weitere Shortcodes nutzen denselben.
+            if ( ! self::$lightbox_rendered && ! $this->page_has_lightbox() ) {
+                include IMMO_CLIENT_PATH . 'templates/units-lightbox-container.php';
+                self::$lightbox_rendered = true;
+            }
         }
 
         echo '</div>';
         return ob_get_clean();
+    }
+
+    /**
+     * Prüft heuristisch, ob die aktuelle Seite bereits den Lightbox-Container
+     * rendert (z.B. weil es eine /bauprojekt/{slug}/ Seite ist, die single-project.php
+     * verwendet). In dem Fall NICHT zusätzlich rendern.
+     */
+    private function page_has_lightbox() {
+        return (bool) get_query_var('immo_project_slug');
     }
 }
 
