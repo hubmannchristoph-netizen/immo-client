@@ -1,0 +1,177 @@
+/* Card-Styles für [immo_list]-Grid und -Slider.
+   BEM-Stil unter .immo-card, damit Theme-Konflikte minimal bleiben. */
+
+/* Grid-Container für list-grid.php */
+.immo-item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.immo-card--listing {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+    width: 100%;
+}
+
+.immo-card--listing:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+}
+
+/* Bild-Bereich */
+.immo-card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    background: #f3f4f6;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.immo-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .35s ease;
+}
+
+.immo-card:hover .immo-card__media img {
+    transform: scale(1.04);
+}
+
+.immo-card__media-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f3f4f6 25%, #e5e7eb 25%, #e5e7eb 50%, #f3f4f6 50%, #f3f4f6 75%, #e5e7eb 75%);
+    background-size: 24px 24px;
+    opacity: .6;
+}
+
+/* Body */
+.immo-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+    padding: 14px 16px 16px;
+    flex: 1 1 auto;
+}
+
+/* Caption: Property-Typ · Stadt */
+.immo-card__caption {
+    margin: 0;
+    font-size: .78rem;
+    line-height: 1.2;
+    color: #6b7280;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+/* Titel — bewusst kompakt, max 2 Zeilen */
+.immo-card__title {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.35;
+    font-weight: 600;
+    color: #111827;
+    /* 2-Zeilen-Clamp */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.immo-card__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color .15s ease;
+}
+
+.immo-card__title a:hover,
+.immo-card__title a:focus-visible {
+    color: var(--immo-primary, #1f6feb);
+}
+
+/* Preis */
+.immo-card__price {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -.01em;
+}
+
+/* Specs: m² · Zimmer · Bad · Energieklasse */
+.immo-card__specs {
+    list-style: none;
+    margin: .25rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: .85rem;
+    color: #4b5563;
+}
+
+.immo-card__spec {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+}
+
+.immo-card__spec-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--immo-primary, #1f6feb);
+}
+
+.immo-card__spec span {
+    line-height: 1.2;
+}
+
+/* Button */
+.immo-card__button {
+    margin-top: auto;
+    align-self: flex-start;
+    padding: 8px 16px;
+    background: var(--immo-primary, #0073aa);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: .9rem;
+    font-weight: 500;
+    line-height: 1.2;
+    transition: filter .15s ease, transform .15s ease;
+}
+
+.immo-card__button:hover,
+.immo-card__button:focus-visible {
+    color: #fff;
+    filter: brightness(1.05);
+    text-decoration: none;
+}
+
+.immo-card__button:active {
+    transform: translateY(1px);
+}
+
+/* Provisionsfrei-Badge nicht doppeln im Image-Padding-Mode (das alte
+   Markup nutzte ein leeres Bild + Badge). Im neuen Markup hängt das
+   Badge direkt am .immo-card__media-Anker. */
+
+/* Project-Cards: kein Caption, kein Preis, keine Specs — nur Titel + Button. */
+.immo-card--project .immo-card__body {
+    gap: .75rem;
+}
