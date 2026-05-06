@@ -13,8 +13,9 @@ if (!defined('ABSPATH')) {
 class ImmoHelp {
 
     public function __construct() {
-        add_action('admin_menu',           array($this, 'add_help_page'));
-        add_action('admin_post_immo_flush', array($this, 'handle_flush'));
+        add_action('admin_menu',                       array($this, 'add_help_page'));
+        add_action('admin_post_immo_flush',            array($this, 'handle_flush'));
+        add_action('admin_post_immo_clear_api_cache',  array($this, 'handle_clear_api_cache'));
     }
 
     public function add_help_page() {
@@ -45,6 +46,34 @@ class ImmoHelp {
         exit;
     }
 
+    /**
+     * Löscht alle Transients, die der ImmoAPI-Wrapper anlegt
+     * (Cache-Key-Format: `immo_<md5>` über das gesamte Plugin hinweg).
+     */
+    public function handle_clear_api_cache() {
+        if (!current_user_can('manage_options')) {
+            wp_die('Nicht berechtigt.');
+        }
+        check_admin_referer('immo_clear_api_cache');
+
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        $deleted = $wpdb->query(
+            "DELETE FROM {$wpdb->options}
+              WHERE option_name LIKE '\\_transient\\_immo\\_%'
+                 OR option_name LIKE '\\_transient\\_timeout\\_immo\\_%'"
+        );
+
+        // Object-Cache (Memcached/Redis) zur Sicherheit ebenfalls flushen.
+        wp_cache_flush();
+
+        wp_safe_redirect(add_query_arg(
+            array('cache_cleared' => '1', 'deleted' => (int) $deleted),
+            admin_url('options-general.php?page=immo-client-help')
+        ));
+        exit;
+    }
+
     private function rewrite_status() {
         global $wp_rewrite;
         $rules = get_option('rewrite_rules');
@@ -61,9 +90,12 @@ class ImmoHelp {
     }
 
     public function render() {
-        $api_base = (string) get_option('immo_api_url', '');
-        $rules    = $this->rewrite_status();
-        $flushed  = isset($_GET['flushed']);
+        $api_base       = (string) get_option('immo_api_url', '');
+        $cache_duration = (int)    get_option('immo_cache_duration', 3600);
+        $rules          = $this->rewrite_status();
+        $flushed        = isset($_GET['flushed']);
+        $cache_cleared  = isset($_GET['cache_cleared']);
+        $deleted        = isset($_GET['deleted']) ? (int) $_GET['deleted'] : 0;
         ?>
 
         <?php if ($flushed) : ?>
@@ -72,8 +104,28 @@ class ImmoHelp {
             </div>
         <?php endif; ?>
 
+        <?php if ($cache_cleared) : ?>
+            <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
+                <p>API-Cache geleert (<?php echo (int) $deleted; ?> Transient-Einträge entfernt). Die nächste Seitenansicht holt frische Daten vom Manager.</p>
+            </div>
+        <?php endif; ?>
+
         <div class="wrap" style="margin-top: 20px;">
             <h2 class="title">Diagnose &amp; Wartung</h2>
+
+            <h3 style="margin-top: 1.5em;">API-Cache</h3>
+            <p>
+                Antworten der Manager-REST-API werden im ImmoClient als Transients zwischengespeichert (aktuell:
+                <strong><?php echo $cache_duration > 0 ? esc_html( (string) $cache_duration ) . '&nbsp;Sekunden' : 'kein Cache'; ?></strong>).
+                Wenn du im Manager Daten geändert hast und die Änderung hier noch nicht sichtbar ist, leere den Cache:
+            </p>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-bottom: 20px;">
+                <?php wp_nonce_field('immo_clear_api_cache'); ?>
+                <input type="hidden" name="action" value="immo_clear_api_cache">
+                <?php submit_button('API-Cache leeren', 'primary', 'submit', false); ?>
+            </form>
+
+            <h3>Rewrite-Regeln</h3>
             <p>
                 Wenn die URLs <code>/immobilie/{slug}</code> oder <code>/bauprojekt/{slug}</code> einen 404-Fehler werfen,
                 hier einmal manuell die Rewrite-Regeln neu schreiben:
@@ -81,7 +133,7 @@ class ImmoHelp {
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-bottom: 20px;">
                 <?php wp_nonce_field('immo_flush_rewrite'); ?>
                 <input type="hidden" name="action" value="immo_flush_rewrite">
-                <?php submit_button('Rewrite-Regeln neu schreiben', 'primary', 'submit', false); ?>
+                <?php submit_button('Rewrite-Regeln neu schreiben', 'secondary', 'submit', false); ?>
             </form>
 
             <p><strong>Aktive ImmoClient-Rewrite-Regeln:</strong></p>
