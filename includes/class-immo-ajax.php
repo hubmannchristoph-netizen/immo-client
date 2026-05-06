@@ -6,6 +6,9 @@ if (!defined('ABSPATH')) {
 
 class ImmoAJAX {
 
+    /** Option-Key für den letzten fehlgeschlagenen Inquiry-API-Call. */
+    const LAST_ERROR_OPTION = 'immo_last_inquiry_error';
+
     public function __construct() {
         add_action('wp_ajax_immo_filter_list',                   array($this, 'filter_list'));
         add_action('wp_ajax_nopriv_immo_filter_list',            array($this, 'filter_list'));
@@ -13,6 +16,97 @@ class ImmoAJAX {
         add_action('wp_ajax_nopriv_immo_submit_inquiry',         array($this, 'submit_inquiry'));
         add_action('wp_ajax_immo_submit_project_inquiry',        array($this, 'submit_project_inquiry'));
         add_action('wp_ajax_nopriv_immo_submit_project_inquiry', array($this, 'submit_project_inquiry'));
+
+        // Admin-Notice + Dismiss-Handler.
+        add_action('admin_notices',                       array($this, 'render_inquiry_error_notice'));
+        add_action('admin_post_immo_dismiss_inquiry_err', array($this, 'dismiss_inquiry_error'));
+    }
+
+    /**
+     * API-Fehler beim Inquiry-Forward in error_log schreiben und
+     * persistierte Admin-Notice füllen.
+     *
+     * @param string   $context     'property' oder 'project'.
+     * @param WP_Error $error       Fehler.
+     * @param array    $payload     Übergebene Payload-Felder (zum Debuggen, ohne PII zu loggen).
+     */
+    private function log_inquiry_api_error($context, $error, array $payload) {
+        if (!is_wp_error($error)) {
+            return;
+        }
+        $data    = $error->get_error_data();
+        $status  = is_array($data) && isset($data['status']) ? (int) $data['status'] : 0;
+        $message = $error->get_error_message();
+
+        // error_log: bewusst ohne Mail/Telefon/Namen.
+        $log_line = sprintf(
+            '[ImmoClient] Inquiry-Forward (%s) fehlgeschlagen: %s [HTTP %d] property_id=%d source=%s',
+            $context,
+            $message,
+            $status,
+            isset($payload['property_id']) ? (int) $payload['property_id'] : 0,
+            isset($payload['source_url']) ? (string) $payload['source_url'] : home_url('/')
+        );
+        error_log($log_line);
+
+        update_option(self::LAST_ERROR_OPTION, array(
+            'context'     => (string) $context,
+            'message'     => (string) $message,
+            'http_status' => $status,
+            'property_id' => isset($payload['property_id']) ? (int) $payload['property_id'] : 0,
+            'source_url'  => isset($payload['source_url']) ? (string) $payload['source_url'] : home_url('/'),
+            'time'        => current_time('mysql'),
+        ), false);
+    }
+
+    /**
+     * Admin-Notice für letzten fehlgeschlagenen Inquiry-Forward.
+     */
+    public function render_inquiry_error_notice() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        $err = get_option(self::LAST_ERROR_OPTION);
+        if (!is_array($err) || empty($err['message'])) {
+            return;
+        }
+
+        $dismiss_url = wp_nonce_url(
+            admin_url('admin-post.php?action=immo_dismiss_inquiry_err'),
+            'immo_dismiss_inquiry_err'
+        );
+
+        echo '<div class="notice notice-error"><p><strong>ImmoClient:</strong> ';
+        printf(
+            esc_html__('Eine Anfrage konnte nicht an den ImmoManager übertragen werden (%s). Grund: %s', 'immo-client'),
+            esc_html($err['context'] ?? '—'),
+            esc_html($err['message'])
+        );
+        if (!empty($err['http_status'])) {
+            echo ' (HTTP ' . (int) $err['http_status'] . ')';
+        }
+        if (!empty($err['property_id'])) {
+            echo ' · property_id=' . (int) $err['property_id'];
+        }
+        if (!empty($err['time'])) {
+            echo ' · ' . esc_html($err['time']);
+        }
+        echo '. <a href="' . esc_url(admin_url('options-general.php?page=immo-client')) . '">Einstellungen prüfen</a>';
+        echo ' · <a href="' . esc_url($dismiss_url) . '">Hinweis ausblenden</a>';
+        echo '</p></div>';
+    }
+
+    /**
+     * Dismiss-Action für die Notice.
+     */
+    public function dismiss_inquiry_error() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Nicht erlaubt.', 'immo-client'));
+        }
+        check_admin_referer('immo_dismiss_inquiry_err');
+        delete_option(self::LAST_ERROR_OPTION);
+        wp_safe_redirect(wp_get_referer() ?: admin_url());
+        exit;
     }
 
     public function filter_list() {
@@ -112,7 +206,17 @@ class ImmoAJAX {
             $payload['notify_email'] = $notify_email;
         }
         $api_result = $api->create_inquiry($payload);
-        // Bei API-Fehler nicht abbrechen – Mail zumindest versenden.
+        // Bei API-Fehler nicht abbrechen – Mail zumindest versenden, aber Fehler protokollieren.
+        if (is_wp_error($api_result)) {
+            $this->log_inquiry_api_error('property', $api_result, $payload);
+        } elseif (is_array($api_result) && empty($api_result['success'])) {
+            // Manager hat zwar geantwortet (z.B. mit success=false), aber nicht gespeichert.
+            $msg = isset($api_result['message']) ? (string) $api_result['message'] : 'Unbekannte API-Antwort.';
+            $this->log_inquiry_api_error('property', new WP_Error('immo_api_unexpected', $msg, array('status' => 200)), $payload);
+        } else {
+            // Erfolgreich → ggf. alten Fehler-Hinweis aufräumen.
+            delete_option(self::LAST_ERROR_OPTION);
+        }
 
         // 2. Mail-Empfänger ermitteln: Override → globale Setting → Makler → admin_email.
         $to = $notify_email ?: ($agent_email ?: get_option('admin_email'));
