@@ -150,17 +150,27 @@ class ImmoHelp {
                 </thead>
                 <tbody>
                     <tr><td><code>type</code></td><td><code>properties</code> / <code>projects</code></td><td><code>properties</code></td><td>Typ der Liste.</td></tr>
-                    <tr><td><code>limit</code></td><td>Zahl</td><td><code>12</code></td><td>Maximale Anzahl Einträge.</td></tr>
-                    <tr><td><code>status</code></td><td><code>available</code>, <code>reserved</code>, <code>sold</code>, <code>rented</code></td><td>–</td><td>Optional auf Status filtern.</td></tr>
-                    <tr><td><code>filters</code></td><td><code>yes</code> / <code>no</code></td><td><code>yes</code></td><td>Filterleiste anzeigen (nur bei <code>type=properties</code>).</td></tr>
+                    <tr><td><code>limit</code></td><td>Zahl</td><td><code>12</code></td><td>Maximale Anzahl Einträge (ignoriert wenn <code>ids</code> gesetzt).</td></tr>
+                    <tr><td><code>status</code></td><td><code>available</code>, <code>reserved</code>, <code>sold</code>, <code>rented</code></td><td>–</td><td>Optional auf Status filtern (mehrere kommagetrennt).</td></tr>
+                    <tr><td><code>filters</code></td><td><code>yes</code> / <code>no</code></td><td><code>yes</code></td><td>Filterleiste anzeigen (automatisch aus, wenn <code>ids</code> gesetzt).</td></tr>
+                    <tr><td><code>ids</code></td><td>ID-Liste, z.B. <code>123,456,789</code> oder <code>123;456</code></td><td>–</td><td>Genau diese Objekte in der angegebenen Reihenfolge laden (für Referenzlisten o.ä.).</td></tr>
+                    <tr><td><code>layout</code></td><td><code>grid</code> / <code>slider</code></td><td><code>grid</code></td><td><code>slider</code> aktiviert einen Splide-Slider (nur bei <code>type=properties</code>).</td></tr>
+                    <tr><td><code>per_page</code></td><td>Zahl</td><td><code>3</code></td><td>Slider: sichtbare Slides Desktop.</td></tr>
+                    <tr><td><code>per_page_md</code></td><td>Zahl</td><td><code>2</code></td><td>Slider: sichtbare Slides Tablet (≤ 900&nbsp;px).</td></tr>
+                    <tr><td><code>per_page_sm</code></td><td>Zahl</td><td><code>1</code></td><td>Slider: sichtbare Slides Mobil (≤ 600&nbsp;px).</td></tr>
+                    <tr><td><code>gap</code></td><td>CSS-Wert</td><td><code>1.5rem</code></td><td>Slider: Abstand zwischen Slides.</td></tr>
+                    <tr><td><code>autoplay</code></td><td><code>yes</code> / <code>no</code></td><td><code>no</code></td><td>Slider: Autoplay aktivieren (5 s Intervall).</td></tr>
+                    <tr><td><code>loop</code></td><td><code>yes</code> / <code>no</code></td><td><code>yes</code></td><td>Slider: Endlos-Loop aktivieren.</td></tr>
                     <tr><td><code>primary</code></td><td>Hex-Farbe</td><td>aus Manager</td><td>Primärfarbe nur für diesen Block.</td></tr>
                     <tr><td><code>secondary</code></td><td>Hex-Farbe</td><td>aus Manager</td><td>Sekundärfarbe.</td></tr>
                     <tr><td><code>accent</code></td><td>Hex-Farbe</td><td>aus Manager</td><td>Akzentfarbe.</td></tr>
                     <tr><td><code>email</code></td><td>E-Mail</td><td>globale Setting</td><td>Override-Empfänger für Anfragen aus diesem Block.</td></tr>
                 </tbody>
             </table>
-            <p><strong>Beispiel:</strong></p>
-            <pre style="background:#f3f4f6;padding:10px;border-radius:6px;">[immo_list type="properties" limit="9" status="available" primary="#0c5b97" accent="#22c55e" email="vermietung@example.com"]</pre>
+            <p><strong>Beispiele:</strong></p>
+            <pre style="background:#f3f4f6;padding:10px;border-radius:6px;">[immo_list type="properties" limit="9" status="available" primary="#0c5b97" accent="#22c55e" email="vermietung@example.com"]
+[immo_list ids="123,456,789" layout="grid"]
+[immo_list ids="123;456;789" layout="slider" per_page="3" autoplay="yes"]</pre>
 
             <h3>3.2 Einzelne Immobilie</h3>
             <p><code>[immo_property id="123"]</code> oder <code>[immo_property slug="schoene-wohnung-graz"]</code></p>
@@ -305,6 +315,54 @@ class ImmoHelp {
                 <li>Veröffentlichen. Filter und Detail-Links funktionieren ohne weitere Konfiguration.</li>
             </ol>
             <p>Für eine reine Wohneinheiten-Übersicht eines Projekts: <code>[immo_units project_slug="bauprojekt-graz" layout="grid"]</code> – funktioniert auch in jeder Elementor-Section per „Shortcode"-Widget.</p>
+
+            <h2 class="title">12. Integrations-Szenarien <span style="display:inline-block;padding:2px 8px;background:#dcfce7;color:#166534;font-size:11px;font-weight:600;border-radius:4px;letter-spacing:0.04em;text-transform:uppercase;vertical-align:middle;margin-left:6px;">Neu</span></h2>
+            <p>Der ImmoClient lässt sich auf jeder beliebigen WordPress-Site einbinden — sie behält dabei ihre eigene Identität (Theme, Branding, Routen, Mail-Branding). Anfragen aus diesen Sites landen automatisch <strong>auch</strong> in der zentralen Manager-Anfragen-Liste, mit der jeweiligen Quellsite als <code>source_url</code>. Hier die häufigsten Szenarien:</p>
+
+            <h3>12.1 Vollständige Immobilien-Site (Standalone)</h3>
+            <p>Die externe Site soll wie eine eigene Maklerwebseite funktionieren — eigene Optik, eigene Detailseiten, eigenes Mailtemplate. Der ImmoManager bleibt zentrale Datenquelle.</p>
+            <pre style="background:#f3f4f6;padding:10px;border-radius:6px;">[immo_list]
+&nbsp;&nbsp;<em>(plus eigene Seiten mit /immobilie/{slug} und /bauprojekt/{slug} — automatisch via Rewrite-Rules)</em></pre>
+            <p>Auswirkungen:</p>
+            <ul style="list-style: disc; margin-left: 20px;">
+                <li>Volle Filter-Bar (Status, Modus, Preis, Fläche, Region, Zimmer)</li>
+                <li>AJAX-gefilterte Listen ohne Reload</li>
+                <li>Anfragen werden parallel im Manager gespeichert <strong>und</strong> mit Client-Mailtemplate verschickt</li>
+            </ul>
+
+            <h3>12.2 Promo-Block: handverlesene Top-Immobilien</h3>
+            <p>Auf der Startseite einer beliebigen Site sollen 3–6 ausgewählte Top-Objekte erscheinen — als Slider, ohne Filter, in fester Reihenfolge.</p>
+            <pre style="background:#f3f4f6;padding:10px;border-radius:6px;">[immo_list ids="42,17,93,108" layout="slider" per_page="3" autoplay="yes" loop="yes"]</pre>
+            <p>Filter-Bar wird automatisch ausgeblendet, sobald <code>ids</code> gesetzt ist. Reihenfolge auf der Site = Reihenfolge in der ID-Liste — nicht alphabetisch, nicht nach Preis.</p>
+
+            <h3>12.3 Referenzliste mit verkauften Objekten</h3>
+            <p>„Erfolgreich vermittelt" — eine Liste aller verkauften Properties zur Reputation. Hier sollen <strong>auch</strong> Status <code>sold</code> oder <code>rented</code> drin sein, normale Listen blenden die ja meist aus.</p>
+            <pre style="background:#f3f4f6;padding:10px;border-radius:6px;">[immo_list ids="51,72,88,104,119,123" layout="grid"]
+[immo_list ids="51,72,88,104,119,123" status="sold" layout="grid"]</pre>
+            <p>Ohne <code>status</code> kommen alle IDs unabhängig vom Status zurück. Mit <code>status="sold"</code> werden aus der ID-Liste nur die verkauften gezeigt.</p>
+
+            <h3>12.4 Bauprojekt-Landingpage auf einer Marketing-Site</h3>
+            <p>Eine eigene Landing-Page für ein einzelnes Bauträger-Projekt — nur Galerie, Beschreibung und Wohneinheiten-Tabelle.</p>
+            <pre style="background:#f3f4f6;padding:10px;border-radius:6px;">[immo_project slug="bauprojekt-graz"]
+
+<em>oder isoliert nur die Wohneinheiten:</em>
+
+[immo_units project_slug="bauprojekt-graz" status="available,reserved" layout="grid"]</pre>
+
+            <h3>12.5 Hybrid: Filter-Liste + Slider auf derselben Seite</h3>
+            <p>Hauptliste mit Filter-Bar oben, darunter ein Slider mit kuratierten Highlights:</p>
+            <pre style="background:#f3f4f6;padding:10px;border-radius:6px;">&lt;h2&gt;Aktuelle Angebote&lt;/h2&gt;
+[immo_list type="properties" limit="12" filters="yes"]
+
+&lt;h2&gt;Unsere Highlights&lt;/h2&gt;
+[immo_list ids="42,17,93" layout="slider" per_page="2"]</pre>
+
+            <h3>12.6 Mehrere Sites, ein Manager</h3>
+            <p>Du kannst den ImmoClient auf beliebig vielen Sites parallel betreiben. Jede sieht die gleichen Daten aus dem Manager, jede hat aber eigene Settings für Branding, Empfänger-E-Mail und Karten-Defaults. In der Manager-Anfragen-Liste erkennst du an <code>source_url</code>, von welcher Site eine Anfrage kam.</p>
+
+            <div class="notice notice-info inline" style="margin-top: 15px; padding: 10px 16px; background: #f0fdf4; border-left-color: #10b981;">
+                <p style="margin: 0;"><strong>Anfragen-Diagnose:</strong> Wenn eine Anfrage nicht im Manager auftaucht, erscheint hier im Admin eine rote Notice mit dem genauen Grund (z.&nbsp;B. <code>HTTP 401 — Ungültiger oder fehlender API-Key</code>). Damit findest du die Ursache sofort. Erfolgreich übertragene Anfragen räumen die Notice automatisch wieder weg.</p>
+            </div>
         </div>
         <?php
     }
