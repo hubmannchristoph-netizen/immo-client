@@ -103,7 +103,8 @@ $caption = implode(' · ', $caption_parts);
                     <li class="immo-card__spec" title="<?php echo esc_attr($area_title); ?>">
                         <svg class="immo-card__spec-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h2v2h-2V7zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2zm4-8h2v2h-2V7zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2z"/></svg>
                         <span><?php
-                            echo esc_html(number_format_i18n($area_value, 0)) . '&nbsp;m²';
+                            /* translators: %s: Flächen-Wert mit m²-Suffix */
+                            echo esc_html( sprintf( __('ca. %s', 'immo-client'), number_format_i18n($area_value, 0) ) ) . '&nbsp;m²';
                             if ($area_suffix !== '') {
                                 echo ' ' . esc_html($area_suffix);
                             }
