@@ -36,7 +36,25 @@ $title       = isset($item['title']) ? (string) $item['title'] : '';
 $price_display = isset($meta['price_formatted']) && $meta['price_formatted'] ? (string) $meta['price_formatted'] : '';
 $rent_display  = isset($meta['rent_formatted'])  && $meta['rent_formatted']  ? (string) $meta['rent_formatted']  : '';
 
-$area      = isset($meta['area'])      ? (float) $meta['area']      : 0;
+$area_living = isset($meta['area'])        ? (float) $meta['area']        : 0;
+$area_usable = isset($meta['usable_area']) ? (float) $meta['usable_area'] : 0;
+$area_land   = isset($meta['land_area'])   ? (float) $meta['land_area']   : 0;
+
+// Fallback-Kette für die Card-Anzeige: Wohnfläche → Nutzfläche → Grundstücksfläche.
+// Suffix differenziert die Quelle, Wohnfläche bleibt suffix-los (Standardfall).
+$area_value  = 0;
+$area_suffix = '';
+if ($area_living > 0) {
+    $area_value  = $area_living;
+    $area_suffix = '';
+} elseif ($area_usable > 0) {
+    $area_value  = $area_usable;
+    $area_suffix = __('Nutzfläche', 'immo-client');
+} elseif ($area_land > 0) {
+    $area_value  = $area_land;
+    $area_suffix = __('Grund', 'immo-client');
+}
+
 $rooms     = isset($meta['rooms'])     ? (int)   $meta['rooms']     : 0;
 $bathrooms = isset($meta['bathrooms']) ? (int)   $meta['bathrooms'] : 0;
 $energy    = isset($meta['energy_class']) ? trim((string) $meta['energy_class']) : '';
@@ -77,12 +95,19 @@ $caption = implode(' · ', $caption_parts);
             <p class="immo-card__price"><?php echo esc_html(implode(' / ', $parts)); ?></p>
         <?php endif; ?>
 
-        <?php if (!$is_project && ($area > 0 || $rooms > 0 || $bathrooms > 0 || $energy !== '')) : ?>
+        <?php if (!$is_project && ($area_value > 0 || $rooms > 0 || $bathrooms > 0 || $energy !== '')) : ?>
             <ul class="immo-card__specs">
-                <?php if ($area > 0) : ?>
-                    <li class="immo-card__spec" title="<?php esc_attr_e('Wohnfläche', 'immo-client'); ?>">
+                <?php if ($area_value > 0) :
+                    $area_title = $area_suffix !== '' ? $area_suffix : __('Wohnfläche', 'immo-client');
+                ?>
+                    <li class="immo-card__spec" title="<?php echo esc_attr($area_title); ?>">
                         <svg class="immo-card__spec-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h2v2h-2V7zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2zm4-8h2v2h-2V7zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2z"/></svg>
-                        <span><?php echo esc_html(number_format_i18n($area, 0)); ?>&nbsp;m²</span>
+                        <span><?php
+                            echo esc_html(number_format_i18n($area_value, 0)) . '&nbsp;m²';
+                            if ($area_suffix !== '') {
+                                echo ' ' . esc_html($area_suffix);
+                            }
+                        ?></span>
                     </li>
                 <?php endif; ?>
                 <?php if ($rooms > 0) : ?>
