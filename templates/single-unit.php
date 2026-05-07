@@ -250,69 +250,59 @@ $style_attr   = $immo_max_width ? ' style="max-width:' . esc_attr($immo_max_widt
             <section class="immo-section immo-detail-blocks">
                 <h2>Details</h2>
 
+                <?php
+                $render_detail_list = static function ( array $rows ) {
+                    if ( empty( $rows ) ) { return; }
+                    echo '<ul class="immo-detail-list">';
+                    foreach ( $rows as $row ) {
+                        printf(
+                            '<li><span class="immo-detail-label">%s</span><span class="immo-detail-value">%s</span></li>',
+                            esc_html( $row[0] ),
+                            esc_html( $row[1] )
+                        );
+                    }
+                    echo '</ul>';
+                };
+                ?>
+
                 <?php if (!empty($detail_rows_basis)) : ?>
                     <details class="immo-accordion" open>
                         <summary><span class="immo-accordion-title">Basisdaten</span></summary>
-                        <table class="immo-data-table">
-                            <tbody>
-                                <?php foreach ($detail_rows_basis as $row) : ?>
-                                    <tr><th><?php echo esc_html($row[0]); ?></th><td><?php echo esc_html($row[1]); ?></td></tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <?php $render_detail_list( $detail_rows_basis ); ?>
                     </details>
                 <?php endif; ?>
 
                 <?php if (!empty($detail_rows_flaeche)) : ?>
                     <details class="immo-accordion">
                         <summary><span class="immo-accordion-title">Flächen</span></summary>
-                        <table class="immo-data-table">
-                            <tbody>
-                                <?php foreach ($detail_rows_flaeche as $row) : ?>
-                                    <tr><th><?php echo esc_html($row[0]); ?></th><td><?php echo esc_html($row[1]); ?></td></tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <?php $render_detail_list( $detail_rows_flaeche ); ?>
                     </details>
                 <?php endif; ?>
 
                 <?php if (!empty($detail_rows_energie)) : ?>
                     <details class="immo-accordion">
                         <summary><span class="immo-accordion-title">Energie &amp; Technik</span></summary>
-                        <table class="immo-data-table">
-                            <tbody>
-                                <?php foreach ($detail_rows_energie as $row) : ?>
-                                    <tr><th><?php echo esc_html($row[0]); ?></th><td><?php echo esc_html($row[1]); ?></td></tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <?php $render_detail_list( $detail_rows_energie ); ?>
                     </details>
                 <?php endif; ?>
 
                 <?php if (!empty($detail_rows_kosten)) : ?>
                     <details class="immo-accordion">
                         <summary><span class="immo-accordion-title">Kosten</span></summary>
-                        <table class="immo-data-table">
-                            <tbody>
-                                <?php foreach ($detail_rows_kosten as $row) : ?>
-                                    <tr><th><?php echo esc_html($row[0]); ?></th><td><?php echo esc_html($row[1]); ?></td></tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <?php $render_detail_list( $detail_rows_kosten ); ?>
                     </details>
                 <?php endif; ?>
 
-                <?php if ($address || $city || $state_label || $dist_label) : ?>
+                <?php if ($address || $city || $state_label || $dist_label) :
+                    $location_rows = array();
+                    if ( $address )      { $location_rows[] = array( 'Adresse',    $address ); }
+                    if ( $plz || $city ) { $location_rows[] = array( 'Ort',        trim( $plz . ' ' . $city ) ); }
+                    if ( $dist_label )   { $location_rows[] = array( 'Bezirk',     $dist_label ); }
+                    if ( $state_label )  { $location_rows[] = array( 'Bundesland', $state_label ); }
+                ?>
                     <details class="immo-accordion">
                         <summary><span class="immo-accordion-title">Lage</span></summary>
-                        <table class="immo-data-table">
-                            <tbody>
-                                <?php if ($address) : ?><tr><th>Adresse</th><td><?php echo esc_html($address); ?></td></tr><?php endif; ?>
-                                <?php if ($plz || $city) : ?><tr><th>Ort</th><td><?php echo esc_html(trim($plz . ' ' . $city)); ?></td></tr><?php endif; ?>
-                                <?php if ($dist_label) : ?><tr><th>Bezirk</th><td><?php echo esc_html($dist_label); ?></td></tr><?php endif; ?>
-                                <?php if ($state_label) : ?><tr><th>Bundesland</th><td><?php echo esc_html($state_label); ?></td></tr><?php endif; ?>
-                            </tbody>
-                        </table>
+                        <?php $render_detail_list( $location_rows ); ?>
                     </details>
                 <?php endif; ?>
             </section>
