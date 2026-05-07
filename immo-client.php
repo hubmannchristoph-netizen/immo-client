@@ -2,8 +2,9 @@
 /**
  * Plugin Name: ImmoClient
  * Description: Client-Anbindung für den ImmoManager via REST-API.
- * Version: 1.0.0
- * Author: Gemini CLI
+ * Version: 1.1.0
+ * Author: Hubmann Christoph
+ * Author URI: mailto:hubmann.christoph@gmail.com
  * Text Domain: immo-client
  */
 
@@ -32,7 +33,7 @@ class ImmoClient {
     }
 
     private function define_constants() {
-        define('IMMO_CLIENT_VERSION', '1.0.0');
+        define('IMMO_CLIENT_VERSION', '1.1.0');
         define('IMMO_CLIENT_PATH', plugin_dir_path(__FILE__));
         define('IMMO_CLIENT_URL', plugin_dir_url(__FILE__));
     }
