@@ -111,16 +111,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<li><span class="ico" aria-hidden="true">⚡</span><span class="lab">Energieklasse</span><strong><?php echo esc_html( $u_energy ); ?></strong></li>
 					<?php endif; ?>
 					<?php if ( ! empty( $unit['balcony_area'] ) && (float) $unit['balcony_area'] > 0 ) : ?>
-						<li><span class="ico" aria-hidden="true">🏔️</span><span class="lab">Balkon</span><strong><?php echo esc_html( (string) $unit['balcony_area'] ); ?> m²</strong></li>
+						<li title="Balkon"><span class="ico" aria-hidden="true">🪟</span><span class="lab">Balkon</span><strong><?php echo esc_html( (string) $unit['balcony_area'] ); ?> m²</strong></li>
 					<?php endif; ?>
 					<?php if ( ! empty( $unit['loggia_area'] ) && (float) $unit['loggia_area'] > 0 ) : ?>
-						<li><span class="ico" aria-hidden="true">🏛️</span><span class="lab">Loggia</span><strong><?php echo esc_html( (string) $unit['loggia_area'] ); ?> m²</strong></li>
+						<li title="Loggia"><span class="ico" aria-hidden="true">🏛️</span><span class="lab">Loggia</span><strong><?php echo esc_html( (string) $unit['loggia_area'] ); ?> m²</strong></li>
+					<?php endif; ?>
+					<?php if ( ! empty( $unit['terrace_area'] ) && (float) $unit['terrace_area'] > 0 ) : ?>
+						<li title="Terrasse"><span class="ico" aria-hidden="true">⛱️</span><span class="lab">Terrasse</span><strong><?php echo esc_html( (string) $unit['terrace_area'] ); ?> m²</strong></li>
 					<?php endif; ?>
 					<?php if ( ! empty( $unit['garden_area'] ) && (float) $unit['garden_area'] > 0 ) : ?>
-						<li><span class="ico" aria-hidden="true">🌿</span><span class="lab">Garten</span><strong><?php echo esc_html( (string) $unit['garden_area'] ); ?> m²</strong></li>
+						<li title="Garten"><span class="ico" aria-hidden="true">🌳</span><span class="lab">Garten</span><strong><?php echo esc_html( (string) $unit['garden_area'] ); ?> m²</strong></li>
 					<?php endif; ?>
 					<?php if ( ! empty( $unit['cellar_area'] ) && (float) $unit['cellar_area'] > 0 ) : ?>
-						<li><span class="ico" aria-hidden="true">🏚️</span><span class="lab">Keller</span><strong><?php echo esc_html( (string) $unit['cellar_area'] ); ?> m²</strong></li>
+						<li title="Keller"><span class="ico" aria-hidden="true">📦</span><span class="lab">Keller</span><strong><?php echo esc_html( (string) $unit['cellar_area'] ); ?> m²</strong></li>
 					<?php endif; ?>
 					<?php $pk_unit = $unit['parking'] ?? array(); ?>
 					<?php if ( ! empty( $pk_unit['garage_count'] ) ) : ?>

@@ -426,17 +426,18 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 								<?php echo esc_html( $unit_title ); ?>
 								<?php
 								$extras = array();
-								if ( (float) ( $unit['balcony_area'] ?? 0 ) > 0 ) { $extras[] = '🏔️ ' . number_format_i18n( (float) $unit['balcony_area'], 0 ) . ' m²'; }
-								if ( (float) ( $unit['loggia_area']  ?? 0 ) > 0 ) { $extras[] = '🏛️ ' . number_format_i18n( (float) $unit['loggia_area'],  0 ) . ' m²'; }
-								if ( (float) ( $unit['garden_area']  ?? 0 ) > 0 ) { $extras[] = '🌿 ' . number_format_i18n( (float) $unit['garden_area'],  0 ) . ' m²'; }
-								if ( (float) ( $unit['cellar_area']  ?? 0 ) > 0 ) { $extras[] = '🏚️ ' . number_format_i18n( (float) $unit['cellar_area'],  0 ) . ' m²'; }
-								if ( (int)   ( $unit['parking']['garage_count']  ?? 0 ) > 0 ) { $extras[] = '🅿️ ×' . (int) $unit['parking']['garage_count']; }
-								if ( (int)   ( $unit['parking']['outdoor_count'] ?? 0 ) > 0 ) { $extras[] = '🚗 ×' . (int) $unit['parking']['outdoor_count']; }
+								if ( (float) ( $unit['balcony_area'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Balkon', 'immo-client' ),     'text' => '🪟 ' . number_format_i18n( (float) $unit['balcony_area'], 0 ) . ' m²' ); }
+								if ( (float) ( $unit['loggia_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Loggia', 'immo-client' ),     'text' => '🏛️ ' . number_format_i18n( (float) $unit['loggia_area'],  0 ) . ' m²' ); }
+								if ( (float) ( $unit['terrace_area'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Terrasse', 'immo-client' ),   'text' => '⛱️ ' . number_format_i18n( (float) $unit['terrace_area'], 0 ) . ' m²' ); }
+								if ( (float) ( $unit['garden_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Garten', 'immo-client' ),     'text' => '🌳 ' . number_format_i18n( (float) $unit['garden_area'],  0 ) . ' m²' ); }
+								if ( (float) ( $unit['cellar_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Keller', 'immo-client' ),     'text' => '📦 ' . number_format_i18n( (float) $unit['cellar_area'],  0 ) . ' m²' ); }
+								if ( (int)   ( $unit['parking']['garage_count']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Tiefgaragenplatz', 'immo-client' ),  'text' => '🅿️ ×' . (int) $unit['parking']['garage_count'] ); }
+								if ( (int)   ( $unit['parking']['outdoor_count'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Außen-Stellplatz',  'immo-client' ), 'text' => '🚗 ×' . (int) $unit['parking']['outdoor_count'] ); }
 								if ( $extras ) :
 								?>
 									<span class="immo-unit-extras">
 										<?php foreach ( $extras as $e ) : ?>
-											<span class="immo-unit-extra"><?php echo esc_html( $e ); ?></span>
+											<span class="immo-unit-extra" title="<?php echo esc_attr( $e['label'] ); ?>" aria-label="<?php echo esc_attr( $e['label'] . ': ' . $e['text'] ); ?>"><?php echo esc_html( $e['text'] ); ?></span>
 										<?php endforeach; ?>
 									</span>
 								<?php endif; ?>
@@ -547,16 +548,19 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 								<?php if ( $u_built ) : ?><li><span class="ico" aria-hidden="true">📅</span><span class="lab">Baujahr</span><strong><?php echo esc_html( $u_built ); ?></strong></li><?php endif; ?>
 								<?php if ( $u_energy ) : ?><li><span class="ico" aria-hidden="true">⚡</span><span class="lab">Energieklasse</span><strong><?php echo esc_html( $u_energy ); ?></strong></li><?php endif; ?>
 								<?php if ( ! empty( $unit['balcony_area'] ) && (float) $unit['balcony_area'] > 0 ) : ?>
-									<li><span class="ico" aria-hidden="true">🏔️</span><span class="lab">Balkon</span><strong><?php echo esc_html( (string) $unit['balcony_area'] ); ?> m²</strong></li>
+									<li title="Balkon"><span class="ico" aria-hidden="true">🪟</span><span class="lab">Balkon</span><strong><?php echo esc_html( (string) $unit['balcony_area'] ); ?> m²</strong></li>
 								<?php endif; ?>
 								<?php if ( ! empty( $unit['loggia_area'] ) && (float) $unit['loggia_area'] > 0 ) : ?>
-									<li><span class="ico" aria-hidden="true">🏛️</span><span class="lab">Loggia</span><strong><?php echo esc_html( (string) $unit['loggia_area'] ); ?> m²</strong></li>
+									<li title="Loggia"><span class="ico" aria-hidden="true">🏛️</span><span class="lab">Loggia</span><strong><?php echo esc_html( (string) $unit['loggia_area'] ); ?> m²</strong></li>
+								<?php endif; ?>
+								<?php if ( ! empty( $unit['terrace_area'] ) && (float) $unit['terrace_area'] > 0 ) : ?>
+									<li title="Terrasse"><span class="ico" aria-hidden="true">⛱️</span><span class="lab">Terrasse</span><strong><?php echo esc_html( (string) $unit['terrace_area'] ); ?> m²</strong></li>
 								<?php endif; ?>
 								<?php if ( ! empty( $unit['garden_area'] ) && (float) $unit['garden_area'] > 0 ) : ?>
-									<li><span class="ico" aria-hidden="true">🌿</span><span class="lab">Garten</span><strong><?php echo esc_html( (string) $unit['garden_area'] ); ?> m²</strong></li>
+									<li title="Garten"><span class="ico" aria-hidden="true">🌳</span><span class="lab">Garten</span><strong><?php echo esc_html( (string) $unit['garden_area'] ); ?> m²</strong></li>
 								<?php endif; ?>
 								<?php if ( ! empty( $unit['cellar_area'] ) && (float) $unit['cellar_area'] > 0 ) : ?>
-									<li><span class="ico" aria-hidden="true">🏚️</span><span class="lab">Keller</span><strong><?php echo esc_html( (string) $unit['cellar_area'] ); ?> m²</strong></li>
+									<li title="Keller"><span class="ico" aria-hidden="true">📦</span><span class="lab">Keller</span><strong><?php echo esc_html( (string) $unit['cellar_area'] ); ?> m²</strong></li>
 								<?php endif; ?>
 								<?php $pk_unit = $unit['parking'] ?? array(); ?>
 								<?php if ( ! empty( $pk_unit['garage_count'] ) ) : ?>

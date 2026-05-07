@@ -76,17 +76,18 @@ $status_labels = array(
 					<?php echo esc_html( $unit_title ); ?>
 					<?php
 					$extras = array();
-					if ( (float) ( $unit['balcony_area'] ?? 0 ) > 0 ) { $extras[] = '🏔️ ' . number_format_i18n( (float) $unit['balcony_area'], 0 ) . ' m²'; }
-					if ( (float) ( $unit['loggia_area']  ?? 0 ) > 0 ) { $extras[] = '🏛️ ' . number_format_i18n( (float) $unit['loggia_area'],  0 ) . ' m²'; }
-					if ( (float) ( $unit['garden_area']  ?? 0 ) > 0 ) { $extras[] = '🌿 ' . number_format_i18n( (float) $unit['garden_area'],  0 ) . ' m²'; }
-					if ( (float) ( $unit['cellar_area']  ?? 0 ) > 0 ) { $extras[] = '🏚️ ' . number_format_i18n( (float) $unit['cellar_area'],  0 ) . ' m²'; }
-					if ( (int)   ( $unit['parking']['garage_count']  ?? 0 ) > 0 ) { $extras[] = '🅿️ ×' . (int) $unit['parking']['garage_count']; }
-					if ( (int)   ( $unit['parking']['outdoor_count'] ?? 0 ) > 0 ) { $extras[] = '🚗 ×' . (int) $unit['parking']['outdoor_count']; }
+					if ( (float) ( $unit['balcony_area'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Balkon', 'immo-client' ),     'text' => '🪟 ' . number_format_i18n( (float) $unit['balcony_area'], 0 ) . ' m²' ); }
+					if ( (float) ( $unit['loggia_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Loggia', 'immo-client' ),     'text' => '🏛️ ' . number_format_i18n( (float) $unit['loggia_area'],  0 ) . ' m²' ); }
+					if ( (float) ( $unit['terrace_area'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Terrasse', 'immo-client' ),   'text' => '⛱️ ' . number_format_i18n( (float) $unit['terrace_area'], 0 ) . ' m²' ); }
+					if ( (float) ( $unit['garden_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Garten', 'immo-client' ),     'text' => '🌳 ' . number_format_i18n( (float) $unit['garden_area'],  0 ) . ' m²' ); }
+					if ( (float) ( $unit['cellar_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Keller', 'immo-client' ),     'text' => '📦 ' . number_format_i18n( (float) $unit['cellar_area'],  0 ) . ' m²' ); }
+					if ( (int)   ( $unit['parking']['garage_count']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Tiefgaragenplatz', 'immo-client' ),  'text' => '🅿️ ×' . (int) $unit['parking']['garage_count'] ); }
+					if ( (int)   ( $unit['parking']['outdoor_count'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Außen-Stellplatz',  'immo-client' ), 'text' => '🚗 ×' . (int) $unit['parking']['outdoor_count'] ); }
 					if ( $extras ) :
 					?>
 						<span class="immo-unit-extras">
 							<?php foreach ( $extras as $e ) : ?>
-								<span class="immo-unit-extra"><?php echo esc_html( $e ); ?></span>
+								<span class="immo-unit-extra" title="<?php echo esc_attr( $e['label'] ); ?>" aria-label="<?php echo esc_attr( $e['label'] . ': ' . $e['text'] ); ?>"><?php echo esc_html( $e['text'] ); ?></span>
 							<?php endforeach; ?>
 						</span>
 					<?php endif; ?>
