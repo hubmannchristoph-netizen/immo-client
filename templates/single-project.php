@@ -293,6 +293,66 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 	</section>
 	<?php endif; ?>
 
+	<!-- ========== STELLPLÄTZE ========== -->
+	<?php
+	$pk         = $meta['parking'] ?? array();
+	$pk_garage  = $pk['garage']  ?? array();
+	$pk_outdoor = $pk['outdoor'] ?? array();
+	$pk_notes   = (string) ( $pk['notes'] ?? '' );
+	$has_garage  = ! empty( $pk_garage['available'] );
+	$has_outdoor = ! empty( $pk_outdoor['available'] );
+	if ( $has_garage || $has_outdoor || '' !== $pk_notes ) :
+		$fmt_money = static function ( $val ) {
+			$val = (float) $val;
+			return $val > 0 ? number_format_i18n( $val, 0 ) . ' €' : __( 'Preis auf Anfrage', 'immo-client' );
+		};
+	?>
+	<section class="immo-section immo-project-parking">
+		<h2><?php esc_html_e( 'Stellplätze', 'immo-client' ); ?></h2>
+		<ul class="immo-parking-list">
+			<?php if ( $has_garage ) : ?>
+				<li class="immo-parking-item">
+					<span class="immo-parking-icon" aria-hidden="true">🅿️</span>
+					<div class="immo-parking-meta">
+						<strong class="immo-parking-title"><?php esc_html_e( 'Tiefgaragenplatz', 'immo-client' ); ?></strong>
+						<span class="immo-parking-price"><?php echo esc_html( $fmt_money( $pk_garage['price'] ?? 0 ) ); ?></span>
+						<span class="immo-parking-flag immo-parking-flag-<?php echo ! empty( $pk_garage['required'] ) ? 'required' : 'optional'; ?>">
+							<?php echo ! empty( $pk_garage['required'] ) ? esc_html__( 'verpflichtend', 'immo-client' ) : esc_html__( 'optional', 'immo-client' ); ?>
+						</span>
+						<?php if ( (int) ( $pk_garage['total'] ?? 0 ) > 0 ) : ?>
+							<span class="immo-parking-total"><?php
+								/* translators: %d: Gesamtanzahl */
+								printf( esc_html__( '%d Plätze gesamt', 'immo-client' ), (int) $pk_garage['total'] );
+							?></span>
+						<?php endif; ?>
+					</div>
+				</li>
+			<?php endif; ?>
+			<?php if ( $has_outdoor ) : ?>
+				<li class="immo-parking-item">
+					<span class="immo-parking-icon" aria-hidden="true">🚗</span>
+					<div class="immo-parking-meta">
+						<strong class="immo-parking-title"><?php esc_html_e( 'Außen-Stellplatz', 'immo-client' ); ?></strong>
+						<span class="immo-parking-price"><?php echo esc_html( $fmt_money( $pk_outdoor['price'] ?? 0 ) ); ?></span>
+						<span class="immo-parking-flag immo-parking-flag-<?php echo ! empty( $pk_outdoor['required'] ) ? 'required' : 'optional'; ?>">
+							<?php echo ! empty( $pk_outdoor['required'] ) ? esc_html__( 'verpflichtend', 'immo-client' ) : esc_html__( 'optional', 'immo-client' ); ?>
+						</span>
+						<?php if ( (int) ( $pk_outdoor['total'] ?? 0 ) > 0 ) : ?>
+							<span class="immo-parking-total"><?php
+								/* translators: %d: Gesamtanzahl */
+								printf( esc_html__( '%d Plätze gesamt', 'immo-client' ), (int) $pk_outdoor['total'] );
+							?></span>
+						<?php endif; ?>
+					</div>
+				</li>
+			<?php endif; ?>
+		</ul>
+		<?php if ( '' !== $pk_notes ) : ?>
+			<p class="immo-parking-notes"><?php echo esc_html( $pk_notes ); ?></p>
+		<?php endif; ?>
+	</section>
+	<?php endif; ?>
+
 	<!-- ========== CTA-BANNER zwischen Inhalten und Wohneinheiten ========== -->
 	<section class="immo-project-cta-banner" aria-label="Anfrage senden">
 		<div class="immo-project-cta-banner-text">
@@ -468,6 +528,25 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 								<?php $floor_lbl = immo_client_floor_label( $u_floor ); if ( $floor_lbl !== '–' ) : ?><li><span class="ico" aria-hidden="true">🏢</span><span class="lab">Etage</span><strong><?php echo esc_html( $floor_lbl ); ?></strong></li><?php endif; ?>
 								<?php if ( $u_built ) : ?><li><span class="ico" aria-hidden="true">📅</span><span class="lab">Baujahr</span><strong><?php echo esc_html( $u_built ); ?></strong></li><?php endif; ?>
 								<?php if ( $u_energy ) : ?><li><span class="ico" aria-hidden="true">⚡</span><span class="lab">Energieklasse</span><strong><?php echo esc_html( $u_energy ); ?></strong></li><?php endif; ?>
+								<?php if ( ! empty( $unit['balcony_area'] ) && (float) $unit['balcony_area'] > 0 ) : ?>
+									<li><span class="ico" aria-hidden="true">🏔️</span><span class="lab">Balkon</span><strong><?php echo esc_html( (string) $unit['balcony_area'] ); ?> m²</strong></li>
+								<?php endif; ?>
+								<?php if ( ! empty( $unit['loggia_area'] ) && (float) $unit['loggia_area'] > 0 ) : ?>
+									<li><span class="ico" aria-hidden="true">🏛️</span><span class="lab">Loggia</span><strong><?php echo esc_html( (string) $unit['loggia_area'] ); ?> m²</strong></li>
+								<?php endif; ?>
+								<?php if ( ! empty( $unit['garden_area'] ) && (float) $unit['garden_area'] > 0 ) : ?>
+									<li><span class="ico" aria-hidden="true">🌿</span><span class="lab">Garten</span><strong><?php echo esc_html( (string) $unit['garden_area'] ); ?> m²</strong></li>
+								<?php endif; ?>
+								<?php if ( ! empty( $unit['cellar_area'] ) && (float) $unit['cellar_area'] > 0 ) : ?>
+									<li><span class="ico" aria-hidden="true">🏚️</span><span class="lab">Keller</span><strong><?php echo esc_html( (string) $unit['cellar_area'] ); ?> m²</strong></li>
+								<?php endif; ?>
+								<?php $pk_unit = $unit['parking'] ?? array(); ?>
+								<?php if ( ! empty( $pk_unit['garage_count'] ) ) : ?>
+									<li><span class="ico" aria-hidden="true">🅿️</span><span class="lab">Tiefgarage</span><strong>inkl. <?php echo (int) $pk_unit['garage_count']; ?>×</strong></li>
+								<?php endif; ?>
+								<?php if ( ! empty( $pk_unit['outdoor_count'] ) ) : ?>
+									<li><span class="ico" aria-hidden="true">🚗</span><span class="lab">Stellplatz</span><strong>inkl. <?php echo (int) $pk_unit['outdoor_count']; ?>×</strong></li>
+								<?php endif; ?>
 							</ul>
 
 							<?php if ( $u_price ) : ?>
