@@ -72,7 +72,25 @@ $status_labels = array(
 				data-immo-unit-id="<?php echo esc_attr( $unit_id ); ?>"
 				data-immo-unit-url="<?php echo esc_attr( $detail_url ); ?>">
 				<td class="col-nr"><?php echo esc_html( $unit['unit_number'] ?? '' ); ?></td>
-				<td class="col-title"><?php echo esc_html( $unit_title ); ?></td>
+				<td class="col-title">
+					<?php echo esc_html( $unit_title ); ?>
+					<?php
+					$extras = array();
+					if ( (float) ( $unit['balcony_area'] ?? 0 ) > 0 ) { $extras[] = '🏔️ ' . number_format_i18n( (float) $unit['balcony_area'], 0 ) . ' m²'; }
+					if ( (float) ( $unit['loggia_area']  ?? 0 ) > 0 ) { $extras[] = '🏛️ ' . number_format_i18n( (float) $unit['loggia_area'],  0 ) . ' m²'; }
+					if ( (float) ( $unit['garden_area']  ?? 0 ) > 0 ) { $extras[] = '🌿 ' . number_format_i18n( (float) $unit['garden_area'],  0 ) . ' m²'; }
+					if ( (float) ( $unit['cellar_area']  ?? 0 ) > 0 ) { $extras[] = '🏚️ ' . number_format_i18n( (float) $unit['cellar_area'],  0 ) . ' m²'; }
+					if ( (int)   ( $unit['parking']['garage_count']  ?? 0 ) > 0 ) { $extras[] = '🅿️ ×' . (int) $unit['parking']['garage_count']; }
+					if ( (int)   ( $unit['parking']['outdoor_count'] ?? 0 ) > 0 ) { $extras[] = '🚗 ×' . (int) $unit['parking']['outdoor_count']; }
+					if ( $extras ) :
+					?>
+						<span class="immo-unit-extras">
+							<?php foreach ( $extras as $e ) : ?>
+								<span class="immo-unit-extra"><?php echo esc_html( $e ); ?></span>
+							<?php endforeach; ?>
+						</span>
+					<?php endif; ?>
+				</td>
 				<td class="col-status">
 					<?php if ( $u_status ) : ?>
 						<span class="immo-status immo-status-<?php echo esc_attr( $u_status ); ?>"><?php echo esc_html( $u_status_lbl ); ?></span>
