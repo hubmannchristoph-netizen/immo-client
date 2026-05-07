@@ -333,6 +333,7 @@ class ImmoHelp {
                 <li><code>POST /inquiries</code> (akzeptiert optional <code>notify_email</code>)</li>
             </ul>
             <p>Property-Antworten enthalten zusätzlich <code>meta.commission_free</code> (boolean) und <code>meta.commission_free_label</code> (Beschriftung des „Provisionsfrei"-Badges, im Manager konfigurierbar).</p>
+            <p>Ab Manager 1.1.0 zusätzlich pro Wohneinheit: <code>balcony_area</code>, <code>loggia_area</code>, <code>garden_area</code>, <code>cellar_area</code> (m²), sowie <code>parking.garage_count</code> / <code>parking.outdoor_count</code> (inkludierte Stellplätze) und <code>parking.garage_price_override</code> / <code>parking.outdoor_price_override</code> (NULL = Projekt-Default). Pro Bauprojekt: <code>meta.parking.garage</code>, <code>meta.parking.outdoor</code> (jeweils <code>available</code>, <code>total</code>, <code>price</code>, <code>required</code>) plus <code>meta.parking.notes</code> für die zentrale Stellplatz-Konfiguration.</p>
 
             <h2 class="title">9. Provisionsfrei-Badge</h2>
             <p>Properties, die im Manager als „provisionsfrei" markiert sind, zeigen automatisch ein gut sichtbares gelbes Patch-Badge:</p>
