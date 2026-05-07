@@ -33,9 +33,15 @@ class ImmoSEO {
 		add_filter( 'wpseo_metadesc', array( __CLASS__, 'plugin_description' ), 99 );
 		add_filter( 'wpseo_opengraph_title', array( __CLASS__, 'plugin_title' ), 99 );
 		add_filter( 'wpseo_opengraph_desc',  array( __CLASS__, 'plugin_description' ), 99 );
-		// RankMath.
-		add_filter( 'rank_math/frontend/title',       array( __CLASS__, 'plugin_title' ), 99 );
-		add_filter( 'rank_math/frontend/description', array( __CLASS__, 'plugin_description' ), 99 );
+		// RankMath: Frontend + alle OG-Varianten.
+		add_filter( 'rank_math/frontend/title',                    array( __CLASS__, 'plugin_title' ), 99 );
+		add_filter( 'rank_math/frontend/description',              array( __CLASS__, 'plugin_description' ), 99 );
+		add_filter( 'rank_math/opengraph/facebook/og_title',       array( __CLASS__, 'plugin_title' ), 99 );
+		add_filter( 'rank_math/opengraph/facebook/og_description', array( __CLASS__, 'plugin_description' ), 99 );
+		add_filter( 'rank_math/opengraph/twitter/title',           array( __CLASS__, 'plugin_title' ), 99 );
+		add_filter( 'rank_math/opengraph/twitter/description',     array( __CLASS__, 'plugin_description' ), 99 );
+		// RankMath schreibt zusätzlich aus Post-Meta-Cache — falls vorhanden, leeren.
+		add_filter( 'rank_math/frontend/breadcrumb/items', array( __CLASS__, 'maybe_clear_rm_cache' ), 1 );
 		// All-in-One SEO.
 		add_filter( 'aioseo_title',       array( __CLASS__, 'plugin_title' ), 99 );
 		add_filter( 'aioseo_description', array( __CLASS__, 'plugin_description' ), 99 );
@@ -82,6 +88,17 @@ class ImmoSEO {
 		if ( ! $ctx ) { return $desc; }
 		$built = self::build_description( $ctx['data'] );
 		return '' !== $built ? $built : $desc;
+	}
+
+	/**
+	 * Hilfsfilter — passt durch ohne Änderung, dient nur als Anker
+	 * damit unser Code in der RankMath-Pipeline geladen ist.
+	 *
+	 * @param mixed $items
+	 * @return mixed
+	 */
+	public static function maybe_clear_rm_cache( $items ) {
+		return $items;
 	}
 
 	/**
