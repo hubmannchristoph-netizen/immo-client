@@ -26,9 +26,100 @@ class ImmoSEO {
 
 	public static function init() {
 		add_filter( 'document_title_parts', array( __CLASS__, 'document_title_parts' ), 20 );
+		// pre_get_document_title mit Prio 99 — nach Yoast/RankMath/AIOSEO.
+		add_filter( 'pre_get_document_title', array( __CLASS__, 'pre_get_document_title' ), 99 );
+		// Yoast SEO.
+		add_filter( 'wpseo_title',    array( __CLASS__, 'plugin_title' ), 99 );
+		add_filter( 'wpseo_metadesc', array( __CLASS__, 'plugin_description' ), 99 );
+		add_filter( 'wpseo_opengraph_title', array( __CLASS__, 'plugin_title' ), 99 );
+		add_filter( 'wpseo_opengraph_desc',  array( __CLASS__, 'plugin_description' ), 99 );
+		// RankMath.
+		add_filter( 'rank_math/frontend/title',       array( __CLASS__, 'plugin_title' ), 99 );
+		add_filter( 'rank_math/frontend/description', array( __CLASS__, 'plugin_description' ), 99 );
+		// All-in-One SEO.
+		add_filter( 'aioseo_title',       array( __CLASS__, 'plugin_title' ), 99 );
+		add_filter( 'aioseo_description', array( __CLASS__, 'plugin_description' ), 99 );
+
 		add_action( 'wp_head', array( __CLASS__, 'render_meta_description' ), 5 );
 		add_action( 'wp_head', array( __CLASS__, 'render_og_tags' ), 6 );
 		add_action( 'wp_head', array( __CLASS__, 'render_schema' ), 30 );
+	}
+
+	/**
+	 * Robuste Title-Override (überschreibt komplett den default-WP-Mechanismus).
+	 *
+	 * @param string $title Existierender Title.
+	 * @return string
+	 */
+	public static function pre_get_document_title( $title ) {
+		$ctx = self::context();
+		if ( ! $ctx ) { return $title; }
+		$built = self::build_title( $ctx );
+		if ( '' === $built ) { return $title; }
+		// Site-Name anhängen wie WP-Default.
+		$sep  = apply_filters( 'document_title_separator', '-' );
+		$site = get_bloginfo( 'name' );
+		if ( '' !== $site ) { $built .= ' ' . trim( $sep ) . ' ' . $site; }
+		return $built;
+	}
+
+	/**
+	 * Filter-Callback für SEO-Plugins (Yoast, RankMath, AIOSEO).
+	 * Liefert nur den eigenen Titel ohne Site-Suffix — Plugins hängen das selbst an.
+	 *
+	 * @param string $title
+	 * @return string
+	 */
+	public static function plugin_title( $title ) {
+		$ctx = self::context();
+		if ( ! $ctx ) { return $title; }
+		$built = self::build_title( $ctx );
+		return '' !== $built ? $built : $title;
+	}
+
+	public static function plugin_description( $desc ) {
+		$ctx = self::context();
+		if ( ! $ctx ) { return $desc; }
+		$built = self::build_description( $ctx['data'] );
+		return '' !== $built ? $built : $desc;
+	}
+
+	/**
+	 * Title-Bau-Logik (zentralisiert für alle Filter).
+	 *
+	 * @param array $ctx
+	 * @return string
+	 */
+	private static function build_title( array $ctx ): string {
+		$d    = $ctx['data'];
+		$meta = isset( $d['meta'] ) && is_array( $d['meta'] ) ? $d['meta'] : array();
+
+		$title = (string) ( $d['title'] ?? '' );
+		$facts = array();
+
+		if ( 'property' === $ctx['kind'] ) {
+			$rooms = (int)   ( $meta['rooms'] ?? 0 );
+			$area  = (float) ( $meta['area']  ?? 0 );
+			$city  = (string) ( $meta['city'] ?? '' );
+
+			if ( $rooms > 0 ) {
+				$facts[] = sprintf( _n( '%d Zimmer', '%d Zimmer', $rooms, 'immo-client' ), $rooms );
+			}
+			if ( $area > 0 ) {
+				$dec     = ( floor( $area ) == $area ) ? 0 : 1;
+				$facts[] = number_format_i18n( $area, $dec ) . ' m²';
+			}
+			if ( '' !== $city ) { $facts[] = $city; }
+		} else {
+			$city    = (string) ( $meta['city'] ?? '' );
+			$facts[] = __( 'Bauprojekt', 'immo-client' );
+			if ( '' !== $city ) { $facts[] = $city; }
+		}
+
+		if ( ! empty( $facts ) ) {
+			$title .= ' – ' . implode( ' · ', $facts );
+		}
+		return $title;
 	}
 
 	/**
@@ -76,46 +167,20 @@ class ImmoSEO {
 	public static function document_title_parts( $parts ) {
 		$ctx = self::context();
 		if ( ! $ctx ) { return $parts; }
-
-		$d    = $ctx['data'];
-		$meta = isset( $d['meta'] ) && is_array( $d['meta'] ) ? $d['meta'] : array();
-
-		$title = (string) ( $d['title'] ?? '' );
-		$facts = array();
-
-		if ( 'property' === $ctx['kind'] ) {
-			$rooms = (int) ( $meta['rooms'] ?? 0 );
-			$area  = (float) ( $meta['area'] ?? 0 );
-			$city  = (string) ( $meta['city'] ?? '' );
-
-			if ( $rooms > 0 ) {
-				$facts[] = sprintf(
-					/* translators: %d: Anzahl Zimmer */
-					_n( '%d Zimmer', '%d Zimmer', $rooms, 'immo-client' ),
-					$rooms
-				);
-			}
-			if ( $area > 0 ) {
-				$dec     = ( floor( $area ) == $area ) ? 0 : 1;
-				$facts[] = number_format_i18n( $area, $dec ) . ' m²';
-			}
-			if ( '' !== $city ) {
-				$facts[] = $city;
-			}
-		} else {
-			$city = (string) ( $meta['city'] ?? '' );
-			$facts[] = __( 'Bauprojekt', 'immo-client' );
-			if ( '' !== $city ) { $facts[] = $city; }
-		}
-
-		if ( ! empty( $facts ) ) {
-			$title .= ' – ' . implode( ' · ', $facts );
-		}
-
-		if ( '' !== $title ) {
-			$parts['title'] = $title;
-		}
+		$built = self::build_title( $ctx );
+		if ( '' !== $built ) { $parts['title'] = $built; }
 		return $parts;
+	}
+
+	/**
+	 * Erkennt aktive SEO-Plugins (Yoast / RankMath / AIOSEO).
+	 * Wenn aktiv, geben sie selbst meta-description aus — wir doppeln nicht.
+	 */
+	private static function seo_plugin_active(): bool {
+		return defined( 'WPSEO_VERSION' )
+			|| class_exists( 'RankMath' )
+			|| defined( 'AIOSEO_VERSION' )
+			|| defined( 'AIOSEO_FILE' );
 	}
 
 	/**
@@ -124,10 +189,10 @@ class ImmoSEO {
 	public static function render_meta_description() {
 		$ctx = self::context();
 		if ( ! $ctx ) { return; }
-
+		// SEO-Plugin aktiv? Dann nicht doppelt ausgeben — der Plugin-Filter (wpseo_metadesc etc.) greift.
+		if ( self::seo_plugin_active() ) { return; }
 		$desc = self::build_description( $ctx['data'] );
 		if ( '' === $desc ) { return; }
-
 		echo "\n" . '<meta name="description" content="' . esc_attr( $desc ) . '">' . "\n";
 	}
 
