@@ -352,6 +352,19 @@ $style_attr   = $immo_max_width ? ' style="max-width:' . esc_attr($immo_max_widt
                         </div>
                     </a>
                 </section>
+
+                <?php if (!empty($project['id'])) : ?>
+                    <section class="immo-section immo-project-units">
+                        <h2><?php
+                            /* translators: %s: Bauprojekt-Name */
+                            printf(esc_html__('Weitere Wohneinheiten in %s', 'immo-client'), esc_html($project['title']));
+                        ?></h2>
+                        <p class="immo-project-units-intro" style="margin: 0 0 1em; color: var(--immo-text-muted, #4b5563);">
+                            <?php esc_html_e('Klicke auf eine Einheit für Details und Anfrage.', 'immo-client'); ?>
+                        </p>
+                        <?php echo do_shortcode('[immo_units project_id="' . (int) $project['id'] . '" layout="table" show_stats="yes"]'); ?>
+                    </section>
+                <?php endif; ?>
             <?php endif; ?>
 
         </main>
