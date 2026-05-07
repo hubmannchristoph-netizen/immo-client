@@ -36,19 +36,51 @@ class ImmoSEO {
 		// RankMath: Frontend + alle OG-Varianten.
 		add_filter( 'rank_math/frontend/title',                    array( __CLASS__, 'plugin_title' ), 99 );
 		add_filter( 'rank_math/frontend/description',              array( __CLASS__, 'plugin_description' ), 99 );
+		add_filter( 'rank_math/frontend/canonical',                array( __CLASS__, 'plugin_url' ), 99 );
 		add_filter( 'rank_math/opengraph/facebook/og_title',       array( __CLASS__, 'plugin_title' ), 99 );
 		add_filter( 'rank_math/opengraph/facebook/og_description', array( __CLASS__, 'plugin_description' ), 99 );
+		add_filter( 'rank_math/opengraph/facebook/og_url',         array( __CLASS__, 'plugin_url' ), 99 );
 		add_filter( 'rank_math/opengraph/twitter/title',           array( __CLASS__, 'plugin_title' ), 99 );
 		add_filter( 'rank_math/opengraph/twitter/description',     array( __CLASS__, 'plugin_description' ), 99 );
+		add_filter( 'rank_math/opengraph/twitter/url',             array( __CLASS__, 'plugin_url' ), 99 );
+		// Yoast Canonical/OG-URL.
+		add_filter( 'wpseo_canonical',         array( __CLASS__, 'plugin_url' ), 99 );
+		add_filter( 'wpseo_opengraph_url',     array( __CLASS__, 'plugin_url' ), 99 );
+		// AIOSEO Canonical.
+		add_filter( 'aioseo_canonical_url',    array( __CLASS__, 'plugin_url' ), 99 );
+		// WP-eigener Canonical-Filter (greift auch ohne SEO-Plugin).
+		add_filter( 'get_canonical_url',       array( __CLASS__, 'plugin_url_passthrough' ), 99, 2 );
 		// RankMath schreibt zusätzlich aus Post-Meta-Cache — falls vorhanden, leeren.
 		add_filter( 'rank_math/frontend/breadcrumb/items', array( __CLASS__, 'maybe_clear_rm_cache' ), 1 );
 		// All-in-One SEO.
 		add_filter( 'aioseo_title',       array( __CLASS__, 'plugin_title' ), 99 );
 		add_filter( 'aioseo_description', array( __CLASS__, 'plugin_description' ), 99 );
 
+		add_action( 'wp_head', array( __CLASS__, 'render_canonical' ), 4 );
 		add_action( 'wp_head', array( __CLASS__, 'render_meta_description' ), 5 );
 		add_action( 'wp_head', array( __CLASS__, 'render_og_tags' ), 6 );
 		add_action( 'wp_head', array( __CLASS__, 'render_schema' ), 30 );
+
+		// Default-WP-Canonical-Tag entfernen, wenn wir Detailseite sind und kein SEO-Plugin aktiv —
+		// sonst doppelt mit unserem eigenen.
+		add_action( 'template_redirect', array( __CLASS__, 'maybe_unhook_default_canonical' ), 99 );
+	}
+
+	public static function maybe_unhook_default_canonical() {
+		if ( self::context() && ! self::seo_plugin_active() ) {
+			remove_action( 'wp_head', 'rel_canonical' );
+		}
+	}
+
+	public static function render_canonical() {
+		$ctx = self::context();
+		if ( ! $ctx ) { return; }
+		// Wenn ein SEO-Plugin aktiv ist, gibt es selbst Canonical aus (über plugin_url-Filter).
+		if ( self::seo_plugin_active() ) { return; }
+		$url = self::current_url();
+		if ( '' !== $url ) {
+			echo "\n" . '<link rel="canonical" href="' . esc_url( $url ) . '">' . "\n";
+		}
 	}
 
 	/**
@@ -88,6 +120,24 @@ class ImmoSEO {
 		if ( ! $ctx ) { return $desc; }
 		$built = self::build_description( $ctx['data'] );
 		return '' !== $built ? $built : $desc;
+	}
+
+	/**
+	 * Filter-Callback für Canonical/OG-URL. Liefert die aktuelle Detail-URL
+	 * statt der URL des virtuellen WP-Posts (ist auf manchen Setups eine Cookie-Seite).
+	 */
+	public static function plugin_url( $url ) {
+		$ctx = self::context();
+		if ( ! $ctx ) { return $url; }
+		$current = self::current_url();
+		return '' !== $current ? $current : $url;
+	}
+
+	/**
+	 * get_canonical_url-Variante (zwei Parameter: $canonical_url, $post).
+	 */
+	public static function plugin_url_passthrough( $canonical_url, $post = null ) {
+		return self::plugin_url( $canonical_url );
 	}
 
 	/**
