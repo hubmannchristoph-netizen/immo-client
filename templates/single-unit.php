@@ -353,18 +353,23 @@ $style_attr   = $immo_max_width ? ' style="max-width:' . esc_attr($immo_max_widt
                     </a>
                 </section>
 
-                <?php if (!empty($project['id'])) : ?>
-                    <section class="immo-section immo-project-units">
-                        <h2><?php
-                            /* translators: %s: Bauprojekt-Name */
-                            printf(esc_html__('Weitere Wohneinheiten in %s', 'immo-client'), esc_html($project['title']));
-                        ?></h2>
-                        <p class="immo-project-units-intro" style="margin: 0 0 1em; color: var(--immo-text-muted, #4b5563);">
-                            <?php esc_html_e('Klicke auf eine Einheit für Details und Anfrage.', 'immo-client'); ?>
-                        </p>
-                        <?php echo do_shortcode('[immo_units project_id="' . (int) $project['id'] . '" layout="table" show_stats="yes"]'); ?>
-                    </section>
-                <?php endif; ?>
+            <?php endif; ?>
+
+            <?php
+            // Wohneinheiten dieser Immobilie laden (units.property_id = property.id).
+            $api_units = isset($api) && is_object($api) ? $api : new ImmoAPI();
+            $unit_payload = $api_units->get_property_units((int) $property['id']);
+            $has_property_units = is_array($unit_payload)
+                && ! empty($unit_payload['units']);
+            ?>
+            <?php if ($has_property_units) : ?>
+                <section class="immo-section immo-property-units">
+                    <h2><?php esc_html_e('Wohneinheiten zu dieser Immobilie', 'immo-client'); ?></h2>
+                    <p class="immo-property-units-intro" style="margin: 0 0 1em; color: var(--immo-text-muted, #4b5563);">
+                        <?php esc_html_e('Klicke auf eine Einheit für Details und Anfrage.', 'immo-client'); ?>
+                    </p>
+                    <?php echo do_shortcode('[immo_units property_id="' . (int) $property['id'] . '" layout="table" show_stats="yes"]'); ?>
+                </section>
             <?php endif; ?>
 
         </main>

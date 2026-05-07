@@ -296,20 +296,24 @@ class ImmoShortcodes {
      */
     public function render_units_shortcode($atts) {
         $atts = shortcode_atts(array_merge(array(
-            'project_id'   => '',
-            'project_slug' => '',
-            'status'       => '',          // einzeln oder kommagetrennt: available,reserved,sold,rented
-            'layout'       => 'table',     // table | grid | list
-            'orderby'      => 'unit_number',
-            'limit'        => 0,
-            'show_stats'   => 'yes',       // yes | no — Status-Counter über der Liste
+            'project_id'    => '',
+            'project_slug'  => '',
+            'property_id'   => '',
+            'property_slug' => '',
+            'status'        => '',          // einzeln oder kommagetrennt: available,reserved,sold,rented
+            'layout'        => 'table',     // table | grid | list
+            'orderby'       => 'unit_number',
+            'limit'         => 0,
+            'show_stats'    => 'yes',       // yes | no — Status-Counter über der Liste
         ), $this->style_defaults()), $atts);
 
-        $project_id   = absint($atts['project_id']);
-        $project_slug = sanitize_title((string) $atts['project_slug']);
+        $project_id    = absint($atts['project_id']);
+        $project_slug  = sanitize_title((string) $atts['project_slug']);
+        $property_id   = absint($atts['property_id']);
+        $property_slug = sanitize_title((string) $atts['property_slug']);
 
-        if (!$project_id && !$project_slug) {
-            return '<p class="immo-units-error">Bitte project_id oder project_slug angeben.</p>';
+        if (!$project_id && !$project_slug && !$property_id && !$property_slug) {
+            return '<p class="immo-units-error">Bitte project_id/slug oder property_id/slug angeben.</p>';
         }
 
         // Query-Args an REST durchreichen.
@@ -319,12 +323,18 @@ class ImmoShortcodes {
         $limit = max(0, (int) $atts['limit']);
         if ($limit > 0) { $api_args['limit'] = $limit; }
 
-        $payload = $project_id
-            ? $this->api->get_project_units($project_id, $api_args)
-            : $this->api->get_project_units_by_slug($project_slug, $api_args);
+        if ($property_id) {
+            $payload = $this->api->get_property_units($property_id, $api_args);
+        } elseif ($property_slug) {
+            $payload = $this->api->get_property_units_by_slug($property_slug, $api_args);
+        } elseif ($project_id) {
+            $payload = $this->api->get_project_units($project_id, $api_args);
+        } else {
+            $payload = $this->api->get_project_units_by_slug($project_slug, $api_args);
+        }
 
         if (!is_array($payload) || !isset($payload['units'])) {
-            return '<p class="immo-units-error">Projekt nicht gefunden.</p>';
+            return '<p class="immo-units-error">Keine Wohneinheiten gefunden.</p>';
         }
 
         $items     = $payload['units'];
