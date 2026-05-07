@@ -75,12 +75,16 @@ $status_labels = array(
 				<td class="col-title">
 					<?php echo esc_html( $unit_title ); ?>
 					<?php
+					$fmt_area = static function ( $v ) {
+						$v = (float) $v;
+						return number_format_i18n( $v, ( floor( $v ) == $v ) ? 0 : 1 );
+					};
 					$extras = array();
-					if ( (float) ( $unit['balcony_area'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Balkon', 'immo-client' ),     'text' => '🪟 ' . number_format_i18n( (float) $unit['balcony_area'], 0 ) . ' m²' ); }
-					if ( (float) ( $unit['loggia_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Loggia', 'immo-client' ),     'text' => '🏛️ ' . number_format_i18n( (float) $unit['loggia_area'],  0 ) . ' m²' ); }
-					if ( (float) ( $unit['terrace_area'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Terrasse', 'immo-client' ),   'text' => '⛱️ ' . number_format_i18n( (float) $unit['terrace_area'], 0 ) . ' m²' ); }
-					if ( (float) ( $unit['garden_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Garten', 'immo-client' ),     'text' => '🌳 ' . number_format_i18n( (float) $unit['garden_area'],  0 ) . ' m²' ); }
-					if ( (float) ( $unit['cellar_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Keller', 'immo-client' ),     'text' => '📦 ' . number_format_i18n( (float) $unit['cellar_area'],  0 ) . ' m²' ); }
+					if ( (float) ( $unit['balcony_area'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Balkon', 'immo-client' ),     'text' => '🪟 ' . $fmt_area( $unit['balcony_area'] ) . ' m²' ); }
+					if ( (float) ( $unit['loggia_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Loggia', 'immo-client' ),     'text' => '🏛️ ' . $fmt_area( $unit['loggia_area'] )  . ' m²' ); }
+					if ( (float) ( $unit['terrace_area'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Terrasse', 'immo-client' ),   'text' => '⛱️ ' . $fmt_area( $unit['terrace_area'] ) . ' m²' ); }
+					if ( (float) ( $unit['garden_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Garten', 'immo-client' ),     'text' => '🌳 ' . $fmt_area( $unit['garden_area'] )  . ' m²' ); }
+					if ( (float) ( $unit['cellar_area']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Keller', 'immo-client' ),     'text' => '📦 ' . $fmt_area( $unit['cellar_area'] )  . ' m²' ); }
 					if ( (int)   ( $unit['parking']['garage_count']  ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Tiefgaragenplatz', 'immo-client' ),  'text' => '🅿️ ×' . (int) $unit['parking']['garage_count'] ); }
 					if ( (int)   ( $unit['parking']['outdoor_count'] ?? 0 ) > 0 ) { $extras[] = array( 'label' => __( 'Außen-Stellplatz',  'immo-client' ), 'text' => '🚗 ×' . (int) $unit['parking']['outdoor_count'] ); }
 					if ( $extras ) :
