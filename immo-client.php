@@ -45,6 +45,7 @@ class ImmoClient {
         require_once IMMO_CLIENT_PATH . 'includes/class-immo-settings.php';
         require_once IMMO_CLIENT_PATH . 'includes/class-immo-help.php';
         require_once IMMO_CLIENT_PATH . 'includes/class-immo-routing.php';
+        require_once IMMO_CLIENT_PATH . 'includes/class-immo-seo.php';
         require_once IMMO_CLIENT_PATH . 'includes/class-immo-shortcodes.php';
         require_once IMMO_CLIENT_PATH . 'includes/class-immo-ajax.php';
         require_once IMMO_CLIENT_PATH . 'includes/helpers-badges.php';
