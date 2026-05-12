@@ -52,9 +52,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$u_floor   = isset( $unit['floor'] ) && $unit['floor'] !== '' ? $unit['floor'] : ( isset( $fp_meta['floor'] ) ? $fp_meta['floor'] : '' );
 		$u_built   = isset( $fp_meta['built_year'] ) ? (int) $fp_meta['built_year'] : 0;
 		$u_energy  = isset( $fp_meta['energy_class'] ) ? $fp_meta['energy_class'] : '';
+		// Nur der Preis der Wohneinheit selbst — kein Fallback auf die verknüpfte Immobilie.
 		$u_price   = isset( $unit['price_formatted'] ) && $unit['price_formatted'] !== ''
 			? $unit['price_formatted']
-			: ( isset( $fp_meta['price_formatted'] ) ? $fp_meta['price_formatted'] : '' );
+			: '';
 
 		$u_address = isset( $fp_meta['address'] ) ? $fp_meta['address'] : '';
 		$u_city    = isset( $fp_meta['city'] ) ? $fp_meta['city'] : '';
