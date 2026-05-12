@@ -382,7 +382,8 @@ $immo_link_units = ( (string) get_option( 'immo_project_link_units', '1' ) ) !==
 					$u_floor   = isset( $unit['floor'] ) && $unit['floor'] !== '' ? $unit['floor'] : ( $fp_meta['floor'] ?? '' );
 					$u_built   = (int) ( $fp_meta['built_year'] ?? 0 );
 					$u_energy  = (string) ( $fp_meta['energy_class'] ?? '' );
-					$u_price   = isset( $unit['price_formatted'] ) && $unit['price_formatted'] !== '' ? $unit['price_formatted'] : ( $fp_meta['price_formatted'] ?? '' );
+					// Nur der Preis der Wohneinheit selbst — kein Fallback auf die verknüpfte Immobilie.
+					$u_price   = isset( $unit['price_formatted'] ) && $unit['price_formatted'] !== '' ? $unit['price_formatted'] : '';
 					$u_address = (string) ( $fp_meta['address'] ?? '' );
 					$u_city    = (string) ( $fp_meta['city'] ?? '' );
 					$u_plz     = (string) ( $fp_meta['postal_code'] ?? '' );
