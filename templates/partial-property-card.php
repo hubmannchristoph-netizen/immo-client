@@ -59,6 +59,10 @@ $rooms     = isset($meta['rooms'])     ? (int)   $meta['rooms']     : 0;
 $bathrooms = isset($meta['bathrooms']) ? (int)   $meta['bathrooms'] : 0;
 $energy    = isset($meta['energy_class']) ? trim((string) $meta['energy_class']) : '';
 
+// Wohneinheiten-Verfügbarkeit (kommt als Top-Level-Feld aus der Manager-REST).
+$unit_total = isset($item['unit_stats']['total'])     ? (int) $item['unit_stats']['total']     : 0;
+$unit_avail = isset($item['unit_stats']['available']) ? (int) $item['unit_stats']['available'] : 0;
+
 $property_type = isset($meta['property_type']) ? trim((string) $meta['property_type']) : '';
 $city          = isset($meta['city'])          ? trim((string) $meta['city'])          : '';
 $district      = isset($meta['region_district_label']) ? trim((string) $meta['region_district_label']) : '';
@@ -95,7 +99,7 @@ $caption = implode(' · ', $caption_parts);
             <p class="immo-card__price"><?php echo esc_html(implode(' / ', $parts)); ?></p>
         <?php endif; ?>
 
-        <?php if (!$is_project && ($area_value > 0 || $rooms > 0 || $bathrooms > 0 || $energy !== '')) : ?>
+        <?php if (!$is_project && ($area_value > 0 || $rooms > 0 || $bathrooms > 0 || $energy !== '' || $unit_total > 0)) : ?>
             <ul class="immo-card__specs">
                 <?php if ($area_value > 0) :
                     $area_title = $area_suffix !== '' ? $area_suffix : __('Wohnfläche', 'immo-client');
@@ -133,6 +137,20 @@ $caption = implode(' · ', $caption_parts);
                     <li class="immo-card__spec" title="<?php esc_attr_e('Energieklasse', 'immo-client'); ?>">
                         <svg class="immo-card__spec-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M11 21h-1l1-7H6l8-13h1l-1 7h5l-8 13z"/></svg>
                         <span><?php echo esc_html($energy); ?></span>
+                    </li>
+                <?php endif; ?>
+                <?php if ($unit_total > 0) : ?>
+                    <li class="immo-card__spec" title="<?php esc_attr_e('Wohneinheiten', 'immo-client'); ?>">
+                        <svg class="immo-card__spec-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 21V3h10v8h8v10H3zm2-2h6V5H5v14zm8 0h6v-6h-6v6zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2z"/></svg>
+                        <span><?php
+                        if ($unit_avail > 0) {
+                            /* translators: 1: Anzahl verfügbarer Wohneinheiten, 2: Gesamtanzahl */
+                            echo esc_html(sprintf(__('%1$d von %2$d verfügbar', 'immo-client'), $unit_avail, $unit_total));
+                        } else {
+                            /* translators: %d: Gesamtanzahl der Wohneinheiten */
+                            echo esc_html(sprintf(_n('%d Wohneinheit – ausverkauft', '%d Wohneinheiten – ausverkauft', $unit_total, 'immo-client'), $unit_total));
+                        }
+                        ?></span>
                     </li>
                 <?php endif; ?>
             </ul>
