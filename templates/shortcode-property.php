@@ -14,6 +14,13 @@ $hero  = isset($item['featured_image']) ? $item['featured_image'] : null;
 
 $price_display = isset($meta['price_formatted']) && $meta['price_formatted'] ? $meta['price_formatted'] : '';
 $rent_display  = isset($meta['rent_formatted'])  && $meta['rent_formatted']  ? $meta['rent_formatted']  : '';
+
+$has_priced_units = ! empty( $meta['project']['has_priced_units'] );
+if ( $has_priced_units ) {
+	$price_display = immo_client_price_or_pricelist( '', true );
+	$rent_display  = '';
+}
+
 $area          = isset($meta['area'])  ? (float) $meta['area']  : 0;
 $rooms         = isset($meta['rooms']) ? (int)   $meta['rooms'] : 0;
 
