@@ -48,6 +48,20 @@ $detail_url = home_url('/immobilie/' . (isset($item['slug']) ? $item['slug'] : '
             <?php if ($area > 0 && $rooms > 0) echo ' | '; ?>
             <?php if ($rooms > 0) echo esc_html($rooms) . ' Zimmer'; ?>
         </p>
+        <?php
+        $pk_unit    = $meta['unit']['parking'] ?? $meta['parking'] ?? array();
+        $pk_garage  = (int) ( $pk_unit['garage_count'] ?? 0 );
+        $pk_outdoor = (int) ( $pk_unit['outdoor_count'] ?? 0 );
+        if ( $pk_garage > 0 || $pk_outdoor > 0 ) : ?>
+            <p class="immo-card-parking" style="margin:0 0 8px; font-size:.9em; color:#555;">
+                <?php if ( $pk_garage > 0 ) : ?>
+                    🅿️ ×<?php echo $pk_garage; ?>
+                <?php endif; ?>
+                <?php if ( $pk_outdoor > 0 ) : ?>
+                    🚗 ×<?php echo $pk_outdoor; ?>
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
         <a href="<?php echo esc_url($detail_url); ?>" class="button" style="display:inline-block;padding:8px 16px;background:var(--immo-primary,#0073aa);color:#fff;text-decoration:none;border-radius:4px;">
             Details ansehen
         </a>
