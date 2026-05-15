@@ -82,6 +82,20 @@ $status_labels = array(
 					<?php if ( $u_rooms > 0 ) : ?><li>🛏️ <?php echo esc_html( $u_rooms ); ?> Zi.</li><?php endif; ?>
 					<?php $floor_lbl = immo_client_floor_label( $unit['floor'] ?? '' ); if ( $floor_lbl !== '–' ) : ?><li>🏢 <?php echo esc_html( $floor_lbl ); ?></li><?php endif; ?>
 				</ul>
+				<?php
+				$pk_unit    = $unit['parking'] ?? array();
+				$pk_garage  = (int) ( $pk_unit['garage_count'] ?? 0 );
+				$pk_outdoor = (int) ( $pk_unit['outdoor_count'] ?? 0 );
+				if ( $pk_garage > 0 || $pk_outdoor > 0 ) : ?>
+					<div class="immo-unit-parking" style="display:flex; gap:8px; margin-top:6px; font-size:.85em; color:var(--immo-text-muted);">
+						<?php if ( $pk_garage > 0 ) : ?>
+							<span title="<?php esc_attr_e( 'Tiefgaragenplatz', 'immo-client' ); ?>">🅿️ ×<?php echo $pk_garage; ?></span>
+						<?php endif; ?>
+						<?php if ( $pk_outdoor > 0 ) : ?>
+							<span title="<?php esc_attr_e( 'Außen-Stellplatz', 'immo-client' ); ?>">🚗 ×<?php echo $pk_outdoor; ?></span>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
 				<span class="immo-units-card-cta">Quick-Info anzeigen</span>
 			</div>
 		</article>
