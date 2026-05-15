@@ -34,6 +34,10 @@ $title       = isset($item['title']) ? (string) $item['title'] : '';
 
 // Anzeige-Werte für Properties.
 $price_display = isset($meta['price_formatted']) && $meta['price_formatted'] ? (string) $meta['price_formatted'] : '';
+$has_priced_units = ! empty( $meta['project']['has_priced_units'] );
+if ( $has_priced_units ) {
+	$price_display = immo_client_price_or_pricelist( '', true );
+}
 $rent_display  = isset($meta['rent_formatted'])  && $meta['rent_formatted']  ? (string) $meta['rent_formatted']  : '';
 
 $area_living = isset($meta['area'])        ? (float) $meta['area']        : 0;
