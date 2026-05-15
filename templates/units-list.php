@@ -77,6 +77,13 @@ $status_labels = array(
 					<?php if ( $u_area !== '' ) : ?><span>📐 <?php echo esc_html( $u_area ); ?> m²</span><?php endif; ?>
 					<?php if ( $u_rooms > 0 ) : ?><span>🛏️ <?php echo esc_html( $u_rooms ); ?> Zi.</span><?php endif; ?>
 					<?php $floor_lbl = immo_client_floor_label( $unit['floor'] ?? '' ); if ( $floor_lbl !== '–' ) : ?><span>🏢 <?php echo esc_html( $floor_lbl ); ?></span><?php endif; ?>
+					<?php
+					$pk_unit    = $unit['parking'] ?? array();
+					$pk_garage  = (int) ( $pk_unit['garage_count'] ?? 0 );
+					$pk_outdoor = (int) ( $pk_unit['outdoor_count'] ?? 0 );
+					?>
+					<?php if ( $pk_garage > 0 ) : ?><span title="<?php esc_attr_e( 'Tiefgaragenplatz', 'immo-client' ); ?>">🅿️ ×<?php echo $pk_garage; ?></span><?php endif; ?>
+					<?php if ( $pk_outdoor > 0 ) : ?><span title="<?php esc_attr_e( 'Außen-Stellplatz', 'immo-client' ); ?>">🚗 ×<?php echo $pk_outdoor; ?></span><?php endif; ?>
 				</div>
 			</div>
 			<div class="immo-units-listitem-price">
