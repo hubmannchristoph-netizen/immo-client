@@ -477,6 +477,25 @@ $style_attr   = $immo_max_width ? ' style="max-width:' . esc_attr($immo_max_widt
         <?php endif; ?>
 
     </div>
+
+    <?php
+    // Nebenkosten- & Finanzierungsrechner (nur bei Kauf-Einheiten mit Preis).
+    $unit_price = (float) ( $meta['price'] ?? 0 );
+    if ( $unit_price > 0 ) {
+        $calc_context = array(
+            'base_price'      => $unit_price,
+            'commission_free' => (bool) ( $meta['commission_free'] ?? false ),
+            'units'           => array(),
+        );
+        wp_enqueue_style( 'immo-client-calculator' );
+        wp_enqueue_script( 'immo-client-calculator' );
+        ?>
+        <section class="immo-section immo-unit-calculator">
+            <?php include IMMO_CLIENT_PATH . 'templates/parts/calculator.php'; ?>
+        </section>
+        <?php
+    }
+    ?>
 </article>
 
 <?php
