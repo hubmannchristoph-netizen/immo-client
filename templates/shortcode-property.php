@@ -67,3 +67,22 @@ $detail_url = home_url('/immobilie/' . (isset($item['slug']) ? $item['slug'] : '
         </a>
     </div>
 </div>
+
+<?php
+// Nebenkosten- & Finanzierungsrechner (nur bei Kauf-Property mit Preis und ohne Pricelist-Trigger).
+$prop_price = (float) ( $meta['price'] ?? 0 );
+if ( $prop_price > 0 && empty( $has_priced_units ) ) {
+    $calc_context = array(
+        'base_price'      => $prop_price,
+        'commission_free' => (bool) ( $meta['commission_free'] ?? false ),
+        'units'           => array(),
+    );
+    wp_enqueue_style( 'immo-client-calculator' );
+    wp_enqueue_script( 'immo-client-calculator' );
+    ?>
+    <div class="immo-property-calculator" style="max-width:520px;margin-top:1rem;">
+        <?php include IMMO_CLIENT_PATH . 'templates/parts/calculator.php'; ?>
+    </div>
+    <?php
+}
+?>
