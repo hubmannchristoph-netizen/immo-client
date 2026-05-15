@@ -647,6 +647,41 @@ $style_attr = $immo_max_width ? ' style="max-width:' . esc_attr( $immo_max_width
 	</section>
 	<?php endif; ?>
 
+	<!-- ========== NEBENKOSTEN- & FINANZIERUNGSRECHNER ========== -->
+	<?php
+	$calc_units = array();
+	foreach ( $items as $u ) {
+		if ( ! empty( $u['price'] ) && (float) $u['price'] > 0 ) {
+			$calc_units[] = array(
+				'id'              => (int) ( $u['id'] ?? 0 ),
+				'price'           => (float) $u['price'],
+				'commission_free' => (bool) ( $u['property']['commission_free'] ?? false ),
+				'label'           => sprintf(
+					'%s — %s m² — %s',
+					(string) ( $u['unit_number'] ?? '' ),
+					number_format_i18n( (float) ( $u['area'] ?? 0 ), 0 ),
+					(string) ( $u['price_formatted'] ?? '' )
+				),
+			);
+		}
+	}
+	if ( ! empty( $calc_units ) ) {
+		$first         = $calc_units[0];
+		$calc_context  = array(
+			'base_price'      => $first['price'],
+			'commission_free' => $first['commission_free'],
+			'units'           => $calc_units,
+		);
+		wp_enqueue_style( 'immo-client-calculator' );
+		wp_enqueue_script( 'immo-client-calculator' );
+		?>
+		<section class="immo-section immo-project-calculator">
+			<?php include IMMO_CLIENT_PATH . 'templates/parts/calculator.php'; ?>
+		</section>
+		<?php
+	}
+	?>
+
 	</main><!-- /.immo-project-content -->
 
 	<!-- ========== STICKY SIDEBAR (Kontakt + Anfrage-Formular direkt) ========== -->
