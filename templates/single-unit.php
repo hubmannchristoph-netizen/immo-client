@@ -152,6 +152,12 @@ $detail_rows_kosten = array_filter(array(
 
 $primary_amount = $price_display ?: $rent_display;
 
+$has_priced_units = ! empty( $meta['project']['has_priced_units'] );
+if ( $has_priced_units ) {
+	$primary_amount = immo_client_price_or_pricelist( '', true );
+	$rent_display   = ''; // verhindert die Miete-Zusatz-Zeile in Z. ~397
+}
+
 $layout_class = 'immo-layout-' . sanitize_key($immo_layout);
 $style_attr   = $immo_max_width ? ' style="max-width:' . esc_attr($immo_max_width) . 'px;"' : '';
 ?>
