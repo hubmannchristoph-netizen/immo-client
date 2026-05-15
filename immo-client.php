@@ -80,6 +80,10 @@ class ImmoClient {
         wp_register_style('immo-client-list-slider', IMMO_CLIENT_URL . 'assets/css/immo-list-slider.css', array('immo-client-style', 'immo-client-splide'), IMMO_CLIENT_VERSION);
         wp_register_script('immo-client-list-slider', IMMO_CLIENT_URL . 'assets/js/immo-list-slider.js', array('immo-client-splide'), IMMO_CLIENT_VERSION, true);
 
+        // Nebenkosten- & Finanzierungsrechner — nur registrieren, Enqueue erfolgt im Detail-Template.
+        wp_register_style('immo-client-calculator', IMMO_CLIENT_URL . 'assets/css/calculator.css', array('immo-client-style'), IMMO_CLIENT_VERSION);
+        wp_register_script('immo-client-calculator', IMMO_CLIENT_URL . 'assets/js/calculator.js', array(), IMMO_CLIENT_VERSION, true);
+
         wp_localize_script('immo-client-filter', 'immo_ajax', array(
             'ajax_url'              => admin_url('admin-ajax.php'),
             'filter_nonce'          => wp_create_nonce('immo-filter-nonce'),
