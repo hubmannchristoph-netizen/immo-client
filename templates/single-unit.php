@@ -427,6 +427,24 @@ $style_attr   = $immo_max_width ? ' style="max-width:' . esc_attr($immo_max_widt
                     <?php endif; ?>
                 </div>
 
+                <?php
+                $pk_unit    = $meta['parking'] ?? array();
+                $pk_garage  = (int) ( $pk_unit['garage_count'] ?? 0 );
+                $pk_outdoor = (int) ( $pk_unit['outdoor_count'] ?? 0 );
+                if ( $pk_garage > 0 || $pk_outdoor > 0 ) : ?>
+                    <div class="immo-sidebar-parking" style="margin-top:1rem; padding:1rem; background:var(--immo-bg-muted, #f6f7f9); border-radius:8px;">
+                        <h3 style="margin:0 0 .5rem; font-size:1rem;"><?php esc_html_e( 'Stellplätze', 'immo-client' ); ?></h3>
+                        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.3rem;">
+                            <?php if ( $pk_garage > 0 ) : ?>
+                                <li>🅿️ <?php printf( esc_html( _n( '%d Tiefgaragenplatz', '%d Tiefgaragenplätze', $pk_garage, 'immo-client' ) ), $pk_garage ); ?></li>
+                            <?php endif; ?>
+                            <?php if ( $pk_outdoor > 0 ) : ?>
+                                <li>🚗 <?php printf( esc_html( _n( '%d Außen-Stellplatz', '%d Außen-Stellplätze', $pk_outdoor, 'immo-client' ) ), $pk_outdoor ); ?></li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($contact_name || $contact_email || $contact_phone) : ?>
                     <div class="immo-contact-card">
                         <?php if ($contact_image) : ?>
