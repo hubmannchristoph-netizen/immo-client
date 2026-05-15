@@ -422,3 +422,23 @@ class ImmoHelp {
 }
 
 new ImmoHelp();
+
+if ( ! function_exists( 'immo_client_price_or_pricelist' ) ) {
+	/**
+	 * Liefert den Preis-Text oder den Pricelist-Hinweis.
+	 *
+	 * Wenn das Projekt der Property/Unit Wohneinheiten mit Preisen hat,
+	 * wird statt des Preises der Hinweis „Preis siehe Preisliste" ausgegeben.
+	 *
+	 * @param string $formatted_price   Bereits formatierter Preis.
+	 * @param bool   $has_priced_units  Pricelist-Trigger.
+	 *
+	 * @return string
+	 */
+	function immo_client_price_or_pricelist( $formatted_price, $has_priced_units ) {
+		if ( $has_priced_units ) {
+			return __( 'Preis siehe Preisliste', 'immo-client' );
+		}
+		return (string) $formatted_price;
+	}
+}
