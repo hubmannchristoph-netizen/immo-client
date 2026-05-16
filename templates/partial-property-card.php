@@ -34,12 +34,28 @@ $title       = isset($item['title']) ? (string) $item['title'] : '';
 
 // Anzeige-Werte für Properties.
 $price_display = isset($meta['price_formatted']) && $meta['price_formatted'] ? (string) $meta['price_formatted'] : '';
+$rent_display  = isset($meta['rent_formatted'])  && $meta['rent_formatted']  ? (string) $meta['rent_formatted']  : '';
 $has_priced_units = ! empty( $meta['has_priced_units'] )
 	|| ! empty( $meta['project']['has_priced_units'] );
 if ( $has_priced_units ) {
-	$price_display = immo_client_price_or_pricelist( '', true );
+	// "ab MIN €" wenn der Manager den günstigsten verfügbaren Unit-Preis
+	// liefert; sonst Fallback auf den Pricelist-Hinweis.
+	$min_price_fmt = isset( $item['unit_stats']['min_price_formatted'] ) ? (string) $item['unit_stats']['min_price_formatted'] : '';
+	$min_rent_fmt  = isset( $item['unit_stats']['min_rent_formatted']  ) ? (string) $item['unit_stats']['min_rent_formatted']  : '';
+	$mode_card     = isset( $meta['mode'] ) ? (string) $meta['mode'] : 'sale';
+	if ( 'rent' === $mode_card && '' !== $min_rent_fmt ) {
+		/* translators: %s: günstigster Mietpreis (formatiert) */
+		$price_display = sprintf( __( 'ab %s / Monat', 'immo-client' ), $min_rent_fmt );
+		$rent_display  = '';
+	} elseif ( '' !== $min_price_fmt ) {
+		/* translators: %s: günstigster Kaufpreis (formatiert) */
+		$price_display = sprintf( __( 'ab %s', 'immo-client' ), $min_price_fmt );
+		$rent_display  = '';
+	} else {
+		$price_display = immo_client_price_or_pricelist( '', true );
+		$rent_display  = '';
+	}
 }
-$rent_display  = isset($meta['rent_formatted'])  && $meta['rent_formatted']  ? (string) $meta['rent_formatted']  : '';
 
 $area_living = isset($meta['area'])        ? (float) $meta['area']        : 0;
 $area_usable = isset($meta['usable_area']) ? (float) $meta['usable_area'] : 0;

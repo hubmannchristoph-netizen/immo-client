@@ -70,14 +70,61 @@ $detail_url = home_url('/immobilie/' . (isset($item['slug']) ? $item['slug'] : '
 </div>
 
 <?php
-// Nebenkosten- & Finanzierungsrechner (nur bei Kauf-Property mit Preis und ohne Pricelist-Trigger).
-$prop_price = (float) ( $meta['price'] ?? 0 );
-if ( $prop_price > 0 && empty( $has_priced_units ) ) {
-    $calc_context = array(
-        'base_price'      => $prop_price,
-        'commission_free' => (bool) ( $meta['commission_free'] ?? false ),
-        'units'           => array(),
-    );
+// Nebenkosten- & Finanzierungsrechner.
+// Mit zugeordneten Units: Dropdown mit verfügbaren Units, günstigste als Default.
+// Ohne Units: klassisch Property-Preis.
+$prop_price        = (float) ( $meta['price'] ?? 0 );
+$calc_units        = array();
+$calc_base_price   = 0.0;
+$calc_cf           = false;
+
+if ( $has_priced_units && ! empty( $item['slug'] ) ) {
+    $sc_api  = new ImmoAPI();
+    $sc_rows = $sc_api->get_property_units_by_slug( (string) $item['slug'] );
+    if ( ! empty( $sc_rows['units'] ) && is_array( $sc_rows['units'] ) ) {
+        foreach ( $sc_rows['units'] as $u ) {
+            $up = (float) ( $u['price'] ?? 0 );
+            $us = (string) ( $u['status'] ?? '' );
+            if ( $up <= 0 || 'available' !== $us ) {
+                continue;
+            }
+            $u_no   = (string) ( $u['unit_number'] ?? '' );
+            $u_area = (float)  ( $u['area'] ?? 0 );
+            $u_area_disp  = $u_area > 0 ? number_format_i18n( $u_area, 0 ) . ' m²' : '';
+            $u_price_disp = ! empty( $u['price_formatted'] ) ? (string) $u['price_formatted'] : ( number_format_i18n( $up, 0 ) . ' €' );
+            $label_parts  = array_filter( array(
+                '' !== $u_no ? sprintf( __( 'Whg. %s', 'immo-client' ), $u_no ) : '',
+                $u_area_disp,
+                $u_price_disp,
+            ) );
+            $calc_units[] = array(
+                'id'              => (int) ( $u['id'] ?? 0 ),
+                'label'           => implode( ' · ', $label_parts ),
+                'price'           => $up,
+                'commission_free' => (bool) ( $meta['commission_free'] ?? false ),
+            );
+        }
+        usort( $calc_units, static function ( $a, $b ) { return $a['price'] <=> $b['price']; } );
+        if ( ! empty( $calc_units ) ) {
+            $calc_base_price = (float) $calc_units[0]['price'];
+            $calc_cf         = (bool)  $calc_units[0]['commission_free'];
+        }
+    }
+}
+
+$show_calc = ! empty( $calc_units ) || ( ! $has_priced_units && $prop_price > 0 );
+if ( $show_calc ) {
+    $calc_context = ! empty( $calc_units )
+        ? array(
+            'base_price'      => $calc_base_price,
+            'commission_free' => $calc_cf,
+            'units'           => $calc_units,
+        )
+        : array(
+            'base_price'      => $prop_price,
+            'commission_free' => (bool) ( $meta['commission_free'] ?? false ),
+            'units'           => array(),
+        );
     wp_enqueue_style( 'immo-client-calculator' );
     wp_enqueue_script( 'immo-client-calculator' );
     ?>
