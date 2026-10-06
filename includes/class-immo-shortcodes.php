@@ -128,7 +128,7 @@ class ImmoShortcodes {
 
         echo '<div class="immo-item-grid-wrapper">';
         if (empty($items)) {
-            echo '<p>Keine Objekte gefunden.</p>';
+            echo ($type === 'projects' && $this->api->projects_disabled()) ? ImmoAPI::projects_disabled_notice() : '<p>Keine Objekte gefunden.</p>';
         } else {
             include IMMO_CLIENT_PATH . 'templates/list-grid.php';
         }
@@ -157,7 +157,7 @@ class ImmoShortcodes {
             : $this->api->get_project_by_slug($atts['slug']);
 
         if (!$project) {
-            return 'Projekt nicht gefunden.';
+            return $this->api->projects_disabled() ? ImmoAPI::projects_disabled_notice() : 'Projekt nicht gefunden.';
         }
 
         // Bauprojekt-CSS dynamisch nachladen (außerhalb der /bauprojekt/-Route).
@@ -270,7 +270,7 @@ class ImmoShortcodes {
             : $this->api->get_project_units_by_slug($project_slug, $api_args);
 
         if (!is_array($payload) || !isset($payload['units'])) {
-            return '<p class="immo-units-error">Projekt nicht gefunden.</p>';
+            return $this->api->projects_disabled() ? ImmoAPI::projects_disabled_notice() : '<p class="immo-units-error">Projekt nicht gefunden.</p>';
         }
 
         $items     = $payload['units'];

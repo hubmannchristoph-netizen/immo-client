@@ -415,6 +415,7 @@ $immo_link_units = ( (string) get_option( 'immo_project_link_units', '1' ) ) !==
 								<?php $floor_lbl = immo_client_floor_label( $u_floor ); if ( $floor_lbl !== '–' ) : ?><li><span class="ico" aria-hidden="true">🏢</span><span class="lab">Etage</span><strong><?php echo esc_html( $floor_lbl ); ?></strong></li><?php endif; ?>
 								<?php if ( $u_built ) : ?><li><span class="ico" aria-hidden="true">📅</span><span class="lab">Baujahr</span><strong><?php echo esc_html( $u_built ); ?></strong></li><?php endif; ?>
 								<?php if ( $u_energy ) : ?><li><span class="ico" aria-hidden="true">⚡</span><span class="lab">Energieklasse</span><strong><?php echo esc_html( $u_energy ); ?></strong></li><?php endif; ?>
+								<?php $u_energy_bits = immo_client_energy_bits( $fp_meta ); if ( $u_energy_bits ) : ?><li><span class="ico" aria-hidden="true">📊</span><span class="lab">Energieausweis</span><strong><?php echo esc_html( $u_energy_bits ); ?></strong></li><?php endif; ?>
 							</ul>
 							<?php if ( $u_price ) : ?>
 								<div class="immo-unit-quick-price">

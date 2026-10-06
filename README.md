@@ -19,6 +19,8 @@ WordPress-Plugin, das Immobilien und Bauprojekte aus einer entfernten **ImmoMana
 - **Honeypot-Spam-Schutz** beim Bauprojekt-Formular.
 - **Transient-Cache** für API-Antworten mit konfigurierbarer Dauer.
 - **„Provisionsfrei"-Badge** — gelber Patch auf Hero-Bildern und Listing-Cards bei Kauf-Immobilien mit `meta.commission_free=true` (Helper `immo_client_render_cf_badge()`). Beschriftung kommt aus `meta.commission_free_label` (vom Manager konfigurierbar).
+- **Energieausweis-Pflichtangaben (EAVG § 3, seit 1.7.2026)** — Energieeffizienzklasse, Heizwärmebedarf (HWB) und Endenergiebedarf (EEB) auf Listing-Cards, Detailseite, Wohneinheiten-Karten und -Lightbox; fGEE nur bei Altausweisen ohne EEB. Helper `immo_client_energy_bits()` / `immo_client_energy_rows()`. Benötigt ImmoManager ≥ 1.4.0 für `meta.energy_eeb` / `meta.energy_fgee` (ältere Manager liefern nur Klasse + HWB).
+- **Bauprojekte-Paket des Managers** — ist das Paket im Manager deaktiviert (REST `/projects*` → 404 `immo_projects_disabled`), zeigen `[immo_project]`, `[immo_units]` und `[immo_list type="projects"]` den Hinweis „Bauprojekte sind derzeit nicht verfügbar." statt „nicht gefunden".
 
 ---
 
@@ -254,6 +256,16 @@ Templates im aktiven Theme überschreiben:
 - `wp-content/themes/<theme>/immo-client/single-project.php`
 
 ---
+
+## Changelog
+
+### 1.1.0
+- Energieausweis laut EAVG-Novelle (1.7.2026): EEB und fGEE (Altausweis) auf Listing-Cards, Detailseite, Wohneinheiten-Karten und Lightbox; HWB/EEB kompakt auch in Listen
+- Verständlicher Hinweis, wenn das Bauprojekte-Paket im Manager deaktiviert ist (`ImmoAPI::projects_disabled()`, `last_error_code()`)
+- Kompatibel zu ImmoManager 1.4.0 (abwärtskompatibel zu 1.3.x)
+
+### 1.0.0
+- Erste Version
 
 ## Lizenz
 

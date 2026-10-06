@@ -135,10 +135,10 @@ $detail_rows_flaeche = array_filter(array(
     $land_area   ? array('Grundstück',     number_format_i18n($land_area, 0) . ' m²')   : null,
 ));
 
-$detail_rows_energie = array_filter(array(
-    $en_class ? array('Energieklasse', $en_class) : null,
-    $en_hwb   ? array('HWB', number_format_i18n($en_hwb, 1) . ' kWh/m²a') : null,
-    $heating  ? array('Heizung', $heating) : null,
+// Energieausweis (EAVG § 3, seit 1.7.2026): Klasse, HWB, EEB – fGEE nur bei Altausweis.
+$detail_rows_energie = array_filter(array_merge(
+    immo_client_energy_rows($meta),
+    array($heating ? array('Heizung', $heating) : null)
 ));
 
 $detail_rows_kosten = array_filter(array(

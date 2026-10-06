@@ -18,6 +18,9 @@ class ImmoAPI {
     private $api_key;       // wird bei jeder Anfrage mitgesendet
     private $cache_duration;
 
+    /** @var string Fehlercode der letzten GET-Anfrage ('' = ok), z. B. 'immo_projects_disabled'. */
+    private $last_error = '';
+
     public function __construct() {
         $raw_url   = (string) get_option('immo_api_url', '');
         $raw_url   = trim($raw_url);
@@ -45,7 +48,9 @@ class ImmoAPI {
      * Interner HTTP-GET mit Transient-Cache.
      */
     public function get($endpoint, $params = array()) {
+        $this->last_error = '';
         if ($this->api_base === '') {
+            $this->last_error = 'no_api_url';
             return null;
         }
 
@@ -66,11 +71,16 @@ class ImmoAPI {
         ));
 
         if (is_wp_error($response)) {
+            $this->last_error = 'http_error';
             return null;
         }
 
         $status = wp_remote_retrieve_response_code($response);
         if ($status >= 400) {
+            // Fehlercode des Managers merken (z. B. immo_projects_disabled, wenn das
+            // Bauprojekte-Paket dort deaktiviert ist) – fuer verstaendliche Hinweise.
+            $err = json_decode(wp_remote_retrieve_body($response), true);
+            $this->last_error = is_array($err) && !empty($err['code']) ? (string) $err['code'] : 'http_' . (int) $status;
             return null;
         }
 
@@ -79,6 +89,27 @@ class ImmoAPI {
             set_transient($cache_key, $data, $this->cache_duration);
         }
         return is_array($data) ? $data : null;
+    }
+
+    /**
+     * Fehlercode der letzten GET-Anfrage ('' wenn erfolgreich).
+     */
+    public function last_error_code() {
+        return $this->last_error;
+    }
+
+    /**
+     * Hat der Manager das Bauprojekte-Paket deaktiviert? (Antwort der letzten Anfrage)
+     */
+    public function projects_disabled() {
+        return $this->last_error === 'immo_projects_disabled';
+    }
+
+    /**
+     * Hinweistext, wenn Bauprojekte beim Manager deaktiviert sind.
+     */
+    public static function projects_disabled_notice() {
+        return '<p class="immo-notice immo-projects-disabled">' . esc_html__( 'Bauprojekte sind derzeit nicht verfügbar.', 'immo-client' ) . '</p>';
     }
 
     /**

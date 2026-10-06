@@ -59,6 +59,17 @@ if (!defined('ABSPATH')) {
                         <?php if ($area > 0 && $rooms > 0) echo ' | '; ?>
                         <?php if ($rooms > 0) echo esc_html($rooms) . ' Zimmer'; ?>
                     </div>
+                    <?php
+                    // Energieausweis-Pflichtangaben (EAVG § 3, seit 1.7.2026) auch auf der Card.
+                    $energy_class = isset($meta['energy_class']) ? (string) $meta['energy_class'] : '';
+                    $energy_bits  = immo_client_energy_bits($meta);
+                    if ($energy_class || $energy_bits) : ?>
+                        <div class="meta immo-card-energy" style="font-size: 0.85em; color: #666; margin: -8px 0 15px;" title="Energieausweis (kWh/m²a)">
+                            <?php if ($energy_class) echo '⚡ ' . esc_html($energy_class); ?>
+                            <?php if ($energy_class && $energy_bits) echo ' · '; ?>
+                            <?php echo esc_html($energy_bits); ?>
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
 
                 <a href="<?php echo esc_url($detail_url); ?>" class="button" style="display: inline-block; padding: 8px 16px; background: var(--immo-primary, #0073aa); color: #fff; text-decoration: none; border-radius: 4px;">

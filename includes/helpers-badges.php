@@ -72,3 +72,63 @@ if ( ! function_exists( 'immo_client_render_cf_badge' ) ) {
 		);
 	}
 }
+
+if ( ! function_exists( 'immo_client_energy_bits' ) ) {
+	/**
+	 * Kompakte Energieausweis-Angabe für Listing-Cards: "HWB 68 · EEB 118".
+	 *
+	 * EAVG § 3 (Novelle 1.7.2026): Heizwärmebedarf (HWB) und Endenergiebedarf (EEB)
+	 * gehören in jedes Inserat. fGEE nur noch als Übergangsregel bei Altausweisen
+	 * (wenn kein EEB vorliegt). Werte kommen vom ImmoManager ab Version 1.4.0
+	 * (meta.energy_hwb, meta.energy_eeb, meta.energy_fgee); ältere Manager liefern
+	 * kein EEB – dann erscheint nur HWB.
+	 *
+	 * @param array $meta REST-meta-Array einer Immobilie.
+	 *
+	 * @return string Leer, wenn keine Werte vorhanden.
+	 */
+	function immo_client_energy_bits( $meta ) {
+		$bits = array();
+		$hwb  = isset( $meta['energy_hwb'] ) ? (float) $meta['energy_hwb'] : 0;
+		$eeb  = isset( $meta['energy_eeb'] ) ? (float) $meta['energy_eeb'] : 0;
+		$fgee = isset( $meta['energy_fgee'] ) ? (float) $meta['energy_fgee'] : 0;
+		if ( $hwb > 0 ) {
+			$bits[] = 'HWB ' . number_format_i18n( $hwb, 0 );
+		}
+		if ( $eeb > 0 ) {
+			$bits[] = 'EEB ' . number_format_i18n( $eeb, 0 );
+		} elseif ( $fgee > 0 ) {
+			$bits[] = 'fGEE ' . number_format_i18n( $fgee, 2 );
+		}
+		return implode( ' · ', $bits );
+	}
+}
+
+if ( ! function_exists( 'immo_client_energy_rows' ) ) {
+	/**
+	 * Energieausweis-Zeilen (Label, Wert) für Detailansichten.
+	 *
+	 * @param array $meta REST-meta-Array einer Immobilie.
+	 *
+	 * @return array<int, array{0: string, 1: string}>
+	 */
+	function immo_client_energy_rows( $meta ) {
+		$rows  = array();
+		$class = isset( $meta['energy_class'] ) ? (string) $meta['energy_class'] : '';
+		$hwb   = isset( $meta['energy_hwb'] ) ? (float) $meta['energy_hwb'] : 0;
+		$eeb   = isset( $meta['energy_eeb'] ) ? (float) $meta['energy_eeb'] : 0;
+		$fgee  = isset( $meta['energy_fgee'] ) ? (float) $meta['energy_fgee'] : 0;
+		if ( $class !== '' ) {
+			$rows[] = array( __( 'Energieeffizienzklasse', 'immo-client' ), $class );
+		}
+		if ( $hwb > 0 ) {
+			$rows[] = array( __( 'Heizwärmebedarf (HWB)', 'immo-client' ), number_format_i18n( $hwb, 1 ) . ' kWh/m²a' );
+		}
+		if ( $eeb > 0 ) {
+			$rows[] = array( __( 'Endenergiebedarf (EEB)', 'immo-client' ), number_format_i18n( $eeb, 1 ) . ' kWh/m²a' );
+		} elseif ( $fgee > 0 ) {
+			$rows[] = array( __( 'fGEE (Altausweis)', 'immo-client' ), number_format_i18n( $fgee, 2 ) );
+		}
+		return $rows;
+	}
+}
