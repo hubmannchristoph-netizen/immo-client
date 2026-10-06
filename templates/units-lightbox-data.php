@@ -110,6 +110,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php if ( $u_energy ) : ?>
 						<li><span class="ico" aria-hidden="true">⚡</span><span class="lab">Energieklasse</span><strong><?php echo esc_html( $u_energy ); ?></strong></li>
 					<?php endif; ?>
+					<?php $u_energy_bits = immo_client_energy_bits( $fp_meta ); if ( $u_energy_bits ) : ?>
+						<li><span class="ico" aria-hidden="true">📊</span><span class="lab">Energieausweis</span><strong><?php echo esc_html( $u_energy_bits ); ?></strong></li>
+					<?php endif; ?>
 				</ul>
 
 				<?php if ( $u_price ) : ?>
