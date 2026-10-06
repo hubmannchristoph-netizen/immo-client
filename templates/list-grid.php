@@ -18,8 +18,17 @@ if (!defined('ABSPATH')) {
         // Property vs. Project erkennen: Properties haben z. B. meta.property_type.
         $is_project = isset($meta['project_status']) && !isset($meta['property_type']);
 
-        $price_display = isset($meta['price_formatted']) && $meta['price_formatted'] ? $meta['price_formatted'] : '';
-        $rent_display  = isset($meta['rent_formatted'])  && $meta['rent_formatted']  ? $meta['rent_formatted']  : '';
+        // Preisregel des Managers: bei zugeordneten Wohneinheiten nur "ab <guenstigste Einheit>",
+        // nie den Property-Gesamtpreis (identisch zu templates/parts/property-card.php im Manager).
+        $unit_stats = isset($item['unit_stats']) && is_array($item['unit_stats']) ? $item['unit_stats'] : array();
+        $has_units  = !empty($meta['has_units']) || (int) ($unit_stats['total'] ?? 0) > 0;
+        if ($has_units) {
+            $price_display = !empty($unit_stats['min_price_formatted']) ? 'ab ' . $unit_stats['min_price_formatted'] : '';
+            $rent_display  = (!$price_display && !empty($unit_stats['min_rent_formatted'])) ? 'ab ' . $unit_stats['min_rent_formatted'] . ' / Monat' : '';
+        } else {
+            $price_display = isset($meta['price_formatted']) && $meta['price_formatted'] ? $meta['price_formatted'] : '';
+            $rent_display  = isset($meta['rent_formatted'])  && $meta['rent_formatted']  ? $meta['rent_formatted']  : '';
+        }
 
         $area  = isset($meta['area'])  ? (float) $meta['area']  : 0;
         $rooms = isset($meta['rooms']) ? (int)   $meta['rooms'] : 0;

@@ -259,6 +259,9 @@ Templates im aktiven Theme überschreiben:
 
 ## Changelog
 
+### 1.1.1
+- Fix: Immobilien mit zugeordneten Wohneinheiten zeigten den Property-Gesamtpreis, obwohl der Manager „Preis siehe Preisliste" ausgibt. Detailseite zeigt jetzt „siehe Preisliste", Listing-Cards „ab <günstigste Einheit>" bzw. keinen Preis – identisch zum Manager (nutzt `meta.has_units`/`unit_stats`, funktioniert auch gegen Manager 1.3.x).
+
 ### 1.1.0
 - Energieausweis laut EAVG-Novelle (1.7.2026): EEB und fGEE (Altausweis) auf Listing-Cards, Detailseite, Wohneinheiten-Karten und Lightbox; HWB/EEB kompakt auch in Listen
 - Verständlicher Hinweis, wenn das Bauprojekte-Paket im Manager deaktiviert ist (`ImmoAPI::projects_disabled()`, `last_error_code()`)

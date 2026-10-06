@@ -61,8 +61,13 @@ $mode_labels = array('sale' => 'Kaufpreis', 'rent' => 'Miete', 'both' => 'Kauf /
 $mode        = isset($meta['mode']) ? $meta['mode'] : '';
 $mode_label  = isset($mode_labels[$mode]) ? $mode_labels[$mode] : '';
 
-$price_display = !empty($meta['price_formatted']) ? $meta['price_formatted'] : '';
-$rent_display  = !empty($meta['rent_formatted'])  ? $meta['rent_formatted']  : '';
+// Preisregel des Managers: Sind der Immobilie Wohneinheiten zugeordnet, wird nie der
+// Property-Gesamtpreis gezeigt, sondern "Preis siehe Preisliste" (Manager >= 1.4.0 liefert
+// price_formatted dann ohnehin als null; unit_stats.total deckt aeltere Manager ab).
+$unit_stats    = isset($property['unit_stats']) && is_array($property['unit_stats']) ? $property['unit_stats'] : array();
+$has_units     = !empty($meta['has_units']) || (int) ($unit_stats['total'] ?? 0) > 0;
+$price_display = (!$has_units && !empty($meta['price_formatted'])) ? $meta['price_formatted'] : '';
+$rent_display  = (!$has_units && !empty($meta['rent_formatted']))  ? $meta['rent_formatted']  : '';
 
 $area        = (float) ($meta['area']        ?? 0);
 $usable_area = (float) ($meta['usable_area'] ?? 0);
@@ -151,6 +156,10 @@ $detail_rows_kosten = array_filter(array(
 ));
 
 $primary_amount = $price_display ?: $rent_display;
+if ($has_units) {
+    $primary_amount = __('siehe Preisliste', 'immo-client');
+    $mode_label     = __('Preis', 'immo-client');
+}
 
 $layout_class = 'immo-layout-' . sanitize_key($immo_layout);
 $style_attr   = $immo_max_width ? ' style="max-width:' . esc_attr($immo_max_width) . 'px;"' : '';
