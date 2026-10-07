@@ -83,6 +83,11 @@ $en_class    = (string)($meta['energy_class'] ?? '');
 $en_hwb      = (float) ($meta['energy_hwb']   ?? 0);
 $heating     = (string)($meta['heating']      ?? '');
 $op_costs    = (float) ($meta['operating_costs'] ?? 0);
+// Betriebsnebenkosten (brutto inkl. USt, pro Monat) – Manager >= 1.5.0; Summe notfalls selbst bilden.
+$heat_costs  = (float) ($meta['heating_costs'] ?? 0);
+$other_costs = (float) ($meta['other_costs']   ?? 0);
+$costs_total = isset($meta['ancillary_costs_total']) ? (float) $meta['ancillary_costs_total'] : round($op_costs + $heat_costs + $other_costs, 2);
+$costs_parts = (int) ($op_costs > 0) + (int) ($heat_costs > 0) + (int) ($other_costs > 0);
 $deposit     = (float) ($meta['deposit']      ?? 0);
 $commission  = (string)($meta['commission']   ?? '');
 $comm_free   = !empty($meta['commission_free']);
@@ -149,7 +154,10 @@ $detail_rows_energie = array_filter(array_merge(
 $detail_rows_kosten = array_filter(array(
     $price_display ? array('Kaufpreis', $price_display) : null,
     $rent_display  ? array('Miete',     $rent_display)  : null,
-    $op_costs ? array('Betriebskosten', number_format_i18n($op_costs, 2) . ' €') : null,
+    $op_costs    ? array('Betriebskosten / Monat (brutto)',   number_format_i18n($op_costs, 2) . ' €')    : null,
+    $heat_costs  ? array('Heizkosten / Monat (brutto)',       number_format_i18n($heat_costs, 2) . ' €')  : null,
+    $other_costs ? array('Sonstige Kosten / Monat (brutto)',  number_format_i18n($other_costs, 2) . ' €') : null,
+    ($costs_parts > 1 && $costs_total > 0) ? array('Nebenkosten gesamt / Monat (brutto)', number_format_i18n($costs_total, 2) . ' €') : null,
     $deposit  ? array('Kaution',         number_format_i18n($deposit, 2) . ' €') : null,
     // Bei provisionsfreien Objekten erscheint stattdessen das Badge auf dem Bild.
     $comm_free ? null : ($commission ? array('Provision', $commission) : null),

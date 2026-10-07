@@ -20,6 +20,7 @@ WordPress-Plugin, das Immobilien und Bauprojekte aus einer entfernten **ImmoMana
 - **Transient-Cache** für API-Antworten mit konfigurierbarer Dauer.
 - **„Provisionsfrei"-Badge** — gelber Patch auf Hero-Bildern und Listing-Cards bei Kauf-Immobilien mit `meta.commission_free=true` (Helper `immo_client_render_cf_badge()`). Beschriftung kommt aus `meta.commission_free_label` (vom Manager konfigurierbar).
 - **Energieausweis-Pflichtangaben (EAVG § 3, seit 1.7.2026)** — Energieeffizienzklasse, Heizwärmebedarf (HWB) und Endenergiebedarf (EEB) auf Listing-Cards, Detailseite, Wohneinheiten-Karten und -Lightbox; fGEE nur bei Altausweisen ohne EEB. Helper `immo_client_energy_bits()` / `immo_client_energy_rows()`. Benötigt ImmoManager ≥ 1.4.0 für `meta.energy_eeb` / `meta.energy_fgee` (ältere Manager liefern nur Klasse + HWB).
+- **Betriebsnebenkosten (brutto)** — Betriebskosten, Heizkosten, sonstige Kosten und Gesamtsumme pro Monat auf der Detailseite, Werte vom Manager (≥ 1.5.0) als Brutto inkl. USt.
 - **Bauprojekte-Paket des Managers** — ist das Paket im Manager deaktiviert (REST `/projects*` → 404 `immo_projects_disabled`), zeigen `[immo_project]`, `[immo_units]` und `[immo_list type="projects"]` den Hinweis „Bauprojekte sind derzeit nicht verfügbar." statt „nicht gefunden".
 
 ---
@@ -258,6 +259,9 @@ Templates im aktiven Theme überschreiben:
 ---
 
 ## Changelog
+
+### 1.2.0
+- Betriebsnebenkosten (brutto inkl. USt, pro Monat) auf der Detailseite: Betriebskosten, Heizkosten, sonstige Kosten und Gesamtsumme – identisch zum Manager (≥ 1.5.0: `meta.heating_costs`, `meta.other_costs`, `meta.ancillary_costs_total`)
 
 ### 1.1.1
 - Fix: Immobilien mit zugeordneten Wohneinheiten zeigten den Property-Gesamtpreis, obwohl der Manager „Preis siehe Preisliste" ausgibt. Detailseite zeigt jetzt „siehe Preisliste", Listing-Cards „ab <günstigste Einheit>" bzw. keinen Preis – identisch zum Manager (nutzt `meta.has_units`/`unit_stats`, funktioniert auch gegen Manager 1.3.x).
